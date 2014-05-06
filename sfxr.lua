@@ -22,10 +22,113 @@ SOFTWARE.
 ]]--
 
 local sfxr = {}
+sfxr.__index = sfxr
 
 local function new()
-    return setmetatable({}, vector)
+    local obj = setmetatable({}, sfxr)
+    obj:__init()
+    return obj
 end
 
+-- Constants
+
+sfxr.SQUARE = 0
+sfxr.SAWTOOTH = 1
+sfxr.SINE = 2
+sfxr.NOISE = 3
+
+-- Utilities
+
+local function trunc(n)
+    return math.floor(n - 0.5)
+end
+
+local function random(low, high)
+    return low + math.random() * (high - low)
+end
+
+local function maybe(n)
+    return trunc(random(0, n or 1)) == 0
+end
+
+-- Class functions
+
+function sfxr:__init()
+    -- Build tables to store the parameters in
+    self.volume = {}
+    self.envelope = {}
+    self.frequency = {}
+    self.vibrato = {}
+    self.change = {}
+    self.duty = {}
+    self.phaser = {}
+    self.lowpass = {}
+    self.highpass = {}
+
+    -- Phaser and noise buffers
+    self.phaserBuffer = {}
+    self.noiseBuffer = {}
+
+    self:resetParameters()
+    self:resetBuffers()
+end
+
+function sfxr:resetParameters()
+    -- Set all parameters to the default values
+    self.repeatSpeed = 0.0
+    self.waveType = sfxr.SQUARE
+    self.superSamples = 8
+
+    self.volume.master = 0.5
+    self.volume.sound = 0.5
+
+    self.envelope.attack = 0.0
+    self.envelope.sustain = 0.3
+    self.envelope.punch = 0.0
+    self.envelope.decay = 0.4
+
+    self.frequency.start = 0.3
+    self.frequency.min = 0.0
+    self.frequency.slide = 0.0
+    self.frequency.deltaSlide = 0.0
+
+    self.vibrato.depth = 0.0
+    self.vibrato.speed = 0.0
+    self.vibrato.delay = 0.0
+
+    self.change.amount = 0.0
+    self.change.speed = 0.0
+    
+    self.duty.ratio = 0.5
+    self.duty.sweep = 0.0
+
+    self.phaser.offset = 0.0
+    self.phaser.sweep = 0.0
+
+    self.lowpass.cutoff = 1.0
+    self.lowpass.sweep = 0.0
+    self.lowpass.resonance = 0.0
+    self.highpass.cutoff = 0.0
+    self.highpass.sweep = 0.0
+end
+
+function sfxr:resetBuffers()
+    -- Fill the sample buffers with zeroes
+    for i=1, 1025 do
+        self.phaserBuffer[i] = 0
+    end
+
+    for i=1, 33 do
+        self.noiseBuffer[i] = 0
+    end
+end
+
+
+sfxr:__init()
+
 return setmetatable({new = new},
-{__call = function(_, ...) return new(...) end})
+    {
+        __call = function(_, ...)
+            return new(...)
+        end
+    })

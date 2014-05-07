@@ -15,7 +15,7 @@ With Löve2D 0.9:
 local sfxr = require("sfxr")
 
 function love.load()
-    local sound = sfxr.new()
+    local sound = sfxr.newSound()
     sound:randomize()
     love.audio.newSource(sound:generateSoundData()):play()
 end
@@ -29,7 +29,7 @@ local sfxr = require("sfxr")
 local driverId = ao.defaultDriverId()
 local device = ao.openLive(driverId, {bits = 16, rate = 44100, channels = 1})
 
-local sound = sfxr.new()
+local sound = sfxr.newSound()
 sound:randomize()
 
 local buffer = sound:generateString()

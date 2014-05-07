@@ -22,13 +22,6 @@ SOFTWARE.
 ]]--
 
 local sfxr = {}
-sfxr.__index = sfxr
-
-local function new()
-    local obj = setmetatable({}, sfxr)
-    obj:__init()
-    return obj
-end
 
 -- Constants
 
@@ -63,9 +56,12 @@ local function cpypol(a, b)
     end
 end
 
--- Class functions
+-- The main Sound class
 
-function sfxr:__init()
+sfxr.Sound = {}
+sfxr.Sound.__index = sfxr.Sound
+
+function sfxr.Sound:__init()
     -- Build tables to store the parameters in
     self.volume = {}
     self.envelope = {}
@@ -193,12 +189,12 @@ function sfxr:generate()
     end
 end
 
+-- Constructor
 
-sfxr:__init()
+function sfxr.newSound(...)
+    local instance = setmetatable({}, sfxr.Sound)
+    instance:__init(...)
+    return instance
+end
 
-return setmetatable({new = new},
-    {
-        __call = function(_, ...)
-            return new(...)
-        end
-    })
+return sfxr

@@ -51,6 +51,18 @@ local function maybe(n)
     return trunc(random(0, n or 1)) == 0
 end
 
+local function clamp(n, min, max)
+    return math.max(min or -math.inf, math.min(max or math.inf, n))
+end
+
+local function cpypol(a, b)
+    if b < 0 then
+        return -a
+    else
+        return a
+    end
+end
+
 -- Class functions
 
 function sfxr:__init()
@@ -113,13 +125,71 @@ function sfxr:resetParameters()
 end
 
 function sfxr:resetBuffers()
-    -- Fill the sample buffers with zeroes
+    -- Reset the sample buffers
     for i=1, 1025 do
         self.phaserBuffer[i] = 0
     end
 
     for i=1, 33 do
-        self.noiseBuffer[i] = 0
+        self.noiseBuffer[i] = sfxr.random(-1, 1)
+    end
+end
+
+function sfxr:generate()
+    -- Basically the main synthesizing function, yields the sample data
+
+    -- Initialize ALL the locals!
+    local phase = 0
+
+    local fperiod = 100 / ((self.frequency.start - 0.025)^2 + 0.001)
+    local maxperiod = 100 / (self.frequency.min^2 + 0.001)
+    local period = trunc(fperiod)
+    
+    local slide = 1.0 - self.frequency.slide^3 * 0.01
+    local dslide = -self.frequency.deltaSlide^3 * 0.000001
+
+    local square_duty = 0.5 - self.duty.ratio * 0.5
+    local square_slide = -self.duty.sweep * 0.00005
+
+    local env_vol = 0
+    local env_stage = 0
+    local env_time = 0
+    local env_length = {self.envelope.attack^2 * 100000,
+        self.envelope.sustain^2 * 100000,
+        self.envelope.decay^2 * 100000}
+
+    local phase = self.phaser.offset^2 * 1020
+    phase = cpypol(phase, self.phaser.offset)
+    local dphase = self.phaser.sweep^2
+    dphase = cpypol(dphase, self.phaser.sweep)
+
+    local iphase = math.abs(trunc(fphase))
+
+    local ltp = 0
+    local ltdp = 0
+    local ltw = self.lowpass.cutoff^3 * 0.1
+    local ltw_d = 1 + self.lowpass.ramp * 0.0001
+    local ltdmp = 5 / (1 + self.lowpass.resonance^2 * 20) * (0.01 + fltw)
+    ltdmp = clamp(ltdmp, nil, 0.8)
+    local ltphp = 0
+    local lthp = self.highpass.cutoff^2 * 0.1
+    local lthp_d = 1 + self.highpass.sweep * 0.0003
+
+    local vib_phase = 0
+    local vib_speed = self.vibrato.speed^2 * 0.01
+    local vib_amp = self.vibrato.depth * 0.5
+
+    local chg_time = 0
+    if self.change.speed == 1 then
+        local chg_limit = 0
+    else
+        local chg_limit = (1 - self.change.speed)^2 * 20000 + 32
+    end
+
+    if self.change.amount >= 0 then
+        local chg_mod = 1.0 - self.change.amount^2 * 0.9
+    else
+        local chg_mod = 1.0 - self.change.amount^2 * 10
     end
 end
 

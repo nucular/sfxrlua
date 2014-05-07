@@ -452,6 +452,45 @@ function sfxr.Sound:randomize(seed)
     self.change.amount = random(-1, 1)
 end
 
+function sfxr.Sound:mutate(amount, changeFreq)
+    local amount = (amount or 1)
+    local a = amount / 20
+    local b = (1 - a) * 10
+    local changeFreq = changeFreq or true
+
+    if changeFreq == true then
+        if maybe(b) then self.frequency.start = self.frequency.start + random(-a, a) end
+        if maybe(b) then self.frequency.slide = self.frequency.slide + random(-a, a) end
+        if maybe(b) then self.frequency.deltaSlide = self.frequency.deltaSlide + random(-a, a) end
+    end
+
+    if maybe(b) then self.duty.ratio = self.duty.ratio + random(-a, a) end
+    if maybe(b) then self.duty.sweep = self.duty.sweep + random(-a, a) end
+
+    if maybe(b) then self.vibrato.depth = self.vibrato.depth + random(-a, a) end
+    if maybe(b) then self.vibrato.speed = self.vibrato.speed + random(-a, a) end
+    if maybe(b) then self.vibrato.delay = self.vibrato.delay + random(-a, a) end
+
+    if maybe(b) then self.envelope.attack = self.envelope.attack + random(-a, a) end
+    if maybe(b) then self.envelope.sustain = self.envelope.sustain + random(-a, a) end
+    if maybe(b) then self.envelope.punch = self.envelope.punch + random(-a, a) end
+    if maybe(b) then self.envelope.decay = self.envelope.decay + random(-a, a) end
+
+    if maybe(b) then self.lowpass.resonance = self.lowpass.resonance + random(-a, a) end
+    if maybe(b) then self.lowpass.cutoff = self.lowpass.cutoff + random(-a, a) end
+    if maybe(b) then self.lowpass.sweep = self.lowpass.sweep + random(-a, a) end
+    if maybe(b) then self.highpass.cutoff = self.highpass.cutoff + random(-a, a) end
+    if maybe(b) then self.highpass.sweep = self.highpass.sweep + random(-a, a) end
+
+    if maybe(b) then self.phaser.offset = self.phaser.offset + random(-a, a) end
+    if maybe(b) then self.phaser.sweep = self.phaser.sweep + random(-a, a) end
+
+    if maybe(b) then self.change.speed = self.change.speed + random(-a, a) end
+    if maybe(b) then self.change.amount = self.change.amount + random(-a, a) end
+
+    if maybe(b) then self.repeatSpeed = self.repeatSpeed + random(-a, a) end
+end
+
 -- Constructor
 
 function sfxr.newSound(...)

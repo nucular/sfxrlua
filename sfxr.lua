@@ -390,12 +390,12 @@ function sfxr.Sound:generateTable()
 end
 
 function sfxr.Sound:generateSoundData(freq, bits)
-    local tab = self:generateTable()
+    local data = love.sound.newSoundData(self:getLimit() + 1, freq, bits, 1)
 
-    local data = love.sound.newSoundData(#tab, freq, bits, 1)
-
-    for i = 0, #tab - 1 do
-        data:setSample(i, tab[i + 1])
+    local i = 0
+    for v in self:generate() do
+        data:setSample(i, v)
+        i = i + 1
     end
 
     return data

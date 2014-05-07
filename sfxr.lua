@@ -340,6 +340,46 @@ function sfxr.Sound:generate()
     end
 end
 
+function sfxr.Sound:getEnvelopeLimit()
+    local env_length = {self.envelope.attack^2 * 100000,
+        self.envelope.sustain^2 * 100000,
+        self.envelope.decay^2 * 100000}
+
+    return env_length[1] + env_length[2] + env_length[3] + 2
+end
+
+function sfxr.Sound:getLimit()
+    return self:getEnvelopeLimit()
+end
+
+function sfxr.Sound:generateTable()
+    local t = {}
+    t[self:getLimit()] = 0
+
+    local i = 1
+    for v in self:generate() do
+        if not v then
+            break
+        end
+        t[i] = v
+        i = i + 1
+    end
+
+    return t
+end
+
+function sfxr.Sound:generateSoundData(freq, bits)
+    local tab = self:generateTable()
+
+    local data = love.sound.newSoundData(#tab, freq, bits, 1)
+
+    for i = 0, #tab - 1 do
+        data:setSample(i, tab[i + 1])
+    end
+
+    return data
+end
+
 -- Constructor
 
 function sfxr.newSound(...)

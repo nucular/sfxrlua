@@ -56,6 +56,14 @@ local function cpypol(a, b)
     end
 end
 
+-- Constructor
+
+function sfxr.newSound(...)
+    local instance = setmetatable({}, sfxr.Sound)
+    instance:__init(...)
+    return instance
+end
+
 -- The main Sound class
 
 sfxr.Sound = {}
@@ -107,7 +115,7 @@ function sfxr.Sound:resetParameters()
     self.change.amount = 0.0
     self.change.speed = 0.0
     
-    self.duty.ratio = 0.5
+    self.duty.ratio = 0.0
     self.duty.sweep = 0.0
 
     self.phaser.offset = 0.0
@@ -185,15 +193,15 @@ function sfxr.Sound:generate()
 
     local iphase = math.abs(trunc(phase))
 
-    local ltp = 0
-    local ltdp = 0
-    local ltw = self.lowpass.cutoff^3 * 0.1
-    local ltw_d = 1 + self.lowpass.sweep * 0.0001
-    local ltdmp = 5 / (1 + self.lowpass.resonance^2 * 20) * (0.01 + ltw)
-    ltdmp = clamp(ltdmp, nil, 0.8)
-    local ltphp = 0
-    local lthp = self.highpass.cutoff^2 * 0.1
-    local lthp_d = 1 + self.highpass.sweep * 0.0003
+    local fltp = 0
+    local fltdp = 0
+    local fltw = self.lowpass.cutoff^3 * 0.1
+    local fltw_d = 1 + self.lowpass.sweep * 0.0001
+    local fltdmp = 5 / (1 + self.lowpass.resonance^2 * 20) * (0.01 + fltw)
+    fltdmp = clamp(fltdmp, nil, 0.8)
+    local fltphp = 0
+    local flthp = self.highpass.cutoff^2 * 0.1
+    local flthp_d = 1 + self.highpass.sweep * 0.0003
 
     local vib_phase = 0
     local vib_speed = self.vibrato.speed^2 * 0.01
@@ -211,8 +219,8 @@ function sfxr.Sound:generate()
         -- Repeat maybe
         rep_time = rep_time + 1
         if rep_limit ~= 0 and rep_time >= rep_limit then
-            reset()
             rep_time = 0
+            reset()
         end
 
         -- Update the change time and apply it if needed
@@ -271,13 +279,12 @@ function sfxr.Sound:generate()
         -- Phaser
 
         phase = phase + dphase
-        iphase = math.abs(trunc(phase))
-        if iphase > 1024 then iphase = 1024 end
+        iphase = clamp(math.abs(trunc(phase)), nil, 1023)
 
-        -- Lowpass stuff
+        -- Filter stuff
 
-        if lthp_d ~= 0 then
-            lthp = clamp(lthp * lthp_d, 0.00001, 0.1)
+        if flthp_d ~= 0 then
+            flthp = clamp(flthp * flthp_d, 0.00001, 0.1)
         end
 
         -- And finally the actual tone generation and supersampling
@@ -293,7 +300,7 @@ function sfxr.Sound:generate()
                 --phase = 0
                 phase = phase % period
                 if self.waveType == sfxr.NOISE then
-                    for i = 1, 32 do
+                    for i = 1, 33 do
                         self.noiseBuffer[i] = random(-1, 1)
                     end
                 end
@@ -301,6 +308,7 @@ function sfxr.Sound:generate()
 
             -- Tone oscillators ahead!!!
 
+            -- update the base waveform
             local fp = phase / period
 
             if self.waveType == sfxr.SQUARE then
@@ -317,27 +325,27 @@ function sfxr.Sound:generate()
                 sample = math.sin(fp * 2 * math.pi)
 
             elseif self.waveType == sfxr.NOISE then
-                sample = self.noiseBuffer[math.floor(phase * 32 / period) + 2]
+                sample = self.noiseBuffer[trunc(phase * 32 / period) % 32 + 1]
             end
 
             -- Apply the lowpass filter to the sample
 
-            local pp = ltp
-            ltw = clamp(ltw * ltw_d, 0, 0.1)
+            local pp = fltp
+            fltw = clamp(fltw * fltw_d, 0, 0.1)
             if self.lowpass.cutoff ~= 1 then
-                ltdp = ltdp + (sample - ltp) * ltw
-                ltdp = ltdp - ltdp * ltdmp
+                fltdp = fltdp + (sample - fltp) * fltw
+                fltdp = fltdp - fltdp * fltdmp
             else
-                ltp = sample
-                ltdp = 0
+                fltp = sample
+                fltdp = 0
             end
-            ltp = ltp + ltdp
+            fltp = fltp + fltdp
 
             -- Apply the highpass filter to the sample
 
-            ltphp = ltphp + ltp - pp
-            ltphp = ltphp - ltphp * lthp
-            sample = ltphp
+            fltphp = fltphp + fltp - pp
+            fltphp = fltphp - fltphp * flthp
+            sample = fltphp
 
             -- Apply the phaser to the sample
 
@@ -665,14 +673,6 @@ function sfxr.Sound:randomBlip()
     self.envelope.sustain = random(0.1, 0.2)
     self.envelope.decay = random(0, 0.2)
     self.highpass.cutoff = 0.1
-end
-
--- Constructor
-
-function sfxr.newSound(...)
-    local instance = setmetatable({}, sfxr.Sound)
-    instance:__init(...)
-    return instance
 end
 
 return sfxr

@@ -317,7 +317,7 @@ function sfxr.Sound:generate()
                 sample = math.sin(fp * 2 * math.pi)
 
             elseif self.waveType == sfxr.NOISE then
-                sample = self.noiseBuffer[math.floor(phase * 32 / period) + 1]
+                sample = self.noiseBuffer[math.floor(phase * 32 / period) + 2]
             end
 
             -- Apply the lowpass filter to the sample
@@ -489,6 +489,182 @@ function sfxr.Sound:mutate(amount, changeFreq)
     if maybe(b) then self.change.amount = self.change.amount + random(-a, a) end
 
     if maybe(b) then self.repeatSpeed = self.repeatSpeed + random(-a, a) end
+end
+
+function sfxr.Sound:randomPickup()
+    self:resetParameters()
+    self.frequency.start = random(0.4, 0.5)
+    self.envelope.attack = 0
+    self.envelope.sustain = random(0, 0.1)
+    self.envelope.punch = random(0.3, 0.6)
+    self.envelope.decay = random(0.1, 0.5)
+    
+    if maybe() then
+        self.change.speed = random(0.5, 0.7)
+        self.change.amount = random(0.4, 0.6)
+    end
+end
+
+function sfxr.Sound:randomLaser()
+    self:resetParameters()
+    self.waveType = trunc(random(0, 2))
+    if self.waveType == sfxr.SINE and maybe() then
+        self.waveType = trunc(random(0, 1))
+    end
+
+    if maybe(2) then
+        self.frequency.start = random(0.3, 0.9)
+        self.frequency.min = random(0, 0.1)
+        self.frequency.slide = -0.35 - random(0, 0.3)
+    else
+        self.frequency.start = random(0.5, 1)
+        self.frequency.min = clamp(self.frequency.start - 0.5 - random(0, 0.6), 0.2)
+        self.frequency.slide = -0.15 - random(0, 0.2)
+    end
+
+    if maybe() then
+        self.duty.ratio = random(0, 0.5)
+        self.duty.sweep = random(0, 0.2)
+    else
+        self.duty.ratio = random(0.4, 0.9)
+        self.duty.sweep = -random(0, 0.7)
+    end
+
+    self.envelope.attack = 0
+    self.envelope.sustain = random(0.1, 0.3)
+    self.envelope.decay = random(0, 0.4)
+
+    if maybe() then
+        self.envelope.punch = random(0, 0.3)
+    end
+
+    if maybe(2) then
+        self.phaser.offset = random(0, 0.2)
+        self.phaser.sweep = -random(0, 0.2)
+    end
+
+    if maybe() then
+        self.highpass.cutoff = random(0, 0.3)
+    end
+end
+
+function sfxr.Sound:randomExplosion()
+    self:resetParameters()
+    self.waveType = sfxr.NOISE
+    
+    if maybe() then
+        self.frequency.start = random(0.1, 0.5)
+        self.frequency.slide = random(-0.1, 0.3)
+    else
+        self.frequency.start = random(0.2, 0.9)
+        self.frequency.slide = -0.2 - random(0, 0.2)
+    end
+    self.frequency.start = self.frequency.start^2
+
+    if maybe(4) then
+        self.frequency.slide = 0
+    end
+    if maybe(2) then
+        self.repeatSpeed = random(0.3, 0.8)
+    end
+
+    self.envelope.attack = 0
+    self.envelope.sustain = random(0.1, 0.4)
+    self.envelope.punch = random(0.2, 0.8)
+    self.envelope.decay = random(0, 0.5)
+
+    if maybe() then
+        self.phaser.offset = random(-0.3, 0.6)
+        self.phaser.sweep = -random(0, 0.3)
+    end
+    if maybe(2) then
+        self.change.speed = random(0.6, 0.8)
+        self.change.amount = random(0.8, 2.4)
+    elseif maybe() then
+        self.change.amount = random(0, 0.7)
+        self.change.speed = random(0, 0.6)
+    end
+end
+
+function sfxr.Sound:randomPowerup()
+    self:resetParameters()
+    if maybe() then
+        self.waveType = sfxr.SAWTOOTH
+    else
+        self.duty.ratio = random(0, 0.6)
+    end
+
+    if maybe() then
+        self.frequency.start = random(0.2, 0.5)
+        self.frequency.slide = random(0.1, 0.5)
+        self.repeatSpeed = random(0.4, 0.8)
+    else
+        self.frequency.start = random(0.2, 0.5)
+        self.frequency.slide = random(0.1, 0.5)
+        if maybe() then
+            self.change.amount = random(0, 0.7)
+            self.change.speed = random(0, 0.6)
+        end
+    end
+    self.envelope.attack = 0
+    self.envelope.sustain = random(0, 0.4)
+    self.envelope.decay = random(0.1, 0.5)
+end
+
+function sfxr.Sound:randomHit()
+    self:resetParameters()
+    self.waveType = trunc(random(0, 2))
+
+    if self.waveType == sfxr.SINE then
+        self.waveType = 3
+    elseif self.waveType == sfxr.SQUARE then
+        self.duty.ratio = random(0, 0.6)
+    end
+
+    self.frequency.start = random(0.2, 0.8)
+    self.frequency.glide = -0.3 - random(0, 0.4)
+    self.envelope.attack = 0
+    self.envelope.sustain = random(0, 0.1)
+    self.envelope.decay = random(0.1, 0.3)
+
+    if maybe() then
+        self.highpass.cutoff = random(0, 0.3)
+    end
+end
+
+function sfxr.Sound:randomJump()
+    self:resetParameters()
+    self.waveType = sfxr.SQUARE
+
+    self.duty.value = random(0, 0.6)
+    self.frequency.cutoff = random(0.3, 0.6)
+    self.frequency.slide = random(0.1, 0.3)
+
+    self.envelope.attack = 0
+    self.envelope.sustain = random(0.1, 0.4)
+    self.envelope.decay = random(0.1, 0.3)
+
+    if maybe() then
+        self.highpass.cutoff = random(0, 0.3)
+    end
+    if maybe() then
+        self.lowpass.cutoff = 1 - random(0, 0.6)
+    end
+end
+
+function sfxr.Sound:randomBlip()
+    self:resetParameters()
+    self.waveType = trunc(random(0, 1))
+
+    if self.waveType == 0 then
+        self.duty.ratio = random(0, 0.6)
+    end
+
+    self.frequency.start = random(0.2, 0.6)
+    self.envelope.attack = 0
+    self.envelope.sustain = random(0.1, 0.2)
+    self.envelope.decay = random(0, 0.2)
+    self.highpass.cutoff = 0.1
 end
 
 -- Constructor

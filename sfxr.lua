@@ -135,17 +135,40 @@ function sfxr.Sound:generate()
     -- Basically the main synthesizing function, yields the sample data
 
     -- Initialize ALL the locals!
+    local fperiod, maxperiod
+    local slide, dslide
+    local square_duty, square_slide
+    local chg_mod, chg_time, chg_limit
+
+    local function reset()
+        fperiod = 100 / ((self.frequency.start - 0.025)^2 + 0.001)
+        maxperiod = 100 / (self.frequency.min^2 + 0.001)
+        period = trunc(fperiod)
+        
+        slide = 1.0 - self.frequency.slide^3 * 0.01
+        dslide = -self.frequency.deltaSlide^3 * 0.000001
+
+        square_duty = 0.5 - self.duty.ratio * 0.5
+        square_slide = -self.duty.sweep * 0.00005
+
+        chg_mod = 0
+        if self.change.amount >= 0 then
+            chg_mod = 1.0 - self.change.amount^2 * 0.9
+        else
+            chg_mod = 1.0 - self.change.amount^2 * 10
+        end
+
+        chg_time = 0
+        chg_limit = 0
+        if self.change.speed == 1 then
+            chg_limit = 0
+        else
+            chg_limit = (1 - self.change.speed)^2 * 20000 + 32
+        end
+    end
+    reset()
+
     local phase = 0
-
-    local fperiod = 100 / ((self.frequency.start - 0.025)^2 + 0.001)
-    local maxperiod = 100 / (self.frequency.min^2 + 0.001)
-    local period = trunc(fperiod)
-    
-    local slide = 1.0 - self.frequency.slide^3 * 0.01
-    local dslide = -self.frequency.deltaSlide^3 * 0.000001
-
-    local square_duty = 0.5 - self.duty.ratio * 0.5
-    local square_slide = -self.duty.sweep * 0.00005
 
     local env_vol = 0
     local env_stage = 1
@@ -176,24 +199,22 @@ function sfxr.Sound:generate()
     local vib_speed = self.vibrato.speed^2 * 0.01
     local vib_amp = self.vibrato.depth * 0.5
 
-    local chg_time = 0
-    local chg_limit = 0
-    if self.change.speed == 1 then
-        chg_limit = 0
-    else
-        chg_limit = (1 - self.change.speed)^2 * 20000 + 32
-    end
-
-    local chg_mod = 0
-    if self.change.amount >= 0 then
-        chg_mod = 1.0 - self.change.amount^2 * 0.9
-    else
-        chg_mod = 1.0 - self.change.amount^2 * 10
+    local rep_time = 0
+    local rep_limit = trunc((1 - self.repeatSpeed)^2 * 20000 + 32)
+    if self.repeatSpeed == 0 then
+        rep_limit = 0
     end
 
     -- Yay, the main closure
 
     return function()
+        -- Repeat maybe
+        rep_time = rep_time + 1
+        if rep_limit ~= 0 and rep_time >= rep_limit then
+            reset()
+            rep_time = 0
+        end
+
         -- Update the change time and apply it if needed
         chg_time = chg_time + 1
         if chg_limit ~= 0 and chg_time >= chg_limit then
@@ -206,7 +227,7 @@ function sfxr.Sound:generate()
         fperiod = fperiod * slide
 
         if fperiod > maxperiod then
-            fperiod = fmaxperiod
+            fperiod = maxperiod
             -- If the frequency is too low, stop generating
             if (self.frequency.min > 0) then
                 return nil
@@ -345,7 +366,7 @@ function sfxr.Sound:getEnvelopeLimit()
         self.envelope.sustain^2 * 100000,
         self.envelope.decay^2 * 100000}
 
-    return env_length[1] + env_length[2] + env_length[3] + 2
+    return trunc(env_length[1] + env_length[2] + env_length[3] + 2)
 end
 
 function sfxr.Sound:getLimit()
@@ -378,6 +399,57 @@ function sfxr.Sound:generateSoundData(freq, bits)
     end
 
     return data
+end
+
+function sfxr.Sound:randomize(seed)
+    math.randomseed(seed)
+    self.repeatSpeed = random(1, 2)
+
+    if maybe() then
+        self.frequency.start = random(-1, 1)^3 + 0.5
+    else
+        self.frequency.start = random(-1, 1)^2
+    end
+    self.frequency.limit = 0
+    self.frequency.slide = random(-1, 1)^5
+    if self.frequency.start > 0.7 and self.frequency.slide > 0.2 then
+        self.frequency.slide = -self.frequency.slide
+    elseif self.frequency.start < 0.2 and self.frequency.slide <-0.05 then
+        self.frequency.slide = -self.frequency.slide
+    end
+    self.frequency.deltaSlide = random(-1, 1)^3
+
+    self.duty.ratio = random(-1, 1)
+    self.duty.sweep = random(-1, 1)^3
+
+    self.vibrato.depth = random(-1, 1)^3
+    self.vibrato.speed = random(-1, 1)
+    self.vibrato.delay = random(-1, 1)
+
+    self.envelope.attack = random(-1, 1)^3
+    self.envelope.sustain = random(-1, 1)^2
+    self.envelope.punch = random(-1, 1)^2
+    self.envelope.decay = random(-1, 1)
+    
+    if self.envelope.attack + self.envelope.sustain + self.envelope.decay < 0.2 then
+        self.envelope.sustain = self.envelope.sustain + 0.2 + random(0, 0.3)
+        self.envelope.decay = self.envelope.decay + 0.2 + random(0, 0.3)
+    end
+
+    self.lowpass.resonance = random(-1, 1)
+    self.lowpass.cutoff = 1 - random(0, 1)^3
+    self.lowpass.sweep = random(-1, 1)^3
+    if self.lowpass.cutoff < 0.1 and self.lowpass.sweep < -0.05 then
+        self.lowpass.sweep = -self.lowpass.sweep
+    end
+    self.highpass.cutoff = random(0, 1)^3
+    self.highpass.sweep = random(-1, 1)^5
+
+    self.phaser.offset = random(-1, 1)^3
+    self.phaser.sweep = random(-1, 1)^3
+
+    self.change.speed = random(-1, 1)
+    self.change.amount = random(-1, 1)
 end
 
 -- Constructor

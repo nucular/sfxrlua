@@ -30,6 +30,12 @@ sfxr.SAWTOOTH = 1
 sfxr.SINE = 2
 sfxr.NOISE = 3
 
+sfxr.FREQ_44100 = 44100
+sfxr.FREQ_22050 = 22050
+sfxr.BITS_FLOAT = 0
+sfxr.BITS_16 = 16
+sfxr.BITS_8 = 8
+
 -- Utilities
 
 local function trunc(n)
@@ -139,8 +145,13 @@ function sfxr.Sound:resetBuffers()
     end
 end
 
-function sfxr.Sound:generate()
+function sfxr.Sound:generate(freq, bits)
     -- Basically the main synthesizing function, yields the sample data
+
+    freq = freq or sfxr.FREQ_44100
+    bits = bits or sfxr.BITS_FLOAT
+    assert(freq == sfxr.FREQ_44100 or freq == sfxr.FREQ_22050, "Invalid freq argument")
+    assert(bits == sfxr.BITS_FLOAT or bits == sfxr.BITS_16 or bits == sfxr.BITS_8, "Invalid bits argument")
 
     -- Initialize ALL the locals!
     local fperiod, maxperiod
@@ -176,7 +187,7 @@ function sfxr.Sound:generate()
     end
     reset()
 
-    local phase = 0
+    local second_sample = false
 
     local env_vol = 0
     local env_stage = 1
@@ -215,7 +226,7 @@ function sfxr.Sound:generate()
 
     -- Yay, the main closure
 
-    return function()
+    local function iter()
         -- Repeat maybe
         rep_time = rep_time + 1
         if rep_limit ~= 0 and rep_time >= rep_limit then
@@ -364,29 +375,51 @@ function sfxr.Sound:generate()
         -- Hard limit
         ssample = clamp(ssample, -1, 1)
 
-        -- Aaaand finally
-        return ssample
+        -- Frequency conversion
+        second_sample = not second_sample
+        if freq == sfxr.FREQ_22050 and second_sample then
+            -- hah!
+            return iter()
+        end
+
+        -- bit conversions
+        if bits == sfxr.BITS_FLOAT then
+            return ssample
+        elseif bits == sfxr.BITS_16 then
+            return trunc(ssample * 32000) % (256*256)
+        else
+            return ssample * 127 + 128
+        end
     end
+
+    return iter
 end
 
-function sfxr.Sound:getEnvelopeLimit()
+function sfxr.Sound:getEnvelopeLimit(freq)
     local env_length = {self.envelope.attack^2 * 100000,
         self.envelope.sustain^2 * 100000,
         self.envelope.decay^2 * 100000}
-
-    return trunc(env_length[1] + env_length[2] + env_length[3] + 2)
+    local limit = trunc(env_length[1] + env_length[2] + env_length[3] + 2)
+    
+    if freq == nil or freq == sfxr.FREQ_44100 then
+        return limit
+    elseif freq == sfxr.FREQ_22050 then
+        return math.ceil(limit / 2)
+    else
+        error("Invalid freq argument")
+    end
 end
 
-function sfxr.Sound:getLimit()
-    return self:getEnvelopeLimit()
+function sfxr.Sound:getLimit(freq)
+    return self:getEnvelopeLimit(freq)
 end
 
-function sfxr.Sound:generateTable()
+function sfxr.Sound:generateTable(freq, bits)
     local t = {}
-    t[self:getLimit()] = 0
+    t[self:getLimit(freq)] = 0
 
     local i = 1
-    for v in self:generate() do
+    for v in self:generate(freq, bits) do
         if not v then
             break
         end
@@ -398,8 +431,8 @@ function sfxr.Sound:generateTable()
 end
 
 function sfxr.Sound:generateSoundData(freq, bits)
-    local tab = self:generateTable()
-
+    freq = freq or sfxr.FREQ_44100
+    local tab = self:generateTable(freq, sfxr.BITS_FLOAT)
     local data = love.sound.newSoundData(#tab, freq, bits, 1)
 
     for i = 0, #tab - 1 do

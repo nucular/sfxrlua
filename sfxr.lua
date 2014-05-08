@@ -62,6 +62,13 @@ local function cpypol(a, b)
     end
 end
 
+local function setseed(seed)
+    math.randomseed(seed)
+    for i=0, 5 do
+        math.random()
+    end
+end
+
 -- Constructor
 
 function sfxr.newSound(...)
@@ -443,7 +450,7 @@ function sfxr.Sound:generateSoundData(freq, bits)
 end
 
 function sfxr.Sound:randomize(seed)
-    math.randomseed(seed)
+    if seed then setseed(seed) end
     self.repeatSpeed = random(1, 2)
 
     if maybe() then
@@ -493,7 +500,8 @@ function sfxr.Sound:randomize(seed)
     self.change.amount = random(-1, 1)
 end
 
-function sfxr.Sound:mutate(amount, changeFreq)
+function sfxr.Sound:mutate(amount, seed, changeFreq)
+    if seed then setseed(seed) end
     local amount = (amount or 1)
     local a = amount / 20
     local b = (1 - a) * 10
@@ -532,7 +540,8 @@ function sfxr.Sound:mutate(amount, changeFreq)
     if maybe(b) then self.repeatSpeed = self.repeatSpeed + random(-a, a) end
 end
 
-function sfxr.Sound:randomPickup()
+function sfxr.Sound:randomPickup(seed)
+    if seed then setseed(seed) end
     self:resetParameters()
     self.frequency.start = random(0.4, 0.5)
     self.envelope.attack = 0
@@ -546,7 +555,8 @@ function sfxr.Sound:randomPickup()
     end
 end
 
-function sfxr.Sound:randomLaser()
+function sfxr.Sound:randomLaser(seed)
+    if seed then setseed(seed) end
     self:resetParameters()
     self.waveType = trunc(random(0, 2))
     if self.waveType == sfxr.SINE and maybe() then
@@ -589,7 +599,8 @@ function sfxr.Sound:randomLaser()
     end
 end
 
-function sfxr.Sound:randomExplosion()
+function sfxr.Sound:randomExplosion(seed)
+    if seed then setseed(seed) end
     self:resetParameters()
     self.waveType = sfxr.NOISE
     
@@ -627,7 +638,8 @@ function sfxr.Sound:randomExplosion()
     end
 end
 
-function sfxr.Sound:randomPowerup()
+function sfxr.Sound:randomPowerup(seed)
+    if seed then setseed(seed) end
     self:resetParameters()
     if maybe() then
         self.waveType = sfxr.SAWTOOTH
@@ -652,7 +664,8 @@ function sfxr.Sound:randomPowerup()
     self.envelope.decay = random(0.1, 0.5)
 end
 
-function sfxr.Sound:randomHit()
+function sfxr.Sound:randomHit(seed)
+    if seed then setseed(seed) end
     self:resetParameters()
     self.waveType = trunc(random(0, 2))
 
@@ -673,7 +686,8 @@ function sfxr.Sound:randomHit()
     end
 end
 
-function sfxr.Sound:randomJump()
+function sfxr.Sound:randomJump(seed)
+    if seed then setseed(seed) end
     self:resetParameters()
     self.waveType = sfxr.SQUARE
 
@@ -693,7 +707,8 @@ function sfxr.Sound:randomJump()
     end
 end
 
-function sfxr.Sound:randomBlip()
+function sfxr.Sound:randomBlip(seed)
+    if seed then setseed(seed) end
     self:resetParameters()
     self.waveType = trunc(random(0, 1))
 

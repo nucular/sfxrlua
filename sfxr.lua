@@ -386,7 +386,12 @@ function sfxr.Sound:generate(freq, bits)
         second_sample = not second_sample
         if freq == sfxr.FREQ_22050 and second_sample then
             -- hah!
-            return iter()
+            local nsample = iter()
+            if nsample then
+                return (ssample + nsample) / 2
+            else
+                return nil
+            end
         end
 
         -- bit conversions

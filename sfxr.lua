@@ -432,10 +432,7 @@ function sfxr.Sound:generateTable(freq, bits)
 
     local i = 1
     for v in self:generate(freq, bits) do
-        if not v then
-            break
-        end
-        t[i] = v
+        t[i] = v or 0
         i = i + 1
     end
 

@@ -1,7 +1,7 @@
 sfxr.lua
 ========
 
-A port of the sfxr sound effect synthesizer to Lua, designed to be used
+A port of the sfxr sound effect synthesizer to pure Lua, designed to be used
 together with the *awesome* Löve2D game framework.
 
 

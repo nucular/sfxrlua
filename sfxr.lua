@@ -376,8 +376,8 @@ function sfxr.Sound:generate(freq, bits)
         end
 
         -- Apply the volumes
-        ssample = ssample / self.superSamples * self.volume.master
-        ssample = ssample * 2 * self.volume.sound
+        ssample = (ssample / self.superSamples) * self.volume.master
+        ssample = (ssample * 2) * self.volume.sound
 
         -- Hard limit
         ssample = clamp(ssample, -1, 1)

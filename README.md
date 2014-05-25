@@ -10,7 +10,7 @@ Example usage
 
 These examples should play a randomly generated sound.
 
-With Löve2D 0.9:
+With [Löve2D](http://love2d.org) 0.9:
 ```lua
 local sfxr = require("sfxr")
 
@@ -21,7 +21,7 @@ function love.load()
 end
 ```
 
-With lao:
+With [lao](https://github.com/TheLinx/lao):
 ```lua
 require("ao")
 local sfxr = require("sfxr")
@@ -35,3 +35,16 @@ sound:randomize()
 local buffer = sound:generateString()
 device:play(buffer, #buffer)
 ```
+
+Known Issues
+------------
+
+Issues marked with an exclamation mark should be prioritized to be fixed before
+adding any more complicated features. These marked with a question mark either
+are of less priority or it is unknown if they should be handled as a bug.
+
+- ! The sine wave sound distorts when played with a frequency lower than 0.33.
+- ! The phaser offset has no audible effect, the phaser sweep however has.
+- ! The Lowpass and Highpass filters sounds distorted.
+- ! Changing is broken when the amount is < 0.
+- ? `Sound.repeatSpeed`, `Sound.waveType` and `Sound.frequency.deltaSlide` should be lowercased instead of camelcased.

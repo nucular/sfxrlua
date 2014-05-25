@@ -442,6 +442,11 @@ end
 function sfxr.Sound:generateSoundData(freq, bits)
     freq = freq or sfxr.FREQ_44100
     local tab = self:generateTable(freq, sfxr.BITS_FLOAT)
+
+    if #tab == 0 then
+        return nil
+    end
+
     local data = love.sound.newSoundData(#tab, freq, bits, 1)
 
     for i = 0, #tab - 1 do

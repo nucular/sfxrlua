@@ -560,9 +560,9 @@ end
 function sfxr.Sound:randomLaser(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.waveType = trunc(random(0, 2))
+    self.waveType = trunc(random(0, 2)) + 1
     if self.waveType == sfxr.SINE and maybe() then
-        self.waveType = trunc(random(0, 1))
+        self.waveType = trunc(random(0, 1)) + 1
     end
 
     if maybe(2) then
@@ -669,7 +669,7 @@ end
 function sfxr.Sound:randomHit(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.waveType = trunc(random(0, 2))
+    self.waveType = trunc(random(0, 2)) + 1
 
     if self.waveType == sfxr.SINE then
         self.waveType = 3
@@ -712,7 +712,7 @@ end
 function sfxr.Sound:randomBlip(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.waveType = trunc(random(0, 1))
+    self.waveType = trunc(random(0, 1)) + 1
 
     if self.waveType == 0 then
         self.duty.ratio = random(0, 0.6)

@@ -459,7 +459,11 @@ end
 
 function sfxr.Sound:randomize(seed)
     if seed then setseed(seed) end
+
+    local wavetype = self.wavetype
     self:resetParameters()
+    self.wavetype = wavetype
+
     if maybe() then
         self.repeatspeed = random(0, 1)
     end

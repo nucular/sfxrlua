@@ -35,17 +35,3 @@ sound:randomize()
 local buffer = sound:generateString()
 device:play(buffer, #buffer)
 ```
-
-Known Issues
-------------
-
-Issues marked with an exclamation mark should be prioritized to be fixed before
-adding any more complicated features. These marked with a question mark either
-are of less priority or it is unknown if they should be handled as a bug.
-
-- ! The sine wave sound distorts when played with a frequency lower than 0.33.
-- ! The phaser offset has no audible effect, the phaser sweep however has.
-- ! The Lowpass and Highpass filters sounds distorted.
-- ! Changing is broken when the amount is < 0.
-- Sometimes (sometimes!) the generator yields nil, which causes setSample to fail.
-- ? Everything seems to be pitched slightly higher than at the original (floating point error?)

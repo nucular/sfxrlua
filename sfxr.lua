@@ -457,6 +457,16 @@ function sfxr.Sound:generateSoundData(freq, bits)
     return data
 end
 
+function sfxr.Sound:play(freq, bits)
+    local data = self:generateSoundData(freq, bits)
+
+    if data then
+        local source = love.audio.newSource(data)
+        source:play()
+        return source
+    end
+end
+
 function sfxr.Sound:randomize(seed)
     if seed then setseed(seed) end
 

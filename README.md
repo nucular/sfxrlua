@@ -47,4 +47,6 @@ are of less priority or it is unknown if they should be handled as a bug.
 - ! The phaser offset has no audible effect, the phaser sweep however has.
 - ! The Lowpass and Highpass filters sounds distorted.
 - ! Changing is broken when the amount is < 0.
+- Sometimes (sometimes!) the generator yields nil, which causes setSample to fail.
 - ? `Sound.repeatSpeed`, `Sound.waveType` and `Sound.frequency.deltaSlide` should be lowercased instead of camelcased.
+- ? Everything seems to be pitched slightly higher than at the original (floating point error?)

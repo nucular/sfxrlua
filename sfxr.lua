@@ -95,9 +95,11 @@ function sfxr.Sound:__init()
     self.highpass = {}
 
     -- Phaser and noise buffers
-    self.phaserBuffer = {}
-    self.noiseBuffer = {}
+    self.phaserbuffer = {}
+    self.noisebuffer = {}
 
+    -- These won't be affected by Sound.resetParameters()
+    self.supersamples = 8
     self.volume.master = 0.5
     self.volume.sound = 0.5
 
@@ -107,9 +109,8 @@ end
 
 function sfxr.Sound:resetParameters()
     -- Set all parameters to the default values
-    self.repeatSpeed = 0.0
-    self.waveType = sfxr.SQUARE
-    self.superSamples = 8
+    self.repeatspeed = 0.0
+    self.wavetype = sfxr.SQUARE
 
     self.envelope.attack = 0.0
     self.envelope.sustain = 0.3
@@ -119,7 +120,7 @@ function sfxr.Sound:resetParameters()
     self.frequency.start = 0.3
     self.frequency.min = 0.0
     self.frequency.slide = 0.0
-    self.frequency.deltaSlide = 0.0
+    self.frequency.dslide = 0.0
 
     self.vibrato.depth = 0.0
     self.vibrato.speed = 0.0
@@ -144,11 +145,11 @@ end
 function sfxr.Sound:resetBuffers()
     -- Reset the sample buffers
     for i=1, 1025 do
-        self.phaserBuffer[i] = 0
+        self.phaserbuffer[i] = 0
     end
 
     for i=1, 33 do
-        self.noiseBuffer[i] = random(-1, 1)
+        self.noisebuffer[i] = random(-1, 1)
     end
 end
 
@@ -172,7 +173,7 @@ function sfxr.Sound:generate(freq, bits)
         period = trunc(fperiod)
         
         slide = 1.0 - self.frequency.slide^3 * 0.01
-        dslide = -self.frequency.deltaSlide^3 * 0.000001
+        dslide = -self.frequency.dslide^3 * 0.000001
 
         square_duty = 0.5 - self.duty.ratio * 0.5
         square_slide = -self.duty.sweep * 0.00005
@@ -226,8 +227,8 @@ function sfxr.Sound:generate(freq, bits)
     local vib_amp = self.vibrato.depth * 0.5
 
     local rep_time = 0
-    local rep_limit = trunc((1 - self.repeatSpeed)^2 * 20000 + 32)
-    if self.repeatSpeed == 0 then
+    local rep_limit = trunc((1 - self.repeatspeed)^2 * 20000 + 32)
+    if self.repeatspeed == 0 then
         rep_limit = 0
     end
 
@@ -308,7 +309,7 @@ function sfxr.Sound:generate(freq, bits)
         -- And finally the actual tone generation and supersampling
 
         local ssample = 0
-        for si = 0, self.superSamples do
+        for si = 0, self.supersamples do
             local sample = 0
 
             phase = phase + 1
@@ -317,9 +318,9 @@ function sfxr.Sound:generate(freq, bits)
             if phase >= period then
                 --phase = 0
                 phase = phase % period
-                if self.waveType == sfxr.NOISE then
+                if self.wavetype == sfxr.NOISE then
                     for i = 1, 33 do
-                        self.noiseBuffer[i] = random(-1, 1)
+                        self.noisebuffer[i] = random(-1, 1)
                     end
                 end
             end
@@ -329,21 +330,21 @@ function sfxr.Sound:generate(freq, bits)
             -- update the base waveform
             local fp = phase / period
 
-            if self.waveType == sfxr.SQUARE then
+            if self.wavetype == sfxr.SQUARE then
                 if fp < square_duty then
                     sample = 0.5
                 else
                     sample = -0.5
                 end
 
-            elseif self.waveType == sfxr.SAWTOOTH then
+            elseif self.wavetype == sfxr.SAWTOOTH then
                 sample = 1 - fp * 2
 
-            elseif self.waveType == sfxr.SINE then
+            elseif self.wavetype == sfxr.SINE then
                 sample = math.sin(fp * 2 * math.pi)
 
-            elseif self.waveType == sfxr.NOISE then
-                sample = self.noiseBuffer[trunc(phase * 32 / period) % 32 + 1]
+            elseif self.wavetype == sfxr.NOISE then
+                sample = self.noisebuffer[trunc(phase * 32 / period) % 32 + 1]
             end
 
             -- Apply the lowpass filter to the sample
@@ -367,8 +368,8 @@ function sfxr.Sound:generate(freq, bits)
 
             -- Apply the phaser to the sample
 
-            self.phaserBuffer[bit.band(ipp, 1023) + 1] = sample
-            sample = sample + self.phaserBuffer[bit.band(ipp - iphase + 1024, 1023) + 1]
+            self.phaserbuffer[bit.band(ipp, 1023) + 1] = sample
+            sample = sample + self.phaserbuffer[bit.band(ipp - iphase + 1024, 1023) + 1]
             ipp = bit.band(ipp + 1, 1023)
 
             -- Accumulation and envelope application
@@ -376,7 +377,7 @@ function sfxr.Sound:generate(freq, bits)
         end
 
         -- Apply the volumes
-        ssample = (ssample / self.superSamples) * self.volume.master
+        ssample = (ssample / self.supersamples) * self.volume.master
         ssample = (ssample * 2) * self.volume.sound
 
         -- Hard limit
@@ -460,7 +461,7 @@ function sfxr.Sound:randomize(seed)
     if seed then setseed(seed) end
     self:resetParameters()
     if maybe() then
-        self.repeatSpeed = random(0, 1)
+        self.repeatspeed = random(0, 1)
     end
 
     if maybe() then
@@ -475,7 +476,7 @@ function sfxr.Sound:randomize(seed)
     elseif self.frequency.start < 0.2 and self.frequency.slide <-0.05 then
         self.frequency.slide = -self.frequency.slide
     end
-    self.frequency.deltaSlide = random(-1, 1)^3
+    self.frequency.dslide = random(-1, 1)^3
 
     self.duty.ratio = random(-1, 1)
     self.duty.sweep = random(-1, 1)^3
@@ -520,7 +521,7 @@ function sfxr.Sound:mutate(amount, seed, changeFreq)
     if changeFreq == true then
         if maybe(b) then self.frequency.start = self.frequency.start + random(-a, a) end
         if maybe(b) then self.frequency.slide = self.frequency.slide + random(-a, a) end
-        if maybe(b) then self.frequency.deltaSlide = self.frequency.deltaSlide + random(-a, a) end
+        if maybe(b) then self.frequency.dslide = self.frequency.dslide + random(-a, a) end
     end
 
     if maybe(b) then self.duty.ratio = self.duty.ratio + random(-a, a) end
@@ -547,7 +548,7 @@ function sfxr.Sound:mutate(amount, seed, changeFreq)
     if maybe(b) then self.change.speed = self.change.speed + random(-a, a) end
     if maybe(b) then self.change.amount = self.change.amount + random(-a, a) end
 
-    if maybe(b) then self.repeatSpeed = self.repeatSpeed + random(-a, a) end
+    if maybe(b) then self.repeatspeed = self.repeatspeed + random(-a, a) end
 end
 
 function sfxr.Sound:randomPickup(seed)
@@ -568,9 +569,9 @@ end
 function sfxr.Sound:randomLaser(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.waveType = trunc(random(0, 2)) + 1
-    if self.waveType == sfxr.SINE and maybe() then
-        self.waveType = trunc(random(0, 1)) + 1
+    self.wavetype = trunc(random(0, 2)) + 1
+    if self.wavetype == sfxr.SINE and maybe() then
+        self.wavetype = trunc(random(0, 1)) + 1
     end
 
     if maybe(2) then
@@ -612,7 +613,7 @@ end
 function sfxr.Sound:randomExplosion(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.waveType = sfxr.NOISE
+    self.wavetype = sfxr.NOISE
     
     if maybe() then
         self.frequency.start = random(0.1, 0.5)
@@ -627,7 +628,7 @@ function sfxr.Sound:randomExplosion(seed)
         self.frequency.slide = 0
     end
     if maybe(2) then
-        self.repeatSpeed = random(0.3, 0.8)
+        self.repeatspeed = random(0.3, 0.8)
     end
 
     self.envelope.attack = 0
@@ -652,7 +653,7 @@ function sfxr.Sound:randomPowerup(seed)
     if seed then setseed(seed) end
     self:resetParameters()
     if maybe() then
-        self.waveType = sfxr.SAWTOOTH
+        self.wavetype = sfxr.SAWTOOTH
     else
         self.duty.ratio = random(0, 0.6)
     end
@@ -660,7 +661,7 @@ function sfxr.Sound:randomPowerup(seed)
     if maybe() then
         self.frequency.start = random(0.2, 0.5)
         self.frequency.slide = random(0.1, 0.5)
-        self.repeatSpeed = random(0.4, 0.8)
+        self.repeatspeed = random(0.4, 0.8)
     else
         self.frequency.start = random(0.2, 0.5)
         self.frequency.slide = random(0.1, 0.5)
@@ -677,11 +678,11 @@ end
 function sfxr.Sound:randomHit(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.waveType = trunc(random(0, 2)) + 1
+    self.wavetype = trunc(random(0, 2)) + 1
 
-    if self.waveType == sfxr.SINE then
-        self.waveType = 3
-    elseif self.waveType == sfxr.SQUARE then
+    if self.wavetype == sfxr.SINE then
+        self.wavetype = 3
+    elseif self.wavetype == sfxr.SQUARE then
         self.duty.ratio = random(0, 0.6)
     end
 
@@ -699,7 +700,7 @@ end
 function sfxr.Sound:randomJump(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.waveType = sfxr.SQUARE
+    self.wavetype = sfxr.SQUARE
 
     self.duty.value = random(0, 0.6)
     self.frequency.cutoff = random(0.3, 0.6)
@@ -720,9 +721,9 @@ end
 function sfxr.Sound:randomBlip(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.waveType = trunc(random(0, 1)) + 1
+    self.wavetype = trunc(random(0, 1)) + 1
 
-    if self.waveType == 0 then
+    if self.wavetype == 0 then
         self.duty.ratio = random(0, 0.6)
     end
 

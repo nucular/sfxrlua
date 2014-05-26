@@ -459,7 +459,9 @@ end
 function sfxr.Sound:randomize(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.repeatSpeed = random(1, 2)
+    if maybe() then
+        self.repeatSpeed = random(0, 1)
+    end
 
     if maybe() then
         self.frequency.start = random(-1, 1)^3 + 0.5

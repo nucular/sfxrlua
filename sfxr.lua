@@ -98,6 +98,9 @@ function sfxr.Sound:__init()
     self.phaserBuffer = {}
     self.noiseBuffer = {}
 
+    self.volume.master = 0.5
+    self.volume.sound = 0.5
+
     self:resetParameters()
     self:resetBuffers()
 end
@@ -107,9 +110,6 @@ function sfxr.Sound:resetParameters()
     self.repeatSpeed = 0.0
     self.waveType = sfxr.SQUARE
     self.superSamples = 8
-
-    self.volume.master = 0.5
-    self.volume.sound = 0.5
 
     self.envelope.attack = 0.0
     self.envelope.sustain = 0.3
@@ -458,6 +458,7 @@ end
 
 function sfxr.Sound:randomize(seed)
     if seed then setseed(seed) end
+    self:resetParameters()
     self.repeatSpeed = random(1, 2)
 
     if maybe() then

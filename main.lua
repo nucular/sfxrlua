@@ -1,0 +1,553 @@
+local sfxr = require("sfxr")
+
+-- Global stuff
+local source
+local sound
+local sounddata
+
+local seed
+local playbutton
+local playing = false
+
+local wavecanvas
+local statistics = {
+    generation = 0,
+    transfer = 0,
+    waveview = 0,
+    duration = 0
+}
+
+-- This will hold all sliders and the wave form box
+local guiparams = {}
+-- The parameter list is built from this
+local guicategories = {
+    {
+        "Envelope",
+        "envelope",
+        {
+            {"Attack Time", "attack", 0, 1},
+            {"Sustain Time", "sustain", 0, 1},
+            {"Sustain Punch", "punch", 0, 1},
+            {"Decay Time", "decay", 0, 1}
+        }
+    },
+    {
+        "Frequency",
+        "frequency",
+        {
+            {"Start", "start", 0, 1},
+            {"Minimum", "min", 0, 1},
+            {"Slide", "slide", -1, 1},
+            {"Delta Slide", "dslide", -1, 1}
+        }
+    },
+    {
+        "Vibrato",
+        "vibrato",
+        {
+            {"Depth", "depth", 0, 1},
+            {"Speed", "speed", 0, 1}
+        }
+    },
+    {
+        "Change",
+        "change",
+        {
+            {"Amount", "amount", -1, 1},
+            {"Speed", "speed", 0, 1}
+        }
+    },
+    {
+        "Square Duty",
+        "duty",
+        {
+            {"Ratio", "ratio", 0, 1},
+            {"Sweep", "sweep", -1, 1}
+        }
+    },
+    {
+        "Phaser",
+        "phaser",
+        {
+            {"Offset", "offset", -1, 1},
+            {"Sweep", "sweep", -1, 1}
+        }
+    },
+    {
+        "Low Pass",
+        "lowpass",
+        {
+            {"Cutoff", "cutoff", 0, 1},
+            {"Sweep", "sweep", -1, 1},
+            {"Resonance", "resonance", 0, 1}
+        }
+    },
+    {
+        "High Pass",
+        "highpass",
+        {
+            {"Cutoff", "cutoff", 0, 1},
+            {"Sweep", "sweep", -1, 1}
+        }
+    }
+}
+
+-- Easy lookup of wave forms
+local waveFormList = {
+    ["Square"] = 0,
+    ["Sawtooth"] = 1,
+    ["Sine"] = 2,
+    ["Noise"] = 3,
+    "Square", "Sawtooth", "Sine", "Noise"
+}
+
+
+function stopSound()
+    playbutton:SetText("Play")
+    if source then
+        source:stop()
+    end
+end
+
+function playSound()
+    -- Stop the currently playing source
+    if source then
+        source:stop()
+    end
+
+    sound:resetBuffers()
+    
+    local t = love.timer.getTime()
+    local tab = sound:generateTable(sfxr.FREQ_44100, sfxr.BITS_FLOAT)
+    t = love.timer.getTime() - t
+    statistics.generation = math.floor(t * 10000) / 10
+
+    if #tab == 0 then
+        return nil
+    end
+
+    sounddata = love.sound.newSoundData(#tab, 44100, 16, 1)
+    statistics.duration = math.floor(sounddata:getDuration() * 10000) / 10
+
+    -- Stuff for the wave view
+    local waveview = {}
+    local j = 0
+    local max = -1
+    local min = 1
+    local avg = 0.5
+
+    local t = love.timer.getTime()
+    for i = 0, #tab - 1 do
+
+        local v = tab[i + 1]
+        -- Copy the sample over to the SoundData
+        sounddata:setSample(i, v)
+
+        -- Add the minimal and maximal sample to the wave view
+        -- every 256 samples. This is how Audacity does it, actually.
+        j = j + 1
+        min = math.min(v, min)
+        max = math.max(v, max)
+        if j >= 256 then
+            waveview[#waveview + 1] = min
+            waveview[#waveview + 1] = max
+            j = 0
+            min, max = 1, -1
+        end
+    end
+    t = love.timer.getTime() - t
+    statistics.transfer = math.floor(t * 10000) / 10
+
+    updateWaveCanvas(waveview)
+    updateStatistics()
+
+    if sounddata then
+        source = love.audio.newSource(sounddata)
+        source:play()
+        playbutton:SetText("Stop")
+        playing = true
+    end
+end
+
+function createSeedBox()
+    local f = lf.Create("form")
+    f:SetName("Random Seed")
+
+    seed = lf.Create("numberbox")
+    seed:SetValue(math.floor(love.timer.getTime()))
+    seed:SetMax(math.huge)
+    seed:SetMin(-math.huge)
+    seed:SetWidth(100)
+    f:AddItem(seed)
+
+    f:SetPos(5, 240)
+end
+
+function createPresetGenerators()
+    local f = lf.Create("form")
+    f:SetName("Preset Generators")
+    local generators = {
+        {"Pickup/Coin", sound.randomPickup},
+        {"Laser/Shoot", sound.randomLaser},
+        {"Explosion", sound.randomExplosion},
+        {"Powerup", sound.randomPowerup},
+        {"Hit/Hurt", sound.randomHit},
+        {"Jump", sound.randomJump},
+        {"Blip/Select", sound.randomBlip}
+    }
+
+    for i, v in ipairs(generators) do
+        local b = lf.Create("button")
+        b:SetText(v[1])
+        b:SetWidth(100)
+        f:AddItem(b)
+
+        b.OnClick = function(self)
+            v[2](sound, seed:GetValue())
+            seed:SetValue(seed:GetValue() + 1)
+            updateParameters()
+            playSound()
+        end
+    end
+
+    f:SetPos(5, 5)
+    f:SetWidth(110)
+end
+
+function createRandomizers()
+    local f = lf.Create("form")
+    f:SetName("Randomizers")
+
+    local b = lf.Create("button")
+    b:SetText("Mutate")
+    b:SetWidth(100)
+    f:AddItem(b)
+    b.OnClick = function(self)
+        sound:mutate()
+        updateParameters()
+        playSound()
+    end
+
+    local b = lf.Create("button")
+    b:SetText("Randomize")
+    b:SetWidth(100)
+    f:AddItem(b)
+    b.OnClick = function(self)
+        sound:randomize(seed:GetValue())
+        updateParameters()
+        seed:SetValue(seed:GetValue() + 1)
+        playSound()
+    end
+
+    f:SetPos(5, 395)
+    f:SetSize(110, 80)
+end
+
+function createParameters()
+    local f = lf.Create("form")
+    f:SetName("Parameters")
+
+    local l = lf.Create("list")
+    l:SetSpacing(5)
+    l:SetPadding(5)
+    l:SetSize(340, 445)
+    f:AddItem(l)
+
+
+    -- Waveforms
+    l:AddItem(lf.Create("text"):SetPos(0, pheight):SetText("Wave Form"))
+    local m = lf.Create("multichoice")
+    m:AddChoice("Square")
+    m:AddChoice("Sawtooth")
+    m:AddChoice("Sine")
+    m:AddChoice("Noise")
+    m:SetChoice("Square")
+    m.OnChoiceSelected = function(o, c)
+        sound.wavetype = waveFormList[c]
+    end
+    l:AddItem(m)
+    guiparams.waveform = m
+
+
+    -- Repeat speed
+    local t = lf.Create("text"):SetPos(0, pheight)
+    t:SetText("Repeat Speed 0.00")
+    local s = lf.Create("slider")
+    s:SetWidth(120)
+    s:SetMinMax(0, 1)
+    s:SetValue(sound.repeatspeed)
+    s.Update = function(o)
+        local v = math.floor(s:GetValue() * 100) / 100
+
+        if v <= 0.02 and v >= -0.02 then
+            s:SetValue(0)
+            sound.repeatspeed = 0
+            t:SetText("Repeat Speed 0.00")
+        else
+            sound.repeatspeed = v
+            t:SetText("Repeat Speed " .. tostring(math.floor(v * 100) / 100))
+        end
+    end
+    l:AddItem(t)
+    l:AddItem(s)
+    guiparams.repeatspeed = {s, t}
+
+
+    for i1, v1 in ipairs(guicategories) do
+        local c = lf.Create("collapsiblecategory")
+        c:SetText(v1[1])
+        l:AddItem(c)
+
+        local p = lf.Create("panel")
+        local pheight = 0
+        p.Draw = function() end
+        c:SetObject(p)
+
+        guiparams[v1[2]] = {}
+
+        for i2, v2 in ipairs(v1[3]) do
+            lf.Create("text", p):SetPos(0, pheight):SetText(v2[1])
+            local t = lf.Create("text", p):SetPos(95, pheight):SetText("0.00")
+
+            local s = lf.Create("slider", p):SetPos(130, pheight - 3):SetWidth(170)
+            s:SetMinMax(v2[3], v2[4])
+            s:SetValue(sound[v1[2]][v2[2]])
+
+            s.Update = function(o)
+                local v = s:GetValue()
+
+                if v <= 0.02 and v >= -0.02 then
+                    s:SetValue(0)
+                    sound[v1[2]][v2[2]] = 0
+                    t:SetText("0.00")
+                else
+                    sound[v1[2]][v2[2]] = v
+                    t:SetText(math.floor(v * 100) / 100)
+                end
+                
+            end
+
+            guiparams[v1[2]][v2[2]] = {s, t}
+            pheight = pheight + 30
+        end
+
+        p:SetHeight(pheight - 10)
+    end
+
+
+    f:SetPos(125, 5)
+    f:SetSize(350, 470)
+end
+
+function createPlayButton()
+    local f = lf.Create("form")
+    f:SetName("Play")
+
+    local b = lf.Create("button")
+    b:SetText("Play")
+    b:SetWidth(140)
+    b.OnClick = function(o)
+        if not playing then
+            playSound()
+        else
+            stopSound()
+        end
+    end
+    playbutton = b
+    f:AddItem(b)
+
+    f:SetPos(485, 425)
+    f:SetSize(150, 50)
+end
+
+function createOther()
+    local f = lf.Create("form")
+    f:SetName("Wave View")
+    f:SetPos(485, 5)
+    f:SetSize(150, 170)
+
+
+    local f = lf.Create("form")
+    f:SetName("Volume")
+
+    local t = lf.Create("text")
+    t:SetText("Master 0.5")
+    f:AddItem(t)
+    local s = lf.Create("slider")
+    s:SetMinMax(0, 1)
+    s:SetSize(135, 20)
+    s.Update = function(o)
+        local v = s:GetValue()
+        if v <= 0.52 and v >= 0.48 then
+            s:SetValue(0.5)
+            v = 0.5
+        end
+        sound.volume.master = v
+        t:SetText("Master " .. tostring(math.floor(v * 100) / 100))
+    end
+    s:SetValue(sound.volume.master)
+    f:AddItem(s)
+
+    local t = lf.Create("text")
+    t:SetText("Sound 0.5")
+    f:AddItem(t)
+    local s = lf.Create("slider")
+    s:SetMinMax(0, 1)
+    s:SetSize(135, 20)
+    s.Update = function(o)
+        local v = s:GetValue()
+        if v <= 0.52 and v >= 0.48 then
+            s:SetValue(0.5)
+            v = 0.5
+        end
+        sound.volume.sound = v
+        t:SetText("Sound " .. tostring(math.floor(v * 100) / 100))
+    end
+    s:SetValue(sound.volume.sound)
+    f:AddItem(s)
+
+    f:SetPos(485, 185)
+    f:SetWidth(150)
+
+
+    local f = lf.Create("form")
+    f:SetName("Times / Duration")
+
+    local t = lf.Create("text")
+    t:SetText("Generation: 0ms")
+    f:AddItem(t)
+    statistics.generationtext = t
+
+    local t = lf.Create("text")
+    t:SetText("Transfer: 0ms")
+    f:AddItem(t)
+    statistics.transfertext = t
+
+    local t = lf.Create("text")
+    t:SetText("Wave View: 0ms")
+    f:AddItem(t)
+    statistics.waveviewtext = t
+
+    local t = lf.Create("text")
+    t:SetText("Duration: 0ms")
+    f:AddItem(t)
+    statistics.durationtext = t
+
+    f:SetPos(485, 300)
+    f:SetWidth(150)
+end
+
+function updateParameters()
+    -- Iterate through the list of parameters and update all of them
+    for i1, v1 in ipairs(guicategories) do
+        for i2, v2 in ipairs(v1[3]) do
+            local v = sound[v1[2]][v2[2]]
+            local s, t = unpack(guiparams[v1[2]][v2[2]])
+            s:SetValue(v)
+            t:SetText(math.floor(v * 100) / 100)
+        end
+    end
+
+    local s, t = unpack(guiparams.repeatspeed)
+    local v = sound.repeatspeed
+
+    s:SetValue(v)
+    t:SetText("Repeat Speed " .. tostring(math.floor(v * 100) / 100))
+
+    guiparams.waveform:SetChoice(waveFormList[sound.wavetype + 1])
+end
+
+function updateWaveCanvas(waveview)
+    local t = love.timer.getTime()
+    wavecanvas:clear()
+    love.graphics.setCanvas(wavecanvas)
+    love.graphics.setColor(255, 255, 255)
+    love.graphics.setLineStyle("rough")
+
+    -- Iterate through the passed table and draw all lines to the canvas
+    local step = 125 / #waveview
+    local last = 70
+    for i, v in ipairs(waveview) do
+        local x = (i * step)
+        local y = (v + 1) * 70
+
+        love.graphics.line(x - step, last, x, y)
+        last = y
+    end
+
+    -- Draw the zero line
+    love.graphics.setColor(255, 80, 51, 200)
+    love.graphics.line(0, 70, 125, 70)
+
+    love.graphics.setCanvas()
+    t = love.timer.getTime() - t
+    statistics.waveview = math.floor(t * 10000) / 10
+end
+
+function drawWaveView()
+    if source then
+        love.graphics.setColor(255, 255, 255)
+        love.graphics.draw(wavecanvas, 495, 25)
+
+        -- Draw a fancy position cursor
+        local pos = source:tell("samples")
+        local max = sounddata:getSampleCount()
+        local x = 495 + (pos / max) * 125
+        love.graphics.setColor(255, 153, 0)
+        love.graphics.line(x, 25, x, 165)
+    end
+end
+
+function updateStatistics()
+    statistics.durationtext:SetText("Duration: " .. statistics.duration .. " ms")
+    statistics.transfertext:SetText("Transfer: " .. statistics.transfer .. " ms")
+    statistics.waveviewtext:SetText("Wave View: " .. statistics.waveview .. " ms")
+    statistics.generationtext:SetText("Generation: " .. statistics.generation .. " ms")
+end
+
+function love.load()
+    require("loveframes")
+    lf = loveframes
+    lf.util.SetActiveSkin("Orange")
+    love.graphics.setBackgroundColor(200, 200, 200)
+
+    sound = sfxr.newSound()
+
+    createSeedBox()
+    createPresetGenerators()
+    createRandomizers()
+    createParameters()
+    createPlayButton()
+    createOther()
+
+    wavecanvas = love.graphics.newCanvas(125, 140)
+
+    love.mousepressed = lf.mousepressed
+    love.mousereleased = lf.mousereleased
+    love.keyreleased = lf.keyreleased
+    love.textinput = lf.textinput
+end
+
+function love.update(dt)
+    lf.update(dt)
+    if source then
+        if playing and not source:isPlaying() then
+            playing = false
+            playbutton:SetText("Play")
+        end
+    end
+end
+
+function love.draw()
+    lf.draw()
+    drawWaveView()
+end
+
+function love.keypressed(key)
+    if key == " " or key == "return" then
+        playSound()
+    elseif key == "escape" then
+        love.event.push("quit")
+    end
+    lf.keypressed(key)
+end

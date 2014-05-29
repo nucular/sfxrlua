@@ -168,7 +168,8 @@ function sfxr.Sound:generate(freq, bits)
     local chg_mod, chg_time, chg_limit
 
     local function reset()
-        fperiod = 100 / ((self.frequency.start - 0.025)^2 + 0.001)
+        -- subtract 0.017 to match the pitch of the original
+        fperiod = 100 / ((self.frequency.start - 0.017)^2 + 0.001)
         maxperiod = 100 / (self.frequency.min^2 + 0.001)
         period = trunc(fperiod)
         

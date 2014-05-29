@@ -178,7 +178,6 @@ function sfxr.Sound:generate(freq, bits)
         square_duty = 0.5 - self.duty.ratio * 0.5
         square_slide = -self.duty.sweep * 0.00005
 
-        chg_mod = 0
         if self.change.amount >= 0 then
             chg_mod = 1.0 - self.change.amount^2 * 0.9
         else
@@ -190,7 +189,7 @@ function sfxr.Sound:generate(freq, bits)
         if self.change.speed == 1 then
             chg_limit = 0
         else
-            chg_limit = (1 - self.change.speed)^2 * 20000 + 32
+            chg_limit = trunc((1 - self.change.speed)^2 * 20000 + 32)
         end
     end
     reset()
@@ -267,6 +266,7 @@ function sfxr.Sound:generate(freq, bits)
             vib_phase = vib_phase + vib_speed
             rfperiod = fperiod * (1.0 + math.sin(vib_phase) * vib_amp)
         end
+
         -- Update the period
         period = trunc(rfperiod)
         if (period < 8) then period = 8 end
@@ -362,8 +362,8 @@ function sfxr.Sound:generate(freq, bits)
 
             -- Apply the highpass filter to the sample
 
-            fltphp = fltphp + fltp - pp
-            fltphp = fltphp - fltphp * flthp
+            fltphp = fltphp + (fltp - pp)
+            fltphp = fltphp - (fltphp * flthp)
             sample = fltphp
 
             -- Apply the phaser to the sample
@@ -378,7 +378,7 @@ function sfxr.Sound:generate(freq, bits)
 
         -- Apply the volumes
         ssample = (ssample / self.supersamples) * self.volume.master
-        ssample = (ssample * 2) * self.volume.sound
+        ssample = ssample * (2 * self.volume.sound)
 
         -- Hard limit
         ssample = clamp(ssample, -1, 1)
@@ -399,9 +399,9 @@ function sfxr.Sound:generate(freq, bits)
         if bits == sfxr.BITS_FLOAT then
             return ssample
         elseif bits == sfxr.BITS_16 then
-            return trunc(ssample * 32000) % (256*256)
+            return trunc(ssample * 32000)
         else
-            return ssample * 127 + 128
+            return trunc(ssample * 127 + 128)
         end
     end
 

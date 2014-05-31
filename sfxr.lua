@@ -749,4 +749,106 @@ function sfxr.Sound:randomBlip(seed)
     self.highpass.cutoff = 0.1
 end
 
+function sfxr.Sound:exportWAV(f, freq, bits)
+    freq = freq or sfxr.FREQ_44100
+    bits = bits or sfxr.BITS_16
+    assert(freq == sfxr.FREQ_44100 or freq == sfxr.FREQ_22050, "Invalid freq argument")
+    assert(bits == sfxr.BITS_16 or bits == sfxr.BITS_8, "Invalid bits argument")
+
+    local close = false
+    if type(f) == "string" then
+        f = io.open(f, "wb")
+        close = true
+    end
+
+    -- Some utility functions
+    function seek(pos)
+        if io.type(f) == "file" then
+            f:seek("set", pos)
+        else
+            f:seek(pos)
+        end
+    end
+
+    function tell()
+        if io.type(f) == "file" then
+            return f:seek()
+        else
+            return f:tell()
+        end
+    end
+
+    function bytes(num, len)
+        local str = ""
+        for i = 1, len do
+            str = str .. string.char(math.mod(num, 256))
+            num = math.floor(num / 256)
+        end
+        return str
+    end
+
+    function w16(num)
+        f:write(bytes(num, 2))
+    end
+
+    function w32(num)
+        f:write(bytes(num, 4))
+    end
+
+    function ws(str)
+        f:write(str)
+    end
+
+    -- These will hold important file positions
+    local pos_fsize
+    local pos_csize
+
+    -- Start the file by writing the RIFF header
+    ws("RIFF")
+    pos_fsize = tell()
+    w32(0) -- remaining file size, will be replaced later
+    ws("WAVE") -- type
+
+    -- Write the format chunk
+    ws("fmt ")
+    w32(16) -- chunk size
+    w16(1) -- compression code (1 = PCM)
+    w16(1) -- channel number
+    w32(freq) -- sample rate
+    w32(freq * bits / 8) -- bytes per second
+    w16(bits / 8) -- block alignment
+    w16(bits) -- bits per sample
+
+    -- Write the header of the data chunk
+    ws("data")
+    pos_csize = tell()
+    w32(0) -- chunk size, will be replaced later
+
+    -- Aand write the actual sample data
+    local samples = 0
+
+    for v in self:generate(freq, bits) do
+        samples = samples + 1
+
+        if bits == sfxr.BITS_16 then
+            -- wrap around a bit
+            if v >= 256^2 then v = 0 end
+            if v < 0 then v = 256^2 - 1 end
+            w16(v)
+        else
+            f:write(string.char(v))
+        end
+    end
+
+    -- Seek back to the stored positions
+    seek(pos_fsize)
+    w32(pos_csize - 4 + samples * bits / 8) -- remaining file size
+    seek(pos_csize)
+    w32(samples * bits / 8) -- chunk size
+
+    if close then
+        f:close()
+    end
+end
+
 return sfxr

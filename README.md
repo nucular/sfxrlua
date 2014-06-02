@@ -35,3 +35,5 @@ sound:randomize()
 local buffer = sound:generateString()
 device:play(buffer, #buffer)
 ```
+
+**More documentation is available at the [Project Wiki](https://github.com/nucular/sfxrlua/wiki)**

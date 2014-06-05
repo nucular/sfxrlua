@@ -25,6 +25,8 @@ local sfxr = {}
 
 -- Constants
 
+sfxr.VERSION = "0.0"
+
 sfxr.SQUARE = 0
 sfxr.SAWTOOTH = 1
 sfxr.SINE = 2
@@ -60,6 +62,33 @@ local function cpypol(a, b)
     else
         return a
     end
+end
+
+local function shallowcopy(t)
+    if type(t) == "table" then
+        local t2 = {}
+        for k,v in pairs(t) do
+            t2[k] = v
+        end
+        return t2
+    else
+        return t
+    end
+end
+
+function mergetables(t1, t2)
+    for k, v in pairs(t2) do
+        if type(v) == "table" then
+            if type(t1[k] or false) == "table" then
+                mergetables(t1[k] or {}, t2[k] or {})
+            else
+                t1[k] = v
+            end
+        else
+            t1[k] = v
+        end
+    end
+    return t1
 end
 
 local function setseed(seed)
@@ -845,6 +874,96 @@ function sfxr.Sound:exportWAV(f, freq, bits)
     w32(pos_csize - 4 + samples * bits / 8) -- remaining file size
     seek(pos_csize)
     w32(samples * bits / 8) -- chunk size
+
+    if close then
+        f:close()
+    end
+end
+
+function sfxr.Sound:load(f)
+    local close = false
+    if type(f) == "string" then
+        f = io.open(f, "wb")
+        close = true
+    end
+end
+
+function sfxr.Sound:save(f, compressed)
+    local close = false
+    if type(f) == "string" then
+        f = io.open(f, "w")
+        close = true
+    end
+
+    local code = "local "
+
+    -- we'll compare the current parameters with the defaults
+    local defaults = sfxr.newSound()
+
+    -- this part is pretty awful but it works for now
+    function store(keys, obj)
+        local name = keys[#keys]
+
+        if type(obj) == "number" then
+            -- fetch the default value
+            local def = defaults
+            for i=2, #keys do
+                def = def[keys[i]]
+            end
+
+            if obj ~= def then
+                local k = table.concat(keys, ".")
+                if not compressed then
+                    code = code .. "\n" .. string.rep(" ", #keys - 1)
+                end
+                code = code .. string.format("%s=%s;", name, obj)
+            end
+
+        elseif type(obj) == "table" and name ~= "phaserbuffer" and name ~= "noisebuffer" then
+            local spacing = compressed and "" or "\n" .. string.rep(" ", #keys - 1)
+            code = code .. spacing .. string.format("%s={", name)
+
+            for k, v in pairs(obj) do
+                local newkeys = shallowcopy(keys)
+                newkeys[#newkeys + 1] = k
+                store(newkeys, v)
+            end
+
+            code = code .. spacing .. "};"
+        end
+    end
+
+    store({"s"}, self)
+    code = code .. "\nreturn s, \"" .. sfxr.VERSION .. "\"" 
+    f:write(code)
+
+    if close then
+        f:close()
+    end
+end
+
+function sfxr.Sound:load(f)
+    local close = false
+    if type(f) == "string" then
+        f = io.open(f, "r")
+        close = true
+    end
+
+    local code
+    if io.type(f) == "file" then
+        code = f:read("*a")
+    else
+        code = f:read()
+    end
+
+    local params, version = assert(loadstring(code))()
+    -- check version compatibility
+    if version > sfxr.VERSION then
+        return version
+    end
+
+    -- merge the loaded table into the own
+    mergetables(self, params)
 
     if close then
         f:close()

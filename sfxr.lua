@@ -25,7 +25,7 @@ local sfxr = {}
 
 -- Constants
 
-sfxr.VERSION = "0.0"
+sfxr.VERSION = "0.0.1"
 
 sfxr.SQUARE = 0
 sfxr.SAWTOOTH = 1
@@ -123,17 +123,12 @@ function sfxr.Sound:__init()
     self.lowpass = {}
     self.highpass = {}
 
-    -- Phaser and noise buffers
-    self.phaserbuffer = {}
-    self.noisebuffer = {}
-
     -- These won't be affected by Sound.resetParameters()
     self.supersamples = 8
     self.volume.master = 0.5
     self.volume.sound = 0.5
 
     self:resetParameters()
-    self:resetBuffers()
 end
 
 function sfxr.Sound:resetParameters()
@@ -171,17 +166,6 @@ function sfxr.Sound:resetParameters()
     self.highpass.sweep = 0.0
 end
 
-function sfxr.Sound:resetBuffers()
-    -- Reset the sample buffers
-    for i=1, 1025 do
-        self.phaserbuffer[i] = 0
-    end
-
-    for i=1, 33 do
-        self.noisebuffer[i] = random(-1, 1)
-    end
-end
-
 function sfxr.Sound:generate(freq, bits)
     -- Basically the main synthesizing function, yields the sample data
 
@@ -195,6 +179,18 @@ function sfxr.Sound:generate(freq, bits)
     local slide, dslide
     local square_duty, square_slide
     local chg_mod, chg_time, chg_limit
+
+    local phaserbuffer = {}
+    local noisebuffer = {}
+
+    -- Reset the sample buffers
+    for i=1, 1025 do
+        phaserbuffer[i] = 0
+    end
+
+    for i=1, 33 do
+        noisebuffer[i] = random(-1, 1)
+    end
 
     local function reset()
         -- subtract 0.017 to match the pitch of the original
@@ -263,7 +259,7 @@ function sfxr.Sound:generate(freq, bits)
 
     -- Yay, the main closure
 
-    local function iter()
+    local function next()
         -- Repeat maybe
         rep_time = rep_time + 1
         if rep_limit ~= 0 and rep_time >= rep_limit then
@@ -350,7 +346,7 @@ function sfxr.Sound:generate(freq, bits)
                 phase = phase % period
                 if self.wavetype == sfxr.NOISE then
                     for i = 1, 33 do
-                        self.noisebuffer[i] = random(-1, 1)
+                        noisebuffer[i] = random(-1, 1)
                     end
                 end
             end
@@ -374,7 +370,7 @@ function sfxr.Sound:generate(freq, bits)
                 sample = math.sin(fp * 2 * math.pi)
 
             elseif self.wavetype == sfxr.NOISE then
-                sample = self.noisebuffer[trunc(phase * 32 / period) % 32 + 1]
+                sample = noisebuffer[trunc(phase * 32 / period) % 32 + 1]
             end
 
             -- Apply the lowpass filter to the sample
@@ -398,8 +394,8 @@ function sfxr.Sound:generate(freq, bits)
 
             -- Apply the phaser to the sample
 
-            self.phaserbuffer[bit.band(ipp, 1023) + 1] = sample
-            sample = sample + self.phaserbuffer[bit.band(ipp - iphase + 1024, 1023) + 1]
+            phaserbuffer[bit.band(ipp, 1023) + 1] = sample
+            sample = sample + phaserbuffer[bit.band(ipp - iphase + 1024, 1023) + 1]
             ipp = bit.band(ipp + 1, 1023)
 
             -- Accumulation and envelope application
@@ -417,7 +413,7 @@ function sfxr.Sound:generate(freq, bits)
         second_sample = not second_sample
         if freq == sfxr.FREQ_22050 and second_sample then
             -- hah!
-            local nsample = iter()
+            local nsample = next()
             if nsample then
                 return (ssample + nsample) / 2
             else
@@ -435,7 +431,7 @@ function sfxr.Sound:generate(freq, bits)
         end
     end
 
-    return iter
+    return next
 end
 
 function sfxr.Sound:getEnvelopeLimit(freq)
@@ -919,7 +915,7 @@ function sfxr.Sound:save(f, compressed)
                 code = code .. string.format("%s=%s;", name, obj)
             end
 
-        elseif type(obj) == "table" and name ~= "phaserbuffer" and name ~= "noisebuffer" then
+        elseif type(obj) == "table" then
             local spacing = compressed and "" or "\n" .. string.rep(" ", #keys - 1)
             code = code .. spacing .. string.format("%s={", name)
 

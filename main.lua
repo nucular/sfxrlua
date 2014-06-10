@@ -114,8 +114,6 @@ function playSound()
     if source then
         source:stop()
     end
-
-    sound:resetBuffers()
     
     local t = love.timer.getTime()
     local tab = sound:generateTable(sfxr.FREQ_44100, sfxr.BITS_FLOAT)

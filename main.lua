@@ -162,7 +162,7 @@ function playSound()
     if sounddata then
         source = love.audio.newSource(sounddata)
         source:play()
-        playbutton:SetText("Stop")
+        playbutton:SetText("Stop Playing")
         playing = true
     end
 end
@@ -342,7 +342,7 @@ function createActionButtons()
     f:SetName("Actions")
 
     local b = lf.Create("button")
-    b:SetText("Play")
+    b:SetText("Generate and Play")
     b:SetWidth(140)
     b.OnClick = function(o)
         if not playing then
@@ -354,23 +354,27 @@ function createActionButtons()
     playbutton = b
     f:AddItem(b)
 
-    local b = lf.Create("button")
-    b:SetText("Save")
-    b:SetWidth(140)
-    f:AddItem(b)
+    local sb = lf.Create("button")
+    sb:SetText("Save")
+    sb:SetWidth(67)
+    f:AddItem(sb)
 
-    local b = lf.Create("button")
-    b:SetText("Load")
-    b:SetWidth(140)
-    f:AddItem(b)
+    local lb = lf.Create("button")
+    lb:SetText("Load")
+    lb:SetWidth(67)
+    f:AddItem(lb)
 
-    local b = lf.Create("button")
-    b:SetText("Export WAV")
-    b:SetWidth(140)
-    f:AddItem(b)
+    local eb = lf.Create("button")
+    eb:SetText("Export WAV")
+    eb:SetWidth(140)
+    f:AddItem(eb)
 
-    f:SetPos(485, 455)
-    f:SetSize(150, 140)
+    f:SetPos(485, 485)
+    f:SetSize(150, 110)
+
+    -- well ugh
+    lb:SetPos(78, 47)
+    eb:SetY(77)
 end
 
 function createOther()
@@ -419,7 +423,7 @@ function createOther()
     s:SetValue(sound.volume.sound)
     f:AddItem(s)
 
-    f:SetPos(485, 185)
+    f:SetPos(485, 370)
     f:SetWidth(150)
 
 
@@ -446,7 +450,7 @@ function createOther()
     f:AddItem(t)
     statistics.durationtext = t
 
-    f:SetPos(485, 300)
+    f:SetPos(485, 185)
     f:SetWidth(150)
 end
 
@@ -546,7 +550,7 @@ function love.update(dt)
     if source then
         if playing and not source:isPlaying() then
             playing = false
-            playbutton:SetText("Play")
+            playbutton:SetText("Generate and Play")
         end
     end
 end

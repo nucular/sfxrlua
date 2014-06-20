@@ -237,7 +237,7 @@ function createRandomizers()
         playSound()
     end
 
-    f:SetPos(5, 395)
+    f:SetPos(5, 515)
     f:SetSize(110, 80)
 end
 
@@ -248,7 +248,7 @@ function createParameters()
     local l = lf.Create("list")
     l:SetSpacing(5)
     l:SetPadding(5)
-    l:SetSize(340, 445)
+    l:SetSize(340, 565)
     f:AddItem(l)
 
 
@@ -334,12 +334,12 @@ function createParameters()
 
 
     f:SetPos(125, 5)
-    f:SetSize(350, 470)
+    f:SetSize(350, 590)
 end
 
-function createPlayButton()
+function createActionButtons()
     local f = lf.Create("form")
-    f:SetName("Play")
+    f:SetName("Actions")
 
     local b = lf.Create("button")
     b:SetText("Play")
@@ -354,8 +354,23 @@ function createPlayButton()
     playbutton = b
     f:AddItem(b)
 
-    f:SetPos(485, 425)
-    f:SetSize(150, 50)
+    local b = lf.Create("button")
+    b:SetText("Save")
+    b:SetWidth(140)
+    f:AddItem(b)
+
+    local b = lf.Create("button")
+    b:SetText("Load")
+    b:SetWidth(140)
+    f:AddItem(b)
+
+    local b = lf.Create("button")
+    b:SetText("Export WAV")
+    b:SetWidth(140)
+    f:AddItem(b)
+
+    f:SetPos(485, 455)
+    f:SetSize(150, 140)
 end
 
 function createOther()
@@ -515,7 +530,7 @@ function love.load()
     createPresetGenerators()
     createRandomizers()
     createParameters()
-    createPlayButton()
+    createActionButtons()
     createOther()
 
     wavecanvas = love.graphics.newCanvas(125, 140)

@@ -354,19 +354,55 @@ function createActionButtons()
     playbutton = b
     f:AddItem(b)
 
+    local fr = lf.Create("frame")
+    fr:SetSize(300, 105)
+    fr:Center()
+    fr:SetVisible(false)
+    fr:SetModal(false)
+    fr.OnClose = function(o)
+        fr:SetVisible(false):SetModal(false)
+        return false
+    end
+    local frb = lf.Create("button", fr)
+    frb:SetText("Okay")
+    frb:SetPos(5, 70)
+    frb.OnClick = function(o)
+        fr:SetVisible(false):SetModal(false)
+    end
+    local frt = lf.Create("text", fr)
+    frt:SetPos(5, 30)
+
     local sb = lf.Create("button")
     sb:SetText("Save")
     sb:SetWidth(67)
+    sb.OnClick = function(o)
+        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.lua"
+        sound:save(p, true)
+        frt:SetText("Saved to\n" .. p)
+        fr:SetVisible(true):SetModal(true):Center()
+    end
     f:AddItem(sb)
 
     local lb = lf.Create("button")
     lb:SetText("Load")
     lb:SetWidth(67)
+    lb.OnClick = function(o)
+        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.lua"
+        sound:load(p)
+        frt:SetText("Loaded from\n" .. p)
+        fr:SetVisible(true):SetModal(true):Center()
+    end
     f:AddItem(lb)
 
     local eb = lf.Create("button")
     eb:SetText("Export WAV")
     eb:SetWidth(140)
+    eb.OnClick = function(o)
+        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.wav"
+        sound:exportWAV(p)
+        frt:SetText("Exported WAV to\n" .. p)
+        fr:SetVisible(true):SetModal(true):Center()
+    end
     f:AddItem(eb)
 
     f:SetPos(485, 485)

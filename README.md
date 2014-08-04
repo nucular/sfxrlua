@@ -17,7 +17,7 @@ local sfxr = require("sfxr")
 function love.load()
     local sound = sfxr.newSound()
     sound:randomize()
-    love.audio.newSource(sound:generateSoundData()):play()
+    sound:play()
 end
 ```
 

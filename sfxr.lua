@@ -22,6 +22,7 @@ SOFTWARE.
 ]]--
 
 local sfxr = {}
+local bit = bit32 or require("bit")
 
 -- Constants
 
@@ -466,6 +467,41 @@ function sfxr.Sound:generateTable(freq, bits)
     return t
 end
 
+function sfxr.Sound:generateString(freq, bits, endianness)
+    assert(bits == sfxr.BITS_16 or bits == sfxr.BITS_8, "Invalid bits argument")
+    assert(endianness == "big" or endianness == "little", "Invalid endianness")
+    local s = ""
+
+    local buf = {}
+    buf[100] = 0
+    local i = 1
+
+    for v in self:generate(freq, bits) do
+        if bits == sfxr.BITS_8 then
+            buf[i] = v
+            i = i + 1
+        else
+            if endianness == "big" then
+                buf[i] = bit.rshift(v, 8)
+                buf[i + 1] = bit.band(v, 0xFF)
+                i = i + 2
+            else
+                buf[i] = bit.band(v, 0xFF)
+                buf[i + 1] = bit.rshift(v, 8)
+                i = i + 2
+            end
+        end
+
+        if i >= 100 then
+            s = s .. string.char(unpack(buf))
+            i = 0
+        end
+    end
+
+    s = s .. string.char(unpack(buf, i, 100))
+    return s
+end
+
 function sfxr.Sound:generateSoundData(freq, bits)
     freq = freq or sfxr.FREQ_44100
     local tab = self:generateTable(freq, sfxr.BITS_FLOAT)
@@ -806,7 +842,7 @@ function sfxr.Sound:exportWAV(f, freq, bits)
     function bytes(num, len)
         local str = ""
         for i = 1, len do
-            str = str .. string.char(math.mod(num, 256))
+            str = str .. string.char(num % 256)
             num = math.floor(num / 256)
         end
         return str

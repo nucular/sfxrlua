@@ -374,7 +374,7 @@ function createActionButtons()
     frt:SetPos(5, 30)
 
     local sb = lf.Create("button")
-    sb:SetText("Save")
+    sb:SetText("Save Lua")
     sb:SetWidth(67)
     sb.OnClick = function(o)
         local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.lua"
@@ -385,7 +385,7 @@ function createActionButtons()
     f:AddItem(sb)
 
     local lb = lf.Create("button")
-    lb:SetText("Load")
+    lb:SetText("Load Lua")
     lb:SetWidth(67)
     lb.OnClick = function(o)
         local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.lua"
@@ -394,6 +394,28 @@ function createActionButtons()
         fr:SetVisible(true):SetModal(true):Center()
     end
     f:AddItem(lb)
+
+    local bsb = lf.Create("button")
+    bsb:SetText("Save binary")
+    bsb:SetWidth(67)
+    bsb.OnClick = function(o)
+        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.sfxr"
+        sound:saveBinary(p)
+        frt:SetText("Saved to\n" .. p)
+        fr:SetVisible(true):SetModal(true):Center()
+    end
+    f:AddItem(bsb)
+
+    local blb = lf.Create("button")
+    blb:SetText("Load binary")
+    blb:SetWidth(67)
+    blb.OnClick = function(o)
+        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.sfxr"
+        sound:loadBinary(p)
+        frt:SetText("Loaded from\n" .. p)
+        fr:SetVisible(true):SetModal(true):Center()
+    end
+    f:AddItem(blb)
 
     local eb = lf.Create("button")
     eb:SetText("Export WAV")
@@ -406,12 +428,14 @@ function createActionButtons()
     end
     f:AddItem(eb)
 
-    f:SetPos(485, 485)
-    f:SetSize(150, 110)
+    f:SetPos(485, 455)
+    f:SetSize(150, 140)
 
     -- well ugh
     lb:SetPos(78, 47)
-    eb:SetY(77)
+    bsb:SetY(77)
+    blb:SetPos(78, 77)
+    eb:SetY(107)
 end
 
 function createOther()
@@ -460,7 +484,7 @@ function createOther()
     s:SetValue(sound.volume.sound)
     f:AddItem(s)
 
-    f:SetPos(485, 370)
+    f:SetPos(485, 340)
     f:SetWidth(150)
 
 

@@ -912,14 +912,6 @@ function sfxr.Sound:exportWAV(f, freq, bits)
     end
 end
 
-function sfxr.Sound:load(f)
-    local close = false
-    if type(f) == "string" then
-        f = io.open(f, "wb")
-        close = true
-    end
-end
-
 function sfxr.Sound:save(f, compressed)
     local close = false
     if type(f) == "string" then

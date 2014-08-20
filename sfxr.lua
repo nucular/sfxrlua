@@ -763,7 +763,7 @@ function sfxr.Sound:randomHit(seed)
     end
 
     self.frequency.start = random(0.2, 0.8)
-    self.frequency.glide = -0.3 - random(0, 0.4)
+    self.frequency.slide = -0.3 - random(0, 0.4)
     self.envelope.attack = 0
     self.envelope.sustain = random(0, 0.1)
     self.envelope.decay = random(0.1, 0.3)

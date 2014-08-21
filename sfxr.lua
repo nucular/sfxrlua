@@ -41,8 +41,13 @@ sfxr.BITS_8 = 8
 
 -- Utilities
 
+-- Simulates a C int cast
 local function trunc(n)
-    return math.floor(n - 0.5)
+    if n >= 0 then
+        return math.floor(n)
+    else
+        return -math.floor(-n)
+    end
 end
 
 local function random(low, high)
@@ -55,14 +60,6 @@ end
 
 local function clamp(n, min, max)
     return math.max(min or -math.huge, math.min(max or math.huge, n))
-end
-
-local function cpypol(a, b)
-    if b < 0 then
-        return -a
-    else
-        return a
-    end
 end
 
 local function shallowcopy(t)
@@ -194,11 +191,10 @@ function sfxr.Sound:generate(freq, bits)
     end
 
     local function reset()
-        -- subtract 0.017 to match the pitch of the original
-        fperiod = 100 / ((self.frequency.start - 0.017)^2 + 0.001)
+        fperiod = 100 / (self.frequency.start^2 + 0.001)
         maxperiod = 100 / (self.frequency.min^2 + 0.001)
         period = trunc(fperiod)
-        
+
         slide = 1.0 - self.frequency.slide^3 * 0.01
         dslide = -self.frequency.dslide^3 * 0.000001
 
@@ -208,17 +204,17 @@ function sfxr.Sound:generate(freq, bits)
         if self.change.amount >= 0 then
             chg_mod = 1.0 - self.change.amount^2 * 0.9
         else
-            chg_mod = 1.0 - self.change.amount^2 * 10
+            chg_mod = 1.0 + self.change.amount^2 * 10
         end
 
         chg_time = 0
-        chg_limit = 0
         if self.change.speed == 1 then
             chg_limit = 0
         else
             chg_limit = trunc((1 - self.change.speed)^2 * 20000 + 32)
         end
     end
+    local phase = 0
     reset()
 
     local second_sample = false
@@ -230,13 +226,13 @@ function sfxr.Sound:generate(freq, bits)
         self.envelope.sustain^2 * 100000,
         self.envelope.decay^2 * 100000}
 
-    local phase = self.phaser.offset^2 * 1020
-    phase = cpypol(phase, self.phaser.offset)
+    local fphase = self.phaser.offset^2 * 1020
+    if self.phaser.offset < 0 then fphase = -fphase end
     local dphase = self.phaser.sweep^2
-    dphase = cpypol(dphase, self.phaser.sweep)
+    if self.phaser.sweep < 0 then dphase = -dphase end
     local ipp = 0
 
-    local iphase = math.abs(trunc(phase))
+    local iphase = math.abs(trunc(fphase))
 
     local fltp = 0
     local fltdp = 0
@@ -324,8 +320,8 @@ function sfxr.Sound:generate(freq, bits)
 
         -- Phaser
 
-        phase = phase + dphase
-        iphase = clamp(math.abs(trunc(phase)), nil, 1023)
+        fphase = fphase + dphase
+        iphase = clamp(math.abs(trunc(fphase)), nil, 1023)
 
         -- Filter stuff
 

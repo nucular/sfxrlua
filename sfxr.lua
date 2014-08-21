@@ -185,11 +185,11 @@ function sfxr.Sound:generate(freq, bits)
     local noisebuffer = {}
 
     -- Reset the sample buffers
-    for i=1, 1025 do
+    for i=1, 1024 do
         phaserbuffer[i] = 0
     end
 
-    for i=1, 33 do
+    for i=1, 32 do
         noisebuffer[i] = random(-1, 1)
     end
 
@@ -336,7 +336,7 @@ function sfxr.Sound:generate(freq, bits)
         -- And finally the actual tone generation and supersampling
 
         local ssample = 0
-        for si = 0, self.supersamples do
+        for si = 0, self.supersamples-1 do
             local sample = 0
 
             phase = phase + 1
@@ -346,7 +346,7 @@ function sfxr.Sound:generate(freq, bits)
                 --phase = 0
                 phase = phase % period
                 if self.wavetype == sfxr.NOISE then
-                    for i = 1, 33 do
+                    for i = 1, 32 do
                         noisebuffer[i] = random(-1, 1)
                     end
                 end

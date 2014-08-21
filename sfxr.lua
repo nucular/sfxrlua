@@ -894,7 +894,7 @@ function sfxr.Sound:exportWAV(f, freq, bits)
         if bits == sfxr.BITS_16 then
             -- wrap around a bit
             if v >= 256^2 then v = 0 end
-            if v < 0 then v = 256^2 - 1 end
+            if v < 0 then v = 256^2 + v end
             w16(v)
         else
             f:write(string.char(v))

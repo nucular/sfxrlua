@@ -114,7 +114,7 @@ function playSound()
     if source then
         source:stop()
     end
-    
+
     local t = love.timer.getTime()
     local tab = sound:generateTable(sfxr.FREQ_44100, sfxr.BITS_FLOAT)
     t = love.timer.getTime() - t
@@ -390,6 +390,7 @@ function createActionButtons()
     lb.OnClick = function(o)
         local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.lua"
         sound:load(p)
+        updateParameters()
         frt:SetText("Loaded from\n" .. p)
         fr:SetVisible(true):SetModal(true):Center()
     end

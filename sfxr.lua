@@ -450,20 +450,13 @@ function sfxr.Sound:getEnvelopeLimit(freq)
     end
 end
 
-function sfxr.Sound:getLimit(freq)
-    return self:getEnvelopeLimit(freq)
-end
-
 function sfxr.Sound:generateTable(freq, bits)
     local t = {}
-    t[self:getLimit(freq)] = 0
-
     local i = 1
     for v in self:generate(freq, bits) do
-        t[i] = v or 0
+        t[i] = v
         i = i + 1
     end
-
     return t
 end
 

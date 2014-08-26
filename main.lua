@@ -269,18 +269,17 @@ function createParameters()
 
     -- Repeat speed
     local t = lf.Create("text"):SetPos(0, pheight)
-    t:SetText("Repeat Speed 0.00")
+    t:SetText("Repeat Speed 0")
     local s = lf.Create("slider")
     s:SetWidth(120)
     s:SetMinMax(0, 1)
     s:SetValue(sound.repeatspeed)
-    s.Update = function(o)
-        local v = math.floor(s:GetValue() * 100) / 100
-
-        if v <= 0.02 and v >= -0.02 then
-            s:SetValue(0)
+    s.OnValueChanged = function(o)
+        local v = o:GetValue()
+        if v <= 0.02 and v >= -0.02 and v ~= 0 then
+            o:SetValue(0)
             sound.repeatspeed = 0
-            t:SetText("Repeat Speed 0.00")
+            t:SetText("Repeat Speed 0")
         else
             sound.repeatspeed = v
             t:SetText("Repeat Speed " .. tostring(math.floor(v * 100) / 100))
@@ -305,24 +304,22 @@ function createParameters()
 
         for i2, v2 in ipairs(v1[3]) do
             lf.Create("text", p):SetPos(0, pheight):SetText(v2[1])
-            local t = lf.Create("text", p):SetPos(95, pheight):SetText("0.00")
+            local t = lf.Create("text", p):SetPos(95, pheight):SetText("0")
 
             local s = lf.Create("slider", p):SetPos(130, pheight - 3):SetWidth(170)
             s:SetMinMax(v2[3], v2[4])
             s:SetValue(sound[v1[2]][v2[2]])
 
-            s.Update = function(o)
-                local v = s:GetValue()
-
-                if v <= 0.02 and v >= -0.02 then
-                    s:SetValue(0)
+            s.OnValueChanged = function(o)
+                local v = o:GetValue()
+                if v <= 0.02 and v >= -0.02 and v ~= 0 then
+                    o:SetValue(0)
                     sound[v1[2]][v2[2]] = 0
-                    t:SetText("0.00")
+                    t:SetText("0")
                 else
                     sound[v1[2]][v2[2]] = v
                     t:SetText(math.floor(v * 100) / 100)
                 end
-                
             end
 
             guiparams[v1[2]][v2[2]] = {s, t}
@@ -455,10 +452,10 @@ function createOther()
     local s = lf.Create("slider")
     s:SetMinMax(0, 1)
     s:SetSize(135, 20)
-    s.Update = function(o)
-        local v = s:GetValue()
-        if v <= 0.52 and v >= 0.48 then
-            s:SetValue(0.5)
+    s.OnValueChanged = function(o)
+        local v = o:GetValue()
+        if v <= 0.52 and v >= 0.48 and v ~= 0.5 then
+            o:SetValue(0.5)
             v = 0.5
         end
         sound.volume.master = v
@@ -473,10 +470,10 @@ function createOther()
     local s = lf.Create("slider")
     s:SetMinMax(0, 1)
     s:SetSize(135, 20)
-    s.Update = function(o)
-        local v = s:GetValue()
-        if v <= 0.52 and v >= 0.48 then
-            s:SetValue(0.5)
+    s.OnValueChanged = function(o)
+        local v = o:GetValue()
+        if v <= 0.52 and v >= 0.48 and v ~= 0.5 then
+            o:SetValue(0.5)
             v = 0.5
         end
         sound.volume.sound = v

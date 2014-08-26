@@ -50,18 +50,30 @@ local function trunc(n)
     end
 end
 
+-- Sets the random seed and initializes the generator
+local function setseed(seed)
+    math.randomseed(seed)
+    for i=0, 5 do
+        math.random()
+    end
+end
+
+-- Returns a random number between low and high
 local function random(low, high)
     return low + math.random() * (high - low)
 end
 
+-- Returns a random boolean weighted to false by n
 local function maybe(n)
     return trunc(random(0, n or 1)) == 0
 end
 
+-- Clamps n between min and max
 local function clamp(n, min, max)
     return math.max(min or -math.huge, math.min(max or math.huge, n))
 end
 
+-- Copies a table (shallow) or a primitive
 local function shallowcopy(t)
     if type(t) == "table" then
         local t2 = {}
@@ -74,7 +86,8 @@ local function shallowcopy(t)
     end
 end
 
-function mergetables(t1, t2)
+-- Merges table t2 into t1
+local function mergetables(t1, t2)
     for k, v in pairs(t2) do
         if type(v) == "table" then
             if type(t1[k] or false) == "table" then
@@ -89,16 +102,8 @@ function mergetables(t1, t2)
     return t1
 end
 
-local function setseed(seed)
-    math.randomseed(seed)
-    for i=0, 5 do
-        math.random()
-    end
-end
-
--- IEEE754 32-bit big-endian floating point numbers
+-- Packs a number into a IEEE754 32-bit big-endian floating point binary string
 -- source: https://stackoverflow.com/questions/14416734/
-
 local function packIEEE754(number)
 	if number == 0 then
 		return string.char(0x00, 0x00, 0x00, 0x00)
@@ -134,6 +139,7 @@ local function packIEEE754(number)
 	end
 end
 
+-- Unpacks a IEEE754 32-bit big-endian floating point string to a number
 local function unpackIEEE754(packed)
 	local b1, b2, b3, b4 = string.byte(packed, 1, 4)
 	local exponent = (b1 % 0x80) * 0x02 + math.floor(b2 / 0x80)
@@ -317,7 +323,7 @@ function sfxr.Sound:generate(freq, bits)
     -- Yay, the main closure
 
     local function next()
-        -- Repeat maybe
+        -- Repeat when needed
         rep_time = rep_time + 1
         if rep_limit ~= 0 and rep_time >= rep_limit then
             rep_time = 0
@@ -337,7 +343,7 @@ function sfxr.Sound:generate(freq, bits)
 
         if fperiod > maxperiod then
             fperiod = maxperiod
-            -- If the frequency is too low, stop generating
+            -- XXX: Fail if the minimum frequency is too small
             if (self.frequency.min > 0) then
                 return nil
             end
@@ -347,6 +353,7 @@ function sfxr.Sound:generate(freq, bits)
         local rfperiod = fperiod
         if vib_amp > 0 then
             vib_phase = vib_phase + vib_speed
+            -- Apply to the frequency period
             rfperiod = fperiod * (1.0 + math.sin(vib_phase) * vib_amp)
         end
 
@@ -370,6 +377,7 @@ function sfxr.Sound:generate(freq, bits)
             end
         end
 
+        -- Attack, Sustain, Decay/Release
         if env_stage == 1 then
             env_vol = env_time / env_length[1]
         elseif env_stage == 2 then
@@ -408,11 +416,11 @@ function sfxr.Sound:generate(freq, bits)
                 end
             end
 
-            -- Tone oscillators ahead!!!
+            -- Tone generators ahead!!!
 
-            -- update the base waveform
             local fp = phase / period
 
+            -- Square, including square duty
             if self.wavetype == sfxr.SQUARE then
                 if fp < square_duty then
                     sample = 0.5
@@ -420,12 +428,15 @@ function sfxr.Sound:generate(freq, bits)
                     sample = -0.5
                 end
 
+            -- Sawtooth
             elseif self.wavetype == sfxr.SAWTOOTH then
                 sample = 1 - fp * 2
 
+            -- Sine
             elseif self.wavetype == sfxr.SINE then
                 sample = math.sin(fp * 2 * math.pi)
 
+            -- Pitched white noise
             elseif self.wavetype == sfxr.NOISE then
                 sample = noisebuffer[trunc(phase * 32 / period) % 32 + 1]
             end

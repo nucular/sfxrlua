@@ -548,7 +548,7 @@ function updateWaveCanvas(waveview)
     local last = 70
     for i, v in ipairs(waveview) do
         local x = (i * step)
-        local y = (v + 1) * 70
+        local y = (-v + 1) * 70
 
         love.graphics.line(x - step, last, x, y)
         last = y

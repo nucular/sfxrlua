@@ -2,7 +2,7 @@ sfxr.lua
 ========
 
 A port of the sfxr sound effect synthesizer to pure Lua, designed to be used
-together with the *awesome* Löve2D game framework.
+together with the *awesome* Löve game framework.
 
 
 Example usage
@@ -10,7 +10,7 @@ Example usage
 
 These examples should play a randomly generated sound.
 
-With [Löve2D](http://love2d.org) 0.9:
+With [Löve](http://love2d.org) 0.9.x:
 ```lua
 local sfxr = require("sfxr")
 

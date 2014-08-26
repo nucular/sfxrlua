@@ -99,6 +99,66 @@ local function setseed(seed)
     end
 end
 
+-- IEEE754 32-bit big-endian floating point numbers
+-- source: https://stackoverflow.com/questions/14416734/
+
+local function packIEEE754(number)
+	if number == 0 then
+		return string.char(0x00, 0x00, 0x00, 0x00)
+	elseif number ~= number then
+		return string.char(0xFF, 0xFF, 0xFF, 0xFF)
+	else
+		local sign = 0x00
+		if number < 0 then
+			sign = 0x80
+			number = -number
+		end
+		local mantissa, exponent = math.frexp(number)
+		exponent = exponent + 0x7F
+		if exponent <= 0 then
+			mantissa = math.ldexp(mantissa, exponent - 1)
+			exponent = 0
+		elseif exponent > 0 then
+			if exponent >= 0xFF then
+				return string.char(sign + 0x7F, 0x80, 0x00, 0x00)
+			elseif exponent == 1 then
+				exponent = 0
+			else
+				mantissa = mantissa * 2 - 1
+				exponent = exponent - 1
+			end
+		end
+		mantissa = math.floor(math.ldexp(mantissa, 23) + 0.5)
+		return string.char(
+			sign + math.floor(exponent / 2),
+			(exponent % 2) * 0x80 + math.floor(mantissa / 0x10000),
+			math.floor(mantissa / 0x100) % 0x100,
+			mantissa % 0x100)
+	end
+end
+
+local function unpackIEEE754(packed)
+	local b1, b2, b3, b4 = string.byte(packed, 1, 4)
+	local exponent = (b1 % 0x80) * 0x02 + math.floor(b2 / 0x80)
+	local mantissa = math.ldexp(((b2 % 0x80) * 0x100 + b3) * 0x100 + b4, -23)
+	if exponent == 0xFF then
+		if mantissa > 0 then
+			return 0 / 0
+		else
+			mantissa = math.huge
+			exponent = 0x7F
+		end
+	elseif exponent > 0 then
+		mantissa = mantissa + 1
+	else
+		exponent = exponent + 1
+	end
+	if b1 >= 0x80 then
+		mantissa = -mantissa
+	end
+	return math.ldexp(mantissa, exponent - 0x7F)
+end
+
 -- Constructor
 
 function sfxr.newSound(...)
@@ -756,7 +816,7 @@ function sfxr.Sound:randomHit(seed)
     end
 
     self.frequency.start = random(0.2, 0.8)
-    self.frequency.glide = -0.3 - random(0, 0.4)
+    self.frequency.slide = -0.3 - random(0, 0.4)
     self.envelope.attack = 0
     self.envelope.sustain = random(0, 0.1)
     self.envelope.decay = random(0.1, 0.3)
@@ -905,14 +965,6 @@ function sfxr.Sound:exportWAV(f, freq, bits)
     end
 end
 
-function sfxr.Sound:load(f)
-    local close = false
-    if type(f) == "string" then
-        f = io.open(f, "wb")
-        close = true
-    end
-end
-
 function sfxr.Sound:save(f, compressed)
     local close = false
     if type(f) == "string" then
@@ -993,6 +1045,135 @@ function sfxr.Sound:load(f)
     if close then
         f:close()
     end
+end
+
+function sfxr.Sound:saveBinary(f)
+    local close = false
+    if type(f) == "string" then
+        f = io.open(f, "w")
+        close = true
+    end
+
+    function writeFloat(x)
+        local packed = packIEEE754(x):reverse()
+        assert(packed:len() == 4)
+        f:write(packed)
+    end
+
+    f:write('\x66\x00\x00\x00') -- version 102
+    assert(self.wavetype < 256)
+    f:write(string.char(self.wavetype) .. '\x00\x00\x00')
+    writeFloat(self.volume.sound)
+
+    writeFloat(self.frequency.start)
+    writeFloat(self.frequency.min)
+    writeFloat(self.frequency.slide)
+    writeFloat(self.frequency.dslide)
+    writeFloat(self.duty.ratio)
+    writeFloat(self.duty.sweep)
+
+    writeFloat(self.vibrato.depth)
+    writeFloat(self.vibrato.speed)
+    writeFloat(self.vibrato.delay)
+
+    writeFloat(self.envelope.attack)
+    writeFloat(self.envelope.sustain)
+    writeFloat(self.envelope.decay)
+    writeFloat(self.envelope.punch)
+
+    f:write('\x00') -- unused filter_on boolean
+    writeFloat(self.lowpass.resonance)
+    writeFloat(self.lowpass.cutoff)
+    writeFloat(self.lowpass.sweep)
+    writeFloat(self.highpass.cutoff)
+    writeFloat(self.highpass.sweep)
+
+    writeFloat(self.phaser.offset)
+    writeFloat(self.phaser.sweep)
+
+    writeFloat(self.repeatspeed)
+
+    writeFloat(self.change.speed)
+    writeFloat(self.change.amount)
+
+    if close then
+        f:close()
+    end
+end
+
+function sfxr.Sound:loadBinary(f)
+    local close = false
+    if type(f) == "string" then
+        f = io.open(f, "r")
+        close = true
+    end
+
+    local s
+    if io.type(f) == "file" then
+        s = f:read("*a")
+    else
+        s = f:read()
+    end
+
+    if close then
+        f:close()
+    end
+
+    local off = 1
+
+    local function readFloat()
+        local f = unpackIEEE754(s:sub(off, off+3):reverse())
+        off = off + 4
+        return f
+    end
+
+    -- Start reading the string
+
+    local version = s:byte(off)
+    off = off + 4
+    if version < 100 or version > 102 then
+        return nil, "unknown version number "..version
+    end
+
+    self.wavetype = s:byte(off)
+    off = off + 4
+    self.volume.sound = version==102 and readFloat() or 0.5
+
+    self.frequency.start = readFloat()
+    self.frequency.min = readFloat()
+    self.frequency.slide = readFloat()
+    self.frequency.dslide = version>=101 and readFloat() or 0
+
+    self.duty.ratio = readFloat()
+    self.duty.sweep = readFloat()
+
+    self.vibrato.depth = readFloat()
+    self.vibrato.speed = readFloat()
+    self.vibrato.delay = readFloat()
+
+    self.envelope.attack = readFloat()
+    self.envelope.sustain = readFloat()
+    self.envelope.decay = readFloat()
+    self.envelope.punch = readFloat()
+
+    off = off + 1 -- filter_on - seems to be ignored in the C++ version
+    self.lowpass.resonance = readFloat()
+    self.lowpass.cutoff = readFloat()
+    self.lowpass.sweep = readFloat()
+    self.highpass.cutoff = readFloat()
+    self.highpass.sweep = readFloat()
+
+    self.phaser.offset = readFloat()
+    self.phaser.sweep = readFloat()
+
+    self.repeatspeed = readFloat()
+
+    if version >= 101 then
+        self.change.speed = readFloat()
+        self.change.amount = readFloat()
+    end
+
+    assert(off-1 == s:len())
 end
 
 return sfxr

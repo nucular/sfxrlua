@@ -374,7 +374,7 @@ function createActionButtons()
     sb:SetText("Save Lua")
     sb:SetWidth(67)
     sb.OnClick = function(o)
-        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.lua"
+        local p = "sound.lua"
         sound:save(p, true)
         frt:SetText("Saved to\n" .. p)
         fr:SetVisible(true):SetModal(true):Center()
@@ -385,7 +385,7 @@ function createActionButtons()
     lb:SetText("Load Lua")
     lb:SetWidth(67)
     lb.OnClick = function(o)
-        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.lua"
+        local p = "sound.lua"
         sound:load(p)
         updateParameters()
         frt:SetText("Loaded from\n" .. p)
@@ -419,7 +419,7 @@ function createActionButtons()
     eb:SetText("Export WAV")
     eb:SetWidth(140)
     eb.OnClick = function(o)
-        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.wav"
+        local p = "sound.wav"
         sound:exportWAV(p)
         frt:SetText("Exported WAV to\n" .. p)
         fr:SetVisible(true):SetModal(true):Center()

@@ -351,79 +351,116 @@ function createActionButtons()
     playbutton = b
     f:AddItem(b)
 
+
     local fr = lf.Create("frame")
-    fr:SetName("Alright")
-    fr:SetSize(400, 105)
+    fr:SetName("File Picker")
+    fr:SetSize(400, 300)
     fr:Center()
     fr:SetVisible(false)
     fr:SetModal(false)
+    
+    local frl = lf.Create("columnlist", fr)
+    frl:SetPos(5, 30)
+    frl:SetSize(390, 235)
+    frl:AddColumn("Name")
+
+    local frt = lf.Create("textinput", fr)
+    frt:SetPos(5, 270)
+    frt:SetWidth(300)
+    local frb = lf.Create("button", fr)
+    frb:SetPos(315, 270)
+
+    frl.OnRowSelected = function(p, row, data)
+        frt:SetText(data[1])
+    end
+
     fr.OnClose = function(o)
+        frl:Clear()
         fr:SetVisible(false):SetModal(false)
         return false
     end
-    local frb = lf.Create("button", fr)
-    frb:SetText("Okay")
-    frb:SetPos(5, 70)
-    frb.OnClick = function(o)
-        fr:SetVisible(false):SetModal(false)
+
+    local function save(type, cb)
+        return function()
+            fr:SetName("Save to ." .. type)
+            frt:SetText("sound." .. type)
+            frb:SetText("Save")
+            love.filesystem.getDirectoryItems("sounds", function(name)
+                if name:find(type, #type-#name+1, true) then
+                    frl:AddRow(name)
+                end
+            end)
+            frb.OnClick = function(o)
+                local name = frt:GetText()
+                if (#name > 0) then
+                    local f = love.filesystem.newFile("sounds/" .. name, "w")
+                    if f then
+                        cb(f)
+                        frl:Clear()
+                        fr:SetVisible(false):SetModal(false)
+                    end
+                end
+            end
+            frt.OnEnter = frb.OnClick
+            fr:SetVisible(true):SetModal(true):Center()
+        end
     end
-    local frt = lf.Create("text", fr)
-    frt:SetPos(5, 30)
+
+    local function load(type, cb)
+        return function()
+            fr:SetName("Load from ." .. type)
+            frt:SetText("sound." .. type)
+            frb:SetText("Load")
+            love.filesystem.getDirectoryItems("sounds", function(name)
+                if name:find(type, #type-#name+1, true) then
+                    frl:AddRow(name)
+                end
+            end)
+            frb.OnClick = function(o)
+                local name = frt:GetText()
+                if (#name > 0) then
+                    local f = love.filesystem.newFile("sounds/" .. name, "r")
+                    if f then
+                        cb(f)
+                        frl:Clear()
+                        fr:SetVisible(false):SetModal(false)
+                    end
+                end
+            end
+            frt.OnEnter = frb.OnClick
+            fr:SetVisible(true):SetModal(true):Center()
+        end
+    end
+
 
     local sb = lf.Create("button")
     sb:SetText("Save Lua")
     sb:SetWidth(67)
-    sb.OnClick = function(o)
-        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.lua"
-        sound:save(p, true)
-        frt:SetText("Saved to\n" .. p)
-        fr:SetVisible(true):SetModal(true):Center()
-    end
+    sb.OnClick = save("lua", function(f) sound:save(f, true) end)
     f:AddItem(sb)
 
     local lb = lf.Create("button")
     lb:SetText("Load Lua")
     lb:SetWidth(67)
-    lb.OnClick = function(o)
-        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.lua"
-        sound:load(p)
-        updateParameters()
-        frt:SetText("Loaded from\n" .. p)
-        fr:SetVisible(true):SetModal(true):Center()
-    end
+    lb.OnClick = load("lua", function(f) sound:load(f) end)
     f:AddItem(lb)
 
     local bsb = lf.Create("button")
     bsb:SetText("Save binary")
     bsb:SetWidth(67)
-    bsb.OnClick = function(o)
-        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.sfxr"
-        sound:saveBinary(p)
-        frt:SetText("Saved to\n" .. p)
-        fr:SetVisible(true):SetModal(true):Center()
-    end
+    bsb.OnClick = save("sfs", function(f) sound:saveBinary(f) end)
     f:AddItem(bsb)
 
     local blb = lf.Create("button")
     blb:SetText("Load binary")
     blb:SetWidth(67)
-    blb.OnClick = function(o)
-        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.sfxr"
-        sound:loadBinary(p)
-        frt:SetText("Loaded from\n" .. p)
-        fr:SetVisible(true):SetModal(true):Center()
-    end
+    blb.OnClick = load("sfs", function(f) sound:loadBinary(f) end)
     f:AddItem(blb)
 
     local eb = lf.Create("button")
     eb:SetText("Export WAV")
     eb:SetWidth(140)
-    eb.OnClick = function(o)
-        local p = love.filesystem.getSaveDirectory() .. "/" .. "sound.wav"
-        sound:exportWAV(p)
-        frt:SetText("Exported WAV to\n" .. p)
-        fr:SetVisible(true):SetModal(true):Center()
-    end
+    eb.OnClick = save("wav", function(f) sound:exportWAV(f) end)
     f:AddItem(eb)
 
     f:SetPos(485, 455)
@@ -441,6 +478,22 @@ function createOther()
     f:SetName("Wave View")
     f:SetPos(485, 5)
     f:SetSize(150, 170)
+    local draw = function(o)
+        if source then
+            love.graphics.setColor(255, 255, 255)
+            love.graphics.draw(wavecanvas, 495, 25)
+
+            -- Draw a fancy position cursor
+            local pos = source:tell("samples")
+            local max = sounddata:getSampleCount()
+            local x = 495 + (pos / max) * 125
+            love.graphics.setColor(255, 153, 0)
+            love.graphics.line(x, 25, x, 165)
+        end
+
+        lf.skins.available["Orange"].DrawForm(o)
+    end
+    f.Draw = draw
 
 
     local f = lf.Create("form")
@@ -560,20 +613,6 @@ function updateWaveCanvas(waveview)
     statistics.waveview = math.floor(t * 10000) / 10
 end
 
-function drawWaveView()
-    if source then
-        love.graphics.setColor(255, 255, 255)
-        love.graphics.draw(wavecanvas, 495, 25)
-
-        -- Draw a fancy position cursor
-        local pos = source:tell("samples")
-        local max = sounddata:getSampleCount()
-        local x = 495 + (pos / max) * 125
-        love.graphics.setColor(255, 153, 0)
-        love.graphics.line(x, 25, x, 165)
-    end
-end
-
 function updateStatistics()
     statistics.durationtext:SetText("Duration: " .. statistics.duration .. " ms")
     statistics.transfertext:SetText("Transfer: " .. statistics.transfer .. " ms")
@@ -586,6 +625,10 @@ function love.load()
     lf = loveframes
     lf.util.SetActiveSkin("Orange")
     love.graphics.setBackgroundColor(200, 200, 200)
+
+    if not love.filesystem.isDirectory("sounds") then
+        love.filesystem.createDirectory("sounds")
+    end
 
     sound = sfxr.newSound()
 
@@ -616,11 +659,10 @@ end
 
 function love.draw()
     lf.draw()
-    drawWaveView()
 end
 
 function love.keypressed(key)
-    if key == " " or key == "return" then
+    if key == " " then
         playSound()
     elseif key == "escape" then
         love.event.push("quit")

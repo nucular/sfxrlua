@@ -1,5 +1,6 @@
 sfxr.lua
 ========
+[![Build Status](https://travis-ci.org/nucular/sfxrlua.svg?branch=master)](https://travis-ci.org/nucular/sfxrlua)
 
 A port of the sfxr sound effect synthesizer to pure Lua, designed to be used
 together with the *awesome* Löve game framework.

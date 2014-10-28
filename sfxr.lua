@@ -1085,6 +1085,7 @@ function sfxr.Sound:load(f)
         return version
     end
 
+    self:resetParameters()
     -- merge the loaded table into the own
     mergetables(self, params)
 
@@ -1164,6 +1165,8 @@ function sfxr.Sound:loadBinary(f)
     if close then
         f:close()
     end
+
+    self:resetParameters()
 
     local off = 1
 

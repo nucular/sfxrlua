@@ -1,3 +1,6 @@
+#/usr/bin/env love
+-- love .
+
 local sfxr = require("sfxr")
 
 -- Global stuff
@@ -168,22 +171,20 @@ function playSound()
 end
 
 function createSeedBox()
-    local f = lf.Create("form")
-    f:SetName("Random Seed")
+    local f = lf.Create("form"):SetName("Random Seed")
 
     seed = lf.Create("numberbox")
-    seed:SetValue(math.floor(love.timer.getTime()))
-    seed:SetMax(math.huge)
-    seed:SetMin(-math.huge)
-    seed:SetWidth(100)
-    f:AddItem(seed)
+        :SetValue(math.floor(love.timer.getTime()))
+        :SetMax(math.huge)
+        :SetMin(-math.huge)
+        :SetWidth(100)
 
-    f:SetPos(5, 240)
+    f:AddItem(seed):SetPos(5, 240)
 end
 
 function createPresetGenerators()
     local f = lf.Create("form")
-    f:SetName("Preset Generators")
+        :SetName("Preset Generators")
     local generators = {
         {"Pickup/Coin", sound.randomPickup},
         {"Laser/Shoot", sound.randomLaser},
@@ -196,8 +197,8 @@ function createPresetGenerators()
 
     for i, v in ipairs(generators) do
         local b = lf.Create("button")
-        b:SetText(v[1])
-        b:SetWidth(100)
+            :SetText(v[1])
+            :SetWidth(100)
         f:AddItem(b)
 
         b.OnClick = function(self)
@@ -208,18 +209,17 @@ function createPresetGenerators()
         end
     end
 
-    f:SetPos(5, 5)
-    f:SetWidth(110)
+    f:SetPos(5, 5):SetWidth(110)
 end
 
 function createRandomizers()
-    local f = lf.Create("form")
-    f:SetName("Randomizers")
+    local f = lf.Create("form"):SetName("Randomizers")
 
     local b = lf.Create("button")
-    b:SetText("Mutate")
-    b:SetWidth(100)
+        :SetText("Mutate")
+        :SetWidth(100)
     f:AddItem(b)
+
     b.OnClick = function(self)
         sound:mutate()
         updateParameters()
@@ -227,9 +227,10 @@ function createRandomizers()
     end
 
     local b = lf.Create("button")
-    b:SetText("Randomize")
-    b:SetWidth(100)
+        :SetText("Randomize")
+        :SetWidth(100)
     f:AddItem(b)
+
     b.OnClick = function(self)
         sound:randomize(seed:GetValue())
         updateParameters()
@@ -237,43 +238,47 @@ function createRandomizers()
         playSound()
     end
 
-    f:SetPos(5, 515)
-    f:SetSize(110, 80)
+    f:SetPos(5, 515):SetSize(110, 80)
 end
 
 function createParameters()
-    local f = lf.Create("form")
-    f:SetName("Parameters")
+    local f = lf.Create("form"):SetName("Parameters")
 
     local l = lf.Create("list")
-    l:SetSpacing(5)
-    l:SetPadding(5)
-    l:SetSize(340, 565)
+        :SetSpacing(5)
+        :SetPadding(5)
+        :SetSize(340, 565)
     f:AddItem(l)
 
 
     -- Waveforms
     l:AddItem(lf.Create("text"):SetPos(0, pheight):SetText("Wave Form"))
+
     local m = lf.Create("multichoice")
-    m:AddChoice("Square")
-    m:AddChoice("Sawtooth")
-    m:AddChoice("Sine")
-    m:AddChoice("Noise")
-    m:SetChoice("Square")
+        :AddChoice("Square")
+        :AddChoice("Sawtooth")
+        :AddChoice("Sine")
+        :AddChoice("Noise")
+        :SetChoice("Square")
+
     m.OnChoiceSelected = function(o, c)
         sound.wavetype = waveFormList[c]
     end
+
     l:AddItem(m)
     guiparams.waveform = m
 
 
     -- Repeat speed
-    local t = lf.Create("text"):SetPos(0, pheight)
-    t:SetText("Repeat Speed 0")
+    local t = lf.Create("text")
+        :SetText("Repeat Speed 0")
+        :SetPos(0, pheight)
+
     local s = lf.Create("slider")
-    s:SetWidth(120)
-    s:SetMinMax(0, 1)
-    s:SetValue(sound.repeatspeed)
+        :SetWidth(120)
+        :SetMinMax(0, 1)
+        :SetValue(sound.repeatspeed)
+
     s.OnValueChanged = function(o)
         local v = o:GetValue()
         if v <= 0.02 and v >= -0.02 and v ~= 0 then
@@ -285,14 +290,13 @@ function createParameters()
             t:SetText("Repeat Speed " .. tostring(math.floor(v * 100) / 100))
         end
     end
-    l:AddItem(t)
-    l:AddItem(s)
+
+    l:AddItem(t):AddItem(s)
     guiparams.repeatspeed = {s, t}
 
 
     for i1, v1 in ipairs(guicategories) do
-        local c = lf.Create("collapsiblecategory")
-        c:SetText(v1[1])
+        local c = lf.Create("collapsiblecategory"):SetText(v1[1])
         l:AddItem(c)
 
         local p = lf.Create("panel")
@@ -303,12 +307,19 @@ function createParameters()
         guiparams[v1[2]] = {}
 
         for i2, v2 in ipairs(v1[3]) do
-            lf.Create("text", p):SetPos(0, pheight):SetText(v2[1])
-            local t = lf.Create("text", p):SetPos(95, pheight):SetText("0")
+            lf.Create("text", p)
+                :SetText(v2[1])
+                :SetPos(0, pheight)
 
-            local s = lf.Create("slider", p):SetPos(130, pheight - 3):SetWidth(170)
-            s:SetMinMax(v2[3], v2[4])
-            s:SetValue(sound[v1[2]][v2[2]])
+            local t = lf.Create("text", p)
+                :SetText("0")
+                :SetPos(95, pheight)
+
+            local s = lf.Create("slider", p)
+                :SetPos(130, pheight - 3)
+                :SetWidth(170)
+                :SetMinMax(v2[3], v2[4])
+                :SetValue(sound[v1[2]][v2[2]])
 
             s.OnValueChanged = function(o)
                 local v = o:GetValue()
@@ -330,17 +341,16 @@ function createParameters()
     end
 
 
-    f:SetPos(125, 5)
-    f:SetSize(350, 590)
+    f:SetPos(125, 5):SetSize(350, 590)
 end
 
 function createActionButtons()
-    local f = lf.Create("form")
-    f:SetName("Actions")
+    local f = lf.Create("form"):SetName("Actions")
 
     local b = lf.Create("button")
-    b:SetText("Generate and Play")
-    b:SetWidth(140)
+        :SetText("Generate and Play")
+        :SetWidth(140)
+
     b.OnClick = function(o)
         if not playing then
             playSound()
@@ -348,27 +358,29 @@ function createActionButtons()
             stopSound()
         end
     end
+
     playbutton = b
     f:AddItem(b)
 
 
     local fr = lf.Create("frame")
-    fr:SetName("File Picker")
-    fr:SetSize(400, 300)
-    fr:Center()
-    fr:SetVisible(false)
-    fr:SetModal(false)
+        :SetName("File Picker")
+        :SetSize(400, 300)
+        :Center()
+        :SetVisible(false)
+        :SetModal(false)
     
     local frl = lf.Create("columnlist", fr)
-    frl:SetPos(5, 30)
-    frl:SetSize(390, 235)
-    frl:AddColumn("Name")
+        :SetPos(5, 30)
+        :SetSize(390, 235)
+        :AddColumn("Name")
 
     local frt = lf.Create("textinput", fr)
-    frt:SetPos(5, 270)
-    frt:SetWidth(300)
+        :SetPos(5, 270)
+        :SetWidth(300)
+
     local frb = lf.Create("button", fr)
-    frb:SetPos(315, 270)
+        :SetPos(315, 270)
 
     frl.OnRowSelected = function(p, row, data)
         frt:SetText(data[1])
@@ -385,11 +397,13 @@ function createActionButtons()
             fr:SetName("Save to ." .. type)
             frt:SetText("sound." .. type)
             frb:SetText("Save")
+
             love.filesystem.getDirectoryItems("sounds", function(name)
                 if name:find(type, #type-#name+1, true) then
                     frl:AddRow(name)
                 end
             end)
+
             frb.OnClick = function(o)
                 local name = frt:GetText()
                 if (#name > 0) then
@@ -401,8 +415,11 @@ function createActionButtons()
                     end
                 end
             end
+
             frt.OnEnter = frb.OnClick
-            fr:SetVisible(true):SetModal(true):Center()
+            fr:SetVisible(true)
+                :SetModal(true)
+                :Center()
         end
     end
 
@@ -411,11 +428,13 @@ function createActionButtons()
             fr:SetName("Load from ." .. type)
             frt:SetText("sound." .. type)
             frb:SetText("Load")
+
             love.filesystem.getDirectoryItems("sounds", function(name)
                 if name:find(type, #type-#name+1, true) then
                     frl:AddRow(name)
                 end
             end)
+
             frb.OnClick = function(o)
                 local name = frt:GetText()
                 if (#name > 0) then
@@ -427,44 +446,46 @@ function createActionButtons()
                     end
                 end
             end
+
             frt.OnEnter = frb.OnClick
-            fr:SetVisible(true):SetModal(true):Center()
+            fr:SetVisible(true)
+                :SetModal(true)
+                :Center()
         end
     end
 
 
     local sb = lf.Create("button")
-    sb:SetText("Save Lua")
-    sb:SetWidth(67)
+        :SetText("Save Lua")
+        :SetWidth(67)
     sb.OnClick = save("lua", function(f) sound:save(f, true) end)
     f:AddItem(sb)
 
     local lb = lf.Create("button")
-    lb:SetText("Load Lua")
-    lb:SetWidth(67)
-    lb.OnClick = load("lua", function(f) sound:load(f) end)
+        :SetText("Load Lua")
+        :SetWidth(67)
+    sb.OnClick = load("lua", function(f) sound:load(f) end)
     f:AddItem(lb)
 
     local bsb = lf.Create("button")
-    bsb:SetText("Save binary")
-    bsb:SetWidth(67)
+        :SetText("Save binary")
+        :SetWidth(67)
     bsb.OnClick = save("sfs", function(f) sound:saveBinary(f) end)
     f:AddItem(bsb)
 
     local blb = lf.Create("button")
-    blb:SetText("Load binary")
-    blb:SetWidth(67)
+        :SetText("Load binary")
+        :SetWidth(67)
     blb.OnClick = load("sfs", function(f) sound:loadBinary(f) end)
     f:AddItem(blb)
 
     local eb = lf.Create("button")
-    eb:SetText("Export WAV")
-    eb:SetWidth(140)
+        :SetText("Export WAV")
+        :SetWidth(140)
     eb.OnClick = save("wav", function(f) sound:exportWAV(f) end)
     f:AddItem(eb)
 
-    f:SetPos(485, 455)
-    f:SetSize(150, 140)
+    f:SetPos(485, 455):SetSize(150, 140)
 
     -- well ugh
     lb:SetPos(78, 47)
@@ -475,9 +496,10 @@ end
 
 function createOther()
     local f = lf.Create("form")
-    f:SetName("Wave View")
-    f:SetPos(485, 5)
-    f:SetSize(150, 170)
+        :SetName("Wave View")
+        :SetPos(485, 5)
+        :SetSize(150, 170)
+
     local draw = function(o)
         if source then
             love.graphics.setColor(255, 255, 255)
@@ -496,15 +518,16 @@ function createOther()
     f.Draw = draw
 
 
-    local f = lf.Create("form")
-    f:SetName("Volume")
+    local f = lf.Create("form"):SetName("Volume")
 
-    local t = lf.Create("text")
-    t:SetText("Master 0.5")
+    local t = lf.Create("text"):SetText("Master 0.5")
     f:AddItem(t)
+
+
     local s = lf.Create("slider")
-    s:SetMinMax(0, 1)
-    s:SetSize(135, 20)
+        :SetMinMax(0, 1)
+        :SetSize(135, 20)
+
     s.OnValueChanged = function(o)
         local v = o:GetValue()
         if v <= 0.52 and v >= 0.48 and v ~= 0.5 then
@@ -514,15 +537,18 @@ function createOther()
         sound.volume.master = v
         t:SetText("Master " .. tostring(math.floor(v * 100) / 100))
     end
+
     s:SetValue(sound.volume.master)
     f:AddItem(s)
 
-    local t = lf.Create("text")
-    t:SetText("Sound 0.5")
+
+    local t = lf.Create("text"):SetText("Sound 0.5")
     f:AddItem(t)
+
     local s = lf.Create("slider")
-    s:SetMinMax(0, 1)
-    s:SetSize(135, 20)
+        :SetMinMax(0, 1)
+        :SetSize(135, 20)
+
     s.OnValueChanged = function(o)
         local v = o:GetValue()
         if v <= 0.52 and v >= 0.48 and v ~= 0.5 then
@@ -532,38 +558,33 @@ function createOther()
         sound.volume.sound = v
         t:SetText("Sound " .. tostring(math.floor(v * 100) / 100))
     end
+
     s:SetValue(sound.volume.sound)
     f:AddItem(s)
 
-    f:SetPos(485, 340)
-    f:SetWidth(150)
+
+    f:SetPos(485, 340):SetWidth(150)
 
 
-    local f = lf.Create("form")
-    f:SetName("Times / Duration")
+    local f = lf.Create("form"):SetName("Times / Duration")
 
-    local t = lf.Create("text")
-    t:SetText("Generation: 0ms")
+    local t = lf.Create("text"):SetText("Generation: 0ms")
     f:AddItem(t)
     statistics.generationtext = t
 
-    local t = lf.Create("text")
-    t:SetText("Transfer: 0ms")
+    local t = lf.Create("text"):SetText("Transfer: 0ms")
     f:AddItem(t)
     statistics.transfertext = t
 
-    local t = lf.Create("text")
-    t:SetText("Wave View: 0ms")
+    local t = lf.Create("text"):SetText("Wave View: 0ms")
     f:AddItem(t)
     statistics.waveviewtext = t
 
-    local t = lf.Create("text")
-    t:SetText("Duration: 0ms")
+    local t = lf.Create("text"):SetText("Duration: 0ms")
     f:AddItem(t)
     statistics.durationtext = t
 
-    f:SetPos(485, 185)
-    f:SetWidth(150)
+    f:SetPos(485, 185):SetWidth(150)
 end
 
 function updateParameters()
@@ -624,6 +645,7 @@ function love.load()
     require("loveframes")
     lf = loveframes
     lf.util.SetActiveSkin("Orange")
+    
     love.graphics.setBackgroundColor(200, 200, 200)
 
     if not love.filesystem.isDirectory("sounds") then

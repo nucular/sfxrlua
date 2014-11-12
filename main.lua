@@ -23,6 +23,7 @@ local statistics = {
 -- This will hold all sliders and the wave form box
 local guiparams = {}
 -- The parameter list is built from this
+-- {{"Text", "table name", {{"Text", "table paramter", min, max}, ...}}, ...}
 local guicategories = {
     {
         "Envelope",
@@ -101,7 +102,10 @@ local waveFormList = {
     ["Sawtooth"] = 1,
     ["Sine"] = 2,
     ["Noise"] = 3,
-    "Square", "Sawtooth", "Sine", "Noise"
+    [0] = "Square",
+    [1] = "Sawtooth",
+    [2] = "Sine",
+    [3] = "Noise"
 }
 
 
@@ -255,11 +259,10 @@ function createParameters()
     l:AddItem(lf.Create("text"):SetPos(0, pheight):SetText("Wave Form"))
 
     local m = lf.Create("multichoice")
-        :AddChoice("Square")
-        :AddChoice("Sawtooth")
-        :AddChoice("Sine")
-        :AddChoice("Noise")
-        :SetChoice("Square")
+    for i = 0, #waveFormList do
+    	m:AddChoice(waveFormList[i])
+    end
+    m:SetChoice("Square")
 
     m.OnChoiceSelected = function(o, c)
         sound.wavetype = waveFormList[c]
@@ -392,7 +395,7 @@ function createActionButtons()
         return false
     end
 
-    local function save(type, cb)
+    local function saveHandler(type, cb)
         return function()
             fr:SetName("Save to ." .. type)
             frt:SetText("sound." .. type)
@@ -423,7 +426,7 @@ function createActionButtons()
         end
     end
 
-    local function load(type, cb)
+    local function loadHandler(type, cb)
         return function()
             fr:SetName("Load from ." .. type)
             frt:SetText("sound." .. type)
@@ -458,36 +461,35 @@ function createActionButtons()
     local sb = lf.Create("button")
         :SetText("Save Lua")
         :SetWidth(67)
-    sb.OnClick = save("lua", function(f) sound:save(f, true) end)
+    sb.OnClick = saveHandler("lua", function(f) sound:save(f, true) end)
     f:AddItem(sb)
 
     local lb = lf.Create("button")
         :SetText("Load Lua")
         :SetWidth(67)
-    sb.OnClick = load("lua", function(f) sound:load(f) end)
+    sb.OnClick = loadHandler("lua", function(f) sound:load(f) end)
     f:AddItem(lb)
 
     local bsb = lf.Create("button")
         :SetText("Save binary")
         :SetWidth(67)
-    bsb.OnClick = save("sfs", function(f) sound:saveBinary(f) end)
+    bsb.OnClick = saveHandler("sfs", function(f) sound:saveBinary(f) end)
     f:AddItem(bsb)
 
     local blb = lf.Create("button")
         :SetText("Load binary")
         :SetWidth(67)
-    blb.OnClick = load("sfs", function(f) sound:loadBinary(f) end)
+    blb.OnClick = loadHandler("sfs", function(f) sound:loadBinary(f) end)
     f:AddItem(blb)
 
     local eb = lf.Create("button")
         :SetText("Export WAV")
         :SetWidth(140)
-    eb.OnClick = save("wav", function(f) sound:exportWAV(f) end)
+    eb.OnClick = saveHandler("wav", function(f) sound:exportWAV(f) end)
     f:AddItem(eb)
 
     f:SetPos(485, 455):SetSize(150, 140)
 
-    -- well ugh
     lb:SetPos(78, 47)
     bsb:SetY(77)
     blb:SetPos(78, 77)
@@ -604,7 +606,7 @@ function updateParameters()
     s:SetValue(v)
     t:SetText("Repeat Speed " .. tostring(math.floor(v * 100) / 100))
 
-    guiparams.waveform:SetChoice(waveFormList[sound.wavetype + 1])
+    guiparams.waveform:SetChoice(waveFormList[sound.wavetype])
 end
 
 function updateWaveCanvas(waveview)

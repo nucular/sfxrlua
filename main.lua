@@ -467,7 +467,7 @@ function createActionButtons()
     local lb = lf.Create("button")
         :SetText("Load Lua")
         :SetWidth(67)
-    sb.OnClick = loadHandler("lua", function(f) sound:load(f) end)
+    lb.OnClick = loadHandler("lua", function(f) sound:load(f) end)
     f:AddItem(lb)
 
     local bsb = lf.Create("button")

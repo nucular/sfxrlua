@@ -21,27 +21,67 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ]]--
 
+--- A port of the sfxr sound effect synthesizer to Lua
+-- @module sfxr
 local sfxr = {}
 local bit = bit32 or require("bit")
 
 -- Constants
 
-sfxr.VERSION = "0.0.1"
+--- The module version (SemVer)
+sfxr.VERSION = "0.0.2"
 
-sfxr.SQUARE = 0
-sfxr.SAWTOOTH = 1
-sfxr.SINE = 2
-sfxr.NOISE = 3
+--- Wave form constants
+-- @field SQUARE square wave (`= 0`)
+-- @field SAW saw wave (`= 1`)
+-- @field SINE sine wave (`= 2`)
+-- @field NOISE white noise (`= 3`)
+sfxr.WAVEFORM = {
+  SQUARE = 0,
+  [0] = 0,
+  SAW = 1,
+  [1] = 1,
+  SINE = 2,
+  [2] = 2,
+  NOISE = 3,
+  [3] = 3
+}
 
-sfxr.FREQ_44100 = 44100
-sfxr.FREQ_22050 = 22050
-sfxr.BITS_FLOAT = 0
-sfxr.BITS_16 = 16
-sfxr.BITS_8 = 8
+--- Sample rate constants
+-- (use the number values directly, these are just for lookup)
+-- @field 22050 22.05 kHz (`= 22050`)
+-- @field 44100 44.1 kHz (`= 44100`)
+sfxr.SAMPLERATE = {
+  [22050] = 22050 --- 22.05 kHz
+  [44100] = 44100, --- 44.1 kHz
+}
+
+--- Bit depth constants
+-- (use the number values directly, these are just for lookup)
+-- @field 0 floating point bit depth, -1 to 1 (`= 0`)
+-- @field 8 unsigned 8 bit, 0x00 to 0xFF (`= 8`)
+-- @field 16 unsigned 16 bit, 0x0000 to 0xFFFF (`= 16`)
+sfxr.BITDEPTH = {
+  [0] = 0,
+  [16] = 16,
+  [8] = 8
+}
+
+--- Endianness constants
+-- @field LITTLE little endian (`= 0`)
+-- @field BIG big endian (`= 1`)
+sfxr.ENDIANNESS = {
+  LITTLE = 0,
+  [0] = 0,
+  BIG = 1,
+  [1] = 1
+}
 
 -- Utilities
 
--- Simulates a C int cast
+--- Truncate a number to an unsigned integer.
+-- @tparam number n a (signed) number
+-- @treturn int the number, truncated and unsigned
 local function trunc(n)
     if n >= 0 then
         return math.floor(n)
@@ -50,7 +90,8 @@ local function trunc(n)
     end
 end
 
--- Sets the random seed and initializes the generator
+--- Set the random seed and initializes the generator.
+-- @tparam number seed the random seed
 local function setseed(seed)
     math.randomseed(seed)
     for i=0, 5 do
@@ -58,22 +99,36 @@ local function setseed(seed)
     end
 end
 
--- Returns a random number between low and high
+--- Return a random number between low and high.
+-- @tparam number low the lower bound
+-- @tparam number high the upper bound
+-- @treturn number a random number where `low < n < high`
 local function random(low, high)
     return low + math.random() * (high - low)
 end
 
--- Returns a random boolean weighted to false by n
-local function maybe(n)
-    return trunc(random(0, n or 1)) == 0
+--- Return a random boolean weighted towards false by n.
+-- w = 1: uniform distribution
+-- w = n: false is n times as likely as true
+-- Note: n < 0 do not work, use `not maybe(w)` instead
+-- @tparam[opt=1] number w the weight towards false
+-- @treturn bool a random boolean
+local function maybe(w)
+    return trunc(random(0, w or 1)) == 0
 end
 
--- Clamps n between min and max
+--- Clamp n between min and max.
+-- @tparam number n the number
+-- @tparam number min the lower bound
+-- @tparam number max the upper bound
+-- @treturn number the number where `min <= n <= max`
 local function clamp(n, min, max)
     return math.max(min or -math.huge, math.min(max or math.huge, n))
 end
 
--- Copies a table (shallow) or a primitive
+--- Copy a table (shallow) or a primitive.
+-- @param t a table or primitive
+-- @return a copy of t
 local function shallowcopy(t)
     if type(t) == "table" then
         local t2 = {}
@@ -86,7 +141,10 @@ local function shallowcopy(t)
     end
 end
 
--- Merges table t2 into t1
+--- Recursively merge table t2 into t1.
+-- @tparam tab t1 a table
+-- @tparam tab t2 a table to merge into t1
+-- @treturn tab t1
 local function mergetables(t1, t2)
     for k, v in pairs(t2) do
         if type(v) == "table" then
@@ -102,8 +160,10 @@ local function mergetables(t1, t2)
     return t1
 end
 
--- Packs a number into a IEEE754 32-bit big-endian floating point binary string
--- source: https://stackoverflow.com/questions/14416734/
+--- Pack a number into a IEEE754 32-bit big-endian floating point binary string.
+-- @tparam number number a number
+-- @treturn string a binary string
+-- @see https://stackoverflow.com/questions/14416734/
 local function packIEEE754(number)
 	if number == 0 then
 		return string.char(0x00, 0x00, 0x00, 0x00)
@@ -139,7 +199,10 @@ local function packIEEE754(number)
 	end
 end
 
--- Unpacks a IEEE754 32-bit big-endian floating point string to a number
+--- Unpack a IEEE754 32-bit big-endian floating point string to a number.
+-- @tparam string packed a binary string
+-- @treturn number a number
+-- @see https://stackoverflow.com/questions/14416734/
 local function unpackIEEE754(packed)
 	local b1, b2, b3, b4 = string.byte(packed, 1, 4)
 	local exponent = (b1 % 0x80) * 0x02 + math.floor(b2 / 0x80)
@@ -162,19 +225,21 @@ local function unpackIEEE754(packed)
 	return math.ldexp(mantissa, exponent - 0x7F)
 end
 
--- Constructor
-
+--- The constructor for the Sound class.
+-- @treturn Sound a Sound instance
 function sfxr.newSound(...)
     local instance = setmetatable({}, sfxr.Sound)
     instance:__init(...)
     return instance
 end
 
--- The main Sound class
-
+--- The main Sound class.
+-- @type Sound
 sfxr.Sound = {}
 sfxr.Sound.__index = sfxr.Sound
 
+--- Initialize the Sound instance.
+-- Called by @{sfxr.newSound|the constructor}.
 function sfxr.Sound:__init()
     -- Build tables to store the parameters in
     self.volume = {}
@@ -187,49 +252,128 @@ function sfxr.Sound:__init()
     self.lowpass = {}
     self.highpass = {}
 
-    -- These won't be affected by Sound.resetParameters()
-    self.supersamples = 8
+    -- These are not affected by resetParameters()
+    --- Number of supersampling passes to perform (*default* 8)
+    self.supersampling = 8
+    --- Master volume (*default* 0.5)
     self.volume.master = 0.5
+    --- Additional gain (*default* 0.5)
     self.volume.sound = 0.5
 
     self:resetParameters()
 end
 
+--- Set all parameters to their default values.
+-- Called by @{sfxr.Sound:__init|the initializer}.
 function sfxr.Sound:resetParameters()
-    -- Set all parameters to the default values
+    --- Repeat speed:
+    -- Times to repeat the frequency slide over the course of the envelope
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.repeatspeed = 0.0
-    self.wavetype = sfxr.SQUARE
+    --- (@{WAVEFORM|*WAVEFORM*}) The base wave form
+    self.waveform = sfxr.SQUARE
 
+    --- Attack time:
+    -- Time the sound takes to reach its peak volume
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.envelope.attack = 0.0
+    --- Sustain time:
+    -- Time the sound sustains on its peak volume
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.envelope.sustain = 0.3
+    --- Sustain punch:
+    -- Amount by which the sound peak volume is increased at the start of the
+    -- sustain time
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.envelope.punch = 0.0
+    --- Decay time:
+    -- Time the sound takes to decay after its sustain time
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.envelope.decay = 0.4
 
+    --- Start frequency:
+    -- Base tone of the sound, before sliding
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.frequency.start = 0.3
+    --- Min frequency:
+    -- Tone below which the sound will get cut off
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.frequency.min = 0.0
+    --- Slide:
+    -- Amount by which the frequency is increased or decreased through time
+    -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.frequency.slide = 0.0
+    --- Delta slide:
+    -- Amount by which the slide is increased or decreased through time
+    -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.frequency.dslide = 0.0
 
+    --- Vibrato depth:
+    -- Amount of vibrato-like amplitude (volume) modulation
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.vibrato.depth = 0.0
+    --- Vibrato speed:
+    -- Oscillation speed of the vibrato
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.vibrato.speed = 0.0
+    --- Vibrato delay:
+    -- Unused and unimplemented
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.vibrato.delay = 0.0
 
+    --- Change amount:
+    -- Amount by which the frequency is changed mid-sound
+    -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.change.amount = 0.0
+    --- Change speed:
+    -- Time before the frequency change happens
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.change.speed = 0.0
-    
+
+    --- Square duty:
+    -- Width of the square wave pulse cycle (doesn't affect other wave forms)
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.duty.ratio = 0.0
+    --- Duty sweep:
+    -- Amount by which the square duty is increased or decreased through time
+    -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.duty.sweep = 0.0
 
+    --- Phaser offset:
+    -- Amount by which the phaser signal is offset from the sound
+    -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.phaser.offset = 0.0
+    --- Phaser sweep:
+    -- Amount by which the phaser offset is increased or decreased through time
+    -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.phaser.sweep = 0.0
 
+    --- Lowpass filter cutoff:
+    -- Lower bound for frequencies allowed to pass through this filter
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.lowpass.cutoff = 1.0
+    --- Lowpass filter cutoff sweep:
+    -- Amount by which the LP filter cutoff is increased or decreased
+    -- through time
+    -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.lowpass.sweep = 0.0
+    --- Lowpass filter resonance:
+    -- Amount by which certain resonant frequencies near the cutoff are
+    -- increased
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.lowpass.resonance = 0.0
+    --- Highpass filter cutoff:
+    -- Upper bound for frequencies allowed to pass through this filter
+    -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.highpass.cutoff = 0.0
+    --- Highpass filter cutoff sweep:
+    -- Amount by which the HP filter cutoff is increased or decreased
+    -- through time
+    -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.highpass.sweep = 0.0
 end
 
+--- Clamp all parameters within sane ranges.
 function sfxr.Sound:sanitizeParameters()
     self.repeatspeed = clamp(self.repeatspeed, 0, 1)
     self.wavetype = clamp(self.wavetype, sfxr.SQUARE, sfxr.NOISE)
@@ -238,7 +382,7 @@ function sfxr.Sound:sanitizeParameters()
     self.envelope.sustain = clamp(self.envelope.sustain, 0, 1)
     self.envelope.punch = clamp(self.envelope.punch, 0, 1)
     self.envelope.decay = clamp(self.envelope.decay, 0, 1)
-    
+
     self.frequency.start = clamp(self.frequency.start, 0, 1)
     self.frequency.min = clamp(self.frequency.min, 0, 1)
     self.frequency.slide = clamp(self.frequency.slide, -1, 1)
@@ -247,10 +391,10 @@ function sfxr.Sound:sanitizeParameters()
     self.vibrato.depth = clamp(self.vibrato.depth, 0, 1)
     self.vibrato.speed = clamp(self.vibrato.speed, 0, 1)
     self.vibrato.delay = clamp(self.vibrato.delay, 0, 1)
-    
+
     self.change.amount = clamp(self.change.amount, -1, 1)
     self.change.speed = clamp(self.change.speed, 0, 1)
-    
+
     self.duty.ratio = clamp(self.duty.ratio, 0, 1)
     self.duty.sweep = clamp(self.duty.sweep, -1, 1)
 
@@ -264,15 +408,20 @@ function sfxr.Sound:sanitizeParameters()
     self.highpass.sweep = clamp(self.highpass.sweep, -1, 1)
 end
 
-function sfxr.Sound:generate(freq, bits)
-    -- Basically the main synthesizing function, yields the sample data
+--- Generate the sound and yield the sample data.
+-- @tparam[opt=44100] SAMPLERATE rate the sample rate
+-- @tparam[opt=0] BITDEPTH depth the bit depth
+-- @treturn function() a generator that yields the sample data when called
+-- @usage for s in sound:generate(44100, 0) do
+--   -- do something with s
+-- end
+function sfxr.Sound:generate(rate, depth)
+    rate = rate or 44100
+    depth = depth or 0
+    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
+    assert(sfxr.BITDEPTH[depth], "Invalid bit depth: " .. tostring(depth))
 
-    freq = freq or sfxr.FREQ_44100
-    bits = bits or sfxr.BITS_FLOAT
-    assert(freq == sfxr.FREQ_44100 or freq == sfxr.FREQ_22050, "Invalid freq argument")
-    assert(bits == sfxr.BITS_FLOAT or bits == sfxr.BITS_16 or bits == sfxr.BITS_8, "Invalid bits argument")
-
-    -- Initialize ALL the locals!
+    -- Initialize all locals
     local fperiod, maxperiod
     local slide, dslide
     local square_duty, square_slide
@@ -281,7 +430,7 @@ function sfxr.Sound:generate(freq, bits)
     local phaserbuffer = {}
     local noisebuffer = {}
 
-    -- Reset the sample buffers
+    -- Initialize the sample buffers
     for i=1, 1024 do
         phaserbuffer[i] = 0
     end
@@ -290,6 +439,7 @@ function sfxr.Sound:generate(freq, bits)
         noisebuffer[i] = random(-1, 1)
     end
 
+    --- Reset the sound period
     local function reset()
         fperiod = 100 / (self.frequency.start^2 + 0.001)
         maxperiod = 100 / (self.frequency.min^2 + 0.001)
@@ -314,6 +464,7 @@ function sfxr.Sound:generate(freq, bits)
             chg_limit = trunc((1 - self.change.speed)^2 * 20000 + 32)
         end
     end
+
     local phase = 0
     reset()
 
@@ -354,7 +505,7 @@ function sfxr.Sound:generate(freq, bits)
         rep_limit = 0
     end
 
-    -- Yay, the main closure
+    -- The main closure (returned as a generator)
 
     local function next()
         -- Repeat when needed
@@ -434,7 +585,7 @@ function sfxr.Sound:generate(freq, bits)
         -- And finally the actual tone generation and supersampling
 
         local ssample = 0
-        for si = 0, self.supersamples-1 do
+        for si = 0, self.supersampling-1 do
             local sample = 0
 
             phase = phase + 1
@@ -450,12 +601,12 @@ function sfxr.Sound:generate(freq, bits)
                 end
             end
 
-            -- Tone generators ahead!!!
+            -- Tone generators ahead
 
             local fp = phase / period
 
             -- Square, including square duty
-            if self.wavetype == sfxr.SQUARE then
+            if self.waveform == sfxr.SQUARE then
                 if fp < square_duty then
                     sample = 0.5
                 else
@@ -463,15 +614,15 @@ function sfxr.Sound:generate(freq, bits)
                 end
 
             -- Sawtooth
-            elseif self.wavetype == sfxr.SAWTOOTH then
+            elseif self.waveform == sfxr.SAWTOOTH then
                 sample = 1 - fp * 2
 
             -- Sine
-            elseif self.wavetype == sfxr.SINE then
+            elseif self.waveform == sfxr.SINE then
                 sample = math.sin(fp * 2 * math.pi)
 
             -- Pitched white noise
-            elseif self.wavetype == sfxr.NOISE then
+            elseif self.waveform == sfxr.NOISE then
                 sample = noisebuffer[trunc(phase * 32 / period) % 32 + 1]
             end
 
@@ -505,7 +656,7 @@ function sfxr.Sound:generate(freq, bits)
         end
 
         -- Apply the volumes
-        ssample = (ssample / self.supersamples) * self.volume.master
+        ssample = (ssample / self.supersampling) * self.volume.master
         ssample = ssample * (2 * self.volume.sound)
 
         -- Hard limit
@@ -513,7 +664,7 @@ function sfxr.Sound:generate(freq, bits)
 
         -- Frequency conversion
         second_sample = not second_sample
-        if freq == sfxr.FREQ_22050 and second_sample then
+        if rate == 22050 and second_sample then
             -- hah!
             local nsample = next()
             if nsample then
@@ -524,9 +675,9 @@ function sfxr.Sound:generate(freq, bits)
         end
 
         -- bit conversions
-        if bits == sfxr.BITS_FLOAT then
+        if depth == 0 then
             return ssample
-        elseif bits == sfxr.BITS_16 then
+        elseif depth == 16 then
             return trunc(ssample * 32000)
         else
             return trunc(ssample * 127 + 128)
@@ -536,93 +687,124 @@ function sfxr.Sound:generate(freq, bits)
     return next
 end
 
-function sfxr.Sound:getEnvelopeLimit(freq)
-    local env_length = {self.envelope.attack^2 * 100000,
-        self.envelope.sustain^2 * 100000,
-        self.envelope.decay^2 * 100000}
+--- Get the maximum sample limit allowed by the current envelope.
+-- Does not take any other limits into account, so the returned count might be
+-- higher than samples actually generated. Still useful though.
+-- @tparam[opt=44100] SAMPLERATE rate the sample rate
+function sfxr.Sound:getEnvelopeLimit(rate)
+    rate = rate or 44100
+    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
+
+    local env_length = {
+        self.envelope.attack^2 * 100000, --- attack
+        self.envelope.sustain^2 * 100000, --- sustain
+        self.envelope.decay^2 * 100000 --- decay
+    }
     local limit = trunc(env_length[1] + env_length[2] + env_length[3] + 2)
-    
-    if freq == nil or freq == sfxr.FREQ_44100 then
-        return limit
-    elseif freq == sfxr.FREQ_22050 then
-        return math.ceil(limit / 2)
-    else
-        error("Invalid freq argument")
-    end
+
+    return math.ceil(limit / (rate / 44100))
 end
 
-function sfxr.Sound:generateTable(freq, bits)
-    local t = {}
+--- Generate the sound into a table.
+-- @tparam[opt=44100] SAMPLERATE rate the sample rate
+-- @tparam[opt=0] BITDEPTH depth the bit depth
+-- @tparam[opt] {} tab the table to synthesize into
+-- @treturn {number,...} the table filled with sample data
+-- @treturn int the number of written samples (== #tab)
+function sfxr.Sound:generateTable(rate, depth, tab)
+    rate = rate or 44100
+    depth = depth or 0
+    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
+    assert(sfxr.BITDEPTH[depth], "Invalid bit depth: " .. tostring(depth))
+
+    -- this could really use table pre-allocation, but Lua doesn't provide that
+    local t = tab or {}
     local i = 1
-    for v in self:generate(freq, bits) do
+    for v in self:generate(rate, depth) do
         t[i] = v
         i = i + 1
     end
-    return t
+    return t, i
 end
 
-function sfxr.Sound:generateString(freq, bits, endianness)
-    assert(bits == sfxr.BITS_16 or bits == sfxr.BITS_8, "Invalid bits argument")
-    assert(endianness == "big" or endianness == "little", "Invalid endianness")
-    local s = ""
+--- Generate the sound to a binary string.
+-- @tparam[opt=44100] SAMPLERATE rate the sample rate
+-- @tparam[opt=16] BITDEPTH depth the bit depth (may not be @{BITDEPTH|0})
+-- @tparam[opt=0] ENDIANNESS endianness the endianness (ignored when depth == 8)
+-- @treturn string a binary string of sample data
+-- @treturn int the number of written samples
+function sfxr.Sound:generateString(rate, depth, endianness)
+    rate = rate or 44100
+    depth = depth or 16
+    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
+    assert(sfxr.BITDEPTH[depth] and depth ~= 0, "Invalid bit depth: " .. tostring(depth))
+    assert(sfxr.ENDIANNESS[endianness], "Invalid endianness: " .. tostring(endianness))
 
+    local s = ""
+    --- buffer for arguments to string.char
     local buf = {}
     buf[100] = 0
-    local i = 1
+    local bi = 1
 
-    for v in self:generate(freq, bits) do
-        if bits == sfxr.BITS_8 then
+    local i = 0
+    for v in self:generate(rate, depth) do
+        if depth == 8 then
             buf[i] = v
-            i = i + 1
+            bi = bi + 1
         else
-            if endianness == "big" then
-                buf[i] = bit.rshift(v, 8)
-                buf[i + 1] = bit.band(v, 0xFF)
-                i = i + 2
+            if endianness == sfxr.ENDIANNESS.BIG then
+                buf[bi] = bit.rshift(v, 8)
+                buf[bi + 1] = bit.band(v, 0xFF)
+                bi = bi + 2
             else
-                buf[i] = bit.band(v, 0xFF)
-                buf[i + 1] = bit.rshift(v, 8)
-                i = i + 2
+                buf[bi] = bit.band(v, 0xFF)
+                buf[bi + 1] = bit.rshift(v, 8)
+                bi = bi + 2
             end
         end
 
-        if i >= 100 then
+        if bi >= 100 then
             s = s .. string.char(unpack(buf))
-            i = 0
+            bi = 0
         end
+        i = i + 1
     end
 
+    -- pass in up to 100 characters
     s = s .. string.char(unpack(buf, i, 100))
-    return s
+    return s, i
 end
 
-function sfxr.Sound:generateSoundData(freq, bits)
-    freq = freq or sfxr.FREQ_44100
-    local tab = self:generateTable(freq, sfxr.BITS_FLOAT)
+--- Synthesize the sound to a LÖVE SoundData instance.
+-- @tparam[opt=44100] SAMPLERATE rate the sample rate
+-- @tparam[opt=0] BITDEPTH depth the bit depth
+-- @tparam[opt] love.sound.SoundData a SoundData instance (will be created if
+-- not passed)
+-- @treturn love.sound.SoundData a SoundData instance
+-- @treturn int the number of written samples
+function sfxr.Sound:generateSoundData(rate, depth, sounddata)
+    rate = rate or 44100
+    depth = depth or 0
+    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
+    assert(sfxr.BITDEPTH[depth] and depth, "Invalid bit depth: " .. tostring(depth))
 
-    if #tab == 0 then
+    local tab, count = self:generateTable(rate, depth)
+
+    if count == 0 then
         return nil
     end
 
-    local data = love.sound.newSoundData(#tab, freq, bits, 1)
+    local data = sounddata or love.sound.newSoundData(count, freq, bits, 1)
 
     for i = 0, #tab - 1 do
         data:setSample(i, tab[i + 1])
     end
 
-    return data
+    return data, count
 end
 
-function sfxr.Sound:play(freq, bits)
-    local data = self:generateSoundData(freq, bits)
-
-    if data then
-        local source = love.audio.newSource(data)
-        source:play()
-        return source
-    end
-end
-
+--- Randomize all sound parameters
+-- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomize(seed)
     if seed then setseed(seed) end
 
@@ -659,7 +841,7 @@ function sfxr.Sound:randomize(seed)
     self.envelope.sustain = random(-1, 1)^2
     self.envelope.punch = random(-1, 1)^2
     self.envelope.decay = random(-1, 1)
-    
+
     if self.envelope.attack + self.envelope.sustain + self.envelope.decay < 0.2 then
         self.envelope.sustain = self.envelope.sustain + 0.2 + random(0, 0.3)
         self.envelope.decay = self.envelope.decay + 0.2 + random(0, 0.3)
@@ -683,14 +865,18 @@ function sfxr.Sound:randomize(seed)
     self:sanitizeParameters()
 end
 
-function sfxr.Sound:mutate(amount, seed, changeFreq)
+--- Mutate all sound parameters
+-- @tparam[opt=1] amount by how much to mutate the parameters
+-- @tparam[opt] number seed a random seed
+-- @tparam[changefreq=true] bool whether to change the frequency parameters
+function sfxr.Sound:mutate(amount, seed, changefreq)
     if seed then setseed(seed) end
     local amount = (amount or 1)
     local a = amount / 20
     local b = (1 - a) * 10
-    local changeFreq = (changeFreq == nil) and true or changeFreq
+    local changefreq = (changefreq == nil) and true or changefreq
 
-    if changeFreq == true then
+    if changefreq == true then
         if maybe(b) then self.frequency.start = self.frequency.start + random(-a, a) end
         if maybe(b) then self.frequency.slide = self.frequency.slide + random(-a, a) end
         if maybe(b) then self.frequency.dslide = self.frequency.dslide + random(-a, a) end
@@ -725,6 +911,8 @@ function sfxr.Sound:mutate(amount, seed, changeFreq)
     self:sanitizeParameters()
 end
 
+--- Randomize all sound parameters to generate an item pick up sound
+-- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomPickup(seed)
     if seed then setseed(seed) end
     self:resetParameters()
@@ -733,13 +921,15 @@ function sfxr.Sound:randomPickup(seed)
     self.envelope.sustain = random(0, 0.1)
     self.envelope.punch = random(0.3, 0.6)
     self.envelope.decay = random(0.1, 0.5)
-    
+
     if maybe() then
         self.change.speed = random(0.5, 0.7)
         self.change.amount = random(0.2, 0.6)
     end
 end
 
+--- Randomize all sound parameters to generate a laser sound
+-- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomLaser(seed)
     if seed then setseed(seed) end
     self:resetParameters()
@@ -784,11 +974,13 @@ function sfxr.Sound:randomLaser(seed)
     end
 end
 
+--- Randomize all sound parameters to generate an explosion sound
+-- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomExplosion(seed)
     if seed then setseed(seed) end
     self:resetParameters()
     self.wavetype = sfxr.NOISE
-    
+
     if maybe() then
         self.frequency.start = random(0.1, 0.5)
         self.frequency.slide = random(-0.1, 0.3)
@@ -824,6 +1016,8 @@ function sfxr.Sound:randomExplosion(seed)
     end
 end
 
+--- Randomize all sound parameters to generate a power up sound
+-- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomPowerup(seed)
     if seed then setseed(seed) end
     self:resetParameters()
@@ -850,6 +1044,8 @@ function sfxr.Sound:randomPowerup(seed)
     self.envelope.decay = random(0.1, 0.5)
 end
 
+--- Randomize all sound parameters to generate a hit sound
+-- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomHit(seed)
     if seed then setseed(seed) end
     self:resetParameters()
@@ -872,6 +1068,8 @@ function sfxr.Sound:randomHit(seed)
     end
 end
 
+--- Randomize all sound parameters to generate a jump sound
+-- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomJump(seed)
     if seed then setseed(seed) end
     self:resetParameters()
@@ -893,6 +1091,8 @@ function sfxr.Sound:randomJump(seed)
     end
 end
 
+--- Randomize all sound parameters to generate a blip sound
+-- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomBlip(seed)
     if seed then setseed(seed) end
     self:resetParameters()
@@ -909,11 +1109,15 @@ function sfxr.Sound:randomBlip(seed)
     self.highpass.cutoff = 0.1
 end
 
-function sfxr.Sound:exportWAV(f, freq, bits)
-    freq = freq or sfxr.FREQ_44100
-    bits = bits or sfxr.BITS_16
-    assert(freq == sfxr.FREQ_44100 or freq == sfxr.FREQ_22050, "Invalid freq argument")
-    assert(bits == sfxr.BITS_16 or bits == sfxr.BITS_8, "Invalid bits argument")
+--- Generate and export the audio data to a PCM WAVE file.
+-- @tparam ?string|file|love.filesystem.File f a file path, a Lua file object, a love.filesystem.File instance
+-- @tparam[opt=44100] SAMPLERATE rate the sample rate
+-- @tparam[opt=0] BITDEPTH depth the bit depth
+function sfxr.Sound:exportWAV(f, rate, depth)
+    rate = rate or 44100
+    depth = depth or 16
+    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
+    assert(sfxr.BITDEPTH[depth] and depth ~= 0, "Invalid bit depth: " .. tostring(depth))
 
     local close = false
     if type(f) == "string" then
@@ -987,10 +1191,10 @@ function sfxr.Sound:exportWAV(f, freq, bits)
     -- Aand write the actual sample data
     local samples = 0
 
-    for v in self:generate(freq, bits) do
+    for v in self:generate(rate, depth) do
         samples = samples + 1
 
-        if bits == sfxr.BITS_16 then
+        if depth == 16 then
             -- wrap around a bit
             if v >= 256^2 then v = 0 end
             if v < 0 then v = 256^2 + v end
@@ -1011,6 +1215,9 @@ function sfxr.Sound:exportWAV(f, freq, bits)
     end
 end
 
+--- Save the sound parameters to a file as a Lua table
+-- @tparam ?string|file|love.filesystem.File f a file path, a Lua file object, a love.filesystem.File instance
+-- @tparam[opt=true] whether to minify the output
 function sfxr.Sound:save(f, compressed)
     local close = false
     if type(f) == "string" then
@@ -1057,7 +1264,7 @@ function sfxr.Sound:save(f, compressed)
     end
 
     store({"s"}, self)
-    code = code .. "\nreturn s, \"" .. sfxr.VERSION .. "\"" 
+    code = code .. "\nreturn s, \"" .. sfxr.VERSION .. "\""
     f:write(code)
 
     if close then
@@ -1065,6 +1272,8 @@ function sfxr.Sound:save(f, compressed)
     end
 end
 
+--- Load the sound parameters from a file containing a Lua table
+-- @tparam ?string|file|love.filesystem.File f a file path, a Lua file object, a love.filesystem.File instance
 function sfxr.Sound:load(f)
     local close = false
     if type(f) == "string" then
@@ -1082,7 +1291,7 @@ function sfxr.Sound:load(f)
     local params, version = assert(loadstring(code))()
     -- check version compatibility
     if version > sfxr.VERSION then
-        return version
+        error("Incompatible version: " .. tostring(version))
     end
 
     self:resetParameters()
@@ -1094,6 +1303,8 @@ function sfxr.Sound:load(f)
     end
 end
 
+--- Save the sound parameters to a file in the sfxr binary format
+-- @tparam ?string|file|love.filesystem.File f a file path, a Lua file object, a love.filesystem.File instance
 function sfxr.Sound:saveBinary(f)
     local close = false
     if type(f) == "string" then
@@ -1148,6 +1359,8 @@ function sfxr.Sound:saveBinary(f)
     end
 end
 
+--- Load the sound parameters from a file in the sfxr binary format
+-- @tparam ?string|file|love.filesystem.File f a file path, a Lua file object, a love.filesystem.File instance
 function sfxr.Sound:loadBinary(f)
     local close = false
     if type(f) == "string" then

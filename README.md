@@ -10,7 +10,7 @@ Demo
 To run the demo application you first need to download
 [LoveFrames](https://github.com/NikolaiResokav/LoveFrames) as a submodule:
 ```
-git submodule init
+git submodule update --init
 love demo
 ```
 
@@ -19,7 +19,7 @@ Example usage
 
 These examples should play a randomly generated sound.
 
-With [Löve](http://love2d.org) 0.9.x:
+With [LÖVE](http://love2d.org) 0.9.x:
 ```lua
 local sfxr = require("sfxr")
 

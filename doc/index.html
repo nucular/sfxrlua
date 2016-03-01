@@ -1,0 +1,1486 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>sfxr.lua Documentation</title>
+    <link rel="stylesheet" href="ldoc_pale.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>sfxr.lua</h1>
+
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Functions">Functions</a></li>
+<li><a href="#Tables">Tables</a></li>
+<li><a href="#Fields">Fields</a></li>
+<li><a href="#Class_Sound">Class Sound </a></li>
+</ul>
+
+
+<h2>API</h2>
+<ul class="$(kind=='Topics' and '' or 'nowrap'">
+  <li><strong>sfxr</strong></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Module <code>sfxr</code></h1>
+<p>A port of the sfxr sound effect synthesizer to Lua</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Functions">Functions</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#newSound">newSound (...)</a></td>
+	<td class="summary">The constructor for the Sound class.</td>
+	</tr>
+</table>
+<h2><a href="#Tables">Tables</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#WAVEFORM">WAVEFORM</a></td>
+	<td class="summary">Wave form constants</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#SAMPLERATE">SAMPLERATE</a></td>
+	<td class="summary">Sample rate constants
+ (use the number values directly, these are just for lookup)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#BITDEPTH">BITDEPTH</a></td>
+	<td class="summary">Bit depth constants
+ (use the number values directly, these are just for lookup)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#ENDIANNESS">ENDIANNESS</a></td>
+	<td class="summary">Endianness constants</td>
+	</tr>
+</table>
+<h2><a href="#Fields">Fields</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#VERSION">VERSION</a></td>
+	<td class="summary">The module version (SemVer)</td>
+	</tr>
+</table>
+<h2><a href="#Class_Sound">Class Sound </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:__init">sfxr.Sound:__init ()</a></td>
+	<td class="summary">Initialize the Sound instance.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.volume.master">self.volume.master</a></td>
+	<td class="summary">Master volume (<em>default</em> 0.5)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.volume.sound">self.volume.sound</a></td>
+	<td class="summary">Additional gain (<em>default</em> 0.5)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:resetParameters">sfxr.Sound:resetParameters ()</a></td>
+	<td class="summary">Set all parameters to their default values.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.repeatspeed">self.repeatspeed</a></td>
+	<td class="summary">Repeat speed:
+ Times to repeat the frequency slide over the course of the envelope
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.waveform">self.waveform</a></td>
+	<td class="summary">(<a href="index.html#WAVEFORM"><em>WAVEFORM</em></a>) The base wave form</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.envelope.attack">self.envelope.attack</a></td>
+	<td class="summary">Attack time:
+ Time the sound takes to reach its peak volume
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.envelope.sustain">self.envelope.sustain</a></td>
+	<td class="summary">Sustain time:
+ Time the sound sustains on its peak volume
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.envelope.punch">self.envelope.punch</a></td>
+	<td class="summary">Sustain punch:
+ Amount by which the sound peak volume is increased at the start of the
+ sustain time
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.envelope.decay">self.envelope.decay</a></td>
+	<td class="summary">Decay time:
+ Time the sound takes to decay after its sustain time
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.frequency.start">self.frequency.start</a></td>
+	<td class="summary">Start frequency:
+ Base tone of the sound, before sliding
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.frequency.min">self.frequency.min</a></td>
+	<td class="summary">Min frequency:
+ Tone below which the sound will get cut off
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.frequency.slide">self.frequency.slide</a></td>
+	<td class="summary">Slide:
+ Amount by which the frequency is increased or decreased through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.frequency.dslide">self.frequency.dslide</a></td>
+	<td class="summary">Delta slide:
+ Amount by which the slide is increased or decreased through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.vibrato.depth">self.vibrato.depth</a></td>
+	<td class="summary">Vibrato depth:
+ Amount of vibrato-like amplitude (volume) modulation
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.vibrato.speed">self.vibrato.speed</a></td>
+	<td class="summary">Vibrato speed:
+ Oscillation speed of the vibrato
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.vibrato.delay">self.vibrato.delay</a></td>
+	<td class="summary">Vibrato delay:
+ Unused and unimplemented
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.change.amount">self.change.amount</a></td>
+	<td class="summary">Change amount:
+ Amount by which the frequency is changed mid-sound
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.change.speed">self.change.speed</a></td>
+	<td class="summary">Change speed:
+ Time before the frequency change happens
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.duty.ratio">self.duty.ratio</a></td>
+	<td class="summary">Square duty:
+ Width of the square wave pulse cycle (doesn't affect other wave forms)
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.duty.sweep">self.duty.sweep</a></td>
+	<td class="summary">Duty sweep:
+ Amount by which the square duty is increased or decreased through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.phaser.offset">self.phaser.offset</a></td>
+	<td class="summary">Phaser offset:
+ Amount by which the phaser signal is offset from the sound
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.phaser.sweep">self.phaser.sweep</a></td>
+	<td class="summary">Phaser sweep:
+ Amount by which the phaser offset is increased or decreased through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.lowpass.cutoff">self.lowpass.cutoff</a></td>
+	<td class="summary">Lowpass filter cutoff:
+ Lower bound for frequencies allowed to pass through this filter
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.lowpass.sweep">self.lowpass.sweep</a></td>
+	<td class="summary">Lowpass filter cutoff sweep:
+ Amount by which the LP filter cutoff is increased or decreased
+ through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.lowpass.resonance">self.lowpass.resonance</a></td>
+	<td class="summary">Lowpass filter resonance:
+ Amount by which certain resonant frequencies near the cutoff are
+ increased
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.highpass.cutoff">self.highpass.cutoff</a></td>
+	<td class="summary">Highpass filter cutoff:
+ Upper bound for frequencies allowed to pass through this filter
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.highpass.sweep">self.highpass.sweep</a></td>
+	<td class="summary">Highpass filter cutoff sweep:
+ Amount by which the HP filter cutoff is increased or decreased
+ through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:sanitizeParameters">sfxr.Sound:sanitizeParameters ()</a></td>
+	<td class="summary">Clamp all parameters within sane ranges.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:generate">sfxr.Sound:generate ([rate=44100[, depth=0]])</a></td>
+	<td class="summary">Generate the sound and yield the sample data.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:getEnvelopeLimit">sfxr.Sound:getEnvelopeLimit ([rate=44100])</a></td>
+	<td class="summary">Get the maximum sample limit allowed by the current envelope.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:generateTable">sfxr.Sound:generateTable ([rate=44100[, depth=0[, tab]]])</a></td>
+	<td class="summary">Generate the sound into a table.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:generateString">sfxr.Sound:generateString ([rate=44100[, depth=16[, endianness=0]]])</a></td>
+	<td class="summary">Generate the sound to a binary string.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:generateSoundData">sfxr.Sound:generateSoundData ([rate=44100[, depth=0[, a]]])</a></td>
+	<td class="summary">Synthesize the sound to a LÖVE SoundData instance.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomize">sfxr.Sound:randomize ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:mutate">sfxr.Sound:mutate ([by=1][, seed], whether)</a></td>
+	<td class="summary">Mutate all sound parameters</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomPickup">sfxr.Sound:randomPickup ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate an item pick up sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomLaser">sfxr.Sound:randomLaser ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate a laser sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomExplosion">sfxr.Sound:randomExplosion ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate an explosion sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomPowerup">sfxr.Sound:randomPowerup ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate a power up sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomHit">sfxr.Sound:randomHit ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate a hit sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomJump">sfxr.Sound:randomJump ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate a jump sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomBlip">sfxr.Sound:randomBlip ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate a blip sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:exportWAV">sfxr.Sound:exportWAV (f[, rate=44100[, depth=0]])</a></td>
+	<td class="summary">Generate and export the audio data to a PCM WAVE file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:save">sfxr.Sound:save (f[, to=true])</a></td>
+	<td class="summary">Save the sound parameters to a file as a Lua table</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:load">sfxr.Sound:load (f)</a></td>
+	<td class="summary">Load the sound parameters from a file containing a Lua table</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:saveBinary">sfxr.Sound:saveBinary (f)</a></td>
+	<td class="summary">Save the sound parameters to a file in the sfxr binary format</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:loadBinary">sfxr.Sound:loadBinary (f)</a></td>
+	<td class="summary">Load the sound parameters from a file in the sfxr binary format</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Functions"></a>Functions</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "newSound"></a>
+    <strong>newSound (...)</strong>
+    </dt>
+    <dd>
+    The constructor for the Sound class.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><a class="type" href="index.html#Sound">Sound</a></span>
+        a Sound instance
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Tables"></a>Tables</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "WAVEFORM"></a>
+    <strong>WAVEFORM</strong>
+    </dt>
+    <dd>
+    Wave form constants
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">SQUARE</span>
+         square wave (<code>= 0</code>)
+        </li>
+        <li><span class="parameter">SAW</span>
+         saw wave (<code>= 1</code>)
+        </li>
+        <li><span class="parameter">SINE</span>
+         sine wave (<code>= 2</code>)
+        </li>
+        <li><span class="parameter">NOISE</span>
+         white noise (<code>= 3</code>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "SAMPLERATE"></a>
+    <strong>SAMPLERATE</strong>
+    </dt>
+    <dd>
+    Sample rate constants
+ (use the number values directly, these are just for lookup)
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">22050</span>
+         22.05 kHz (<code>= 22050</code>)
+        </li>
+        <li><span class="parameter">44100</span>
+         44.1 kHz (<code>= 44100</code>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "BITDEPTH"></a>
+    <strong>BITDEPTH</strong>
+    </dt>
+    <dd>
+    Bit depth constants
+ (use the number values directly, these are just for lookup)
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">0</span>
+         floating point bit depth, -1 to 1 (<code>= 0</code>)
+        </li>
+        <li><span class="parameter">8</span>
+         unsigned 8 bit, 0x00 to 0xFF (<code>= 8</code>)
+        </li>
+        <li><span class="parameter">16</span>
+         unsigned 16 bit, 0x0000 to 0xFFFF (<code>= 16</code>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "ENDIANNESS"></a>
+    <strong>ENDIANNESS</strong>
+    </dt>
+    <dd>
+    Endianness constants
+
+
+    <h3>Fields:</h3>
+    <ul>
+        <li><span class="parameter">LITTLE</span>
+         little endian (<code>= 0</code>)
+        </li>
+        <li><span class="parameter">BIG</span>
+         big endian (<code>= 1</code>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Fields"></a>Fields</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "VERSION"></a>
+    <strong>VERSION</strong>
+    </dt>
+    <dd>
+    The module version (SemVer)
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header has-description"><a name="Class_Sound"></a>Class Sound </h2>
+
+          <div class="section-description">
+          The main Sound class.
+          </div>
+    <dl class="function">
+    <dt>
+    <a name = "sfxr.Sound:__init"></a>
+    <strong>sfxr.Sound:__init ()</strong>
+    </dt>
+    <dd>
+    Initialize the Sound instance.
+ Called by <a href="index.html#newSound">the constructor</a>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.volume.master"></a>
+    <strong>self.volume.master</strong>
+    </dt>
+    <dd>
+    Master volume (<em>default</em> 0.5)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.volume.sound"></a>
+    <strong>self.volume.sound</strong>
+    </dt>
+    <dd>
+    Additional gain (<em>default</em> 0.5)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:resetParameters"></a>
+    <strong>sfxr.Sound:resetParameters ()</strong>
+    </dt>
+    <dd>
+    Set all parameters to their default values.
+ Called by <a href="index.html#sfxr.Sound:__init">the initializer</a>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.repeatspeed"></a>
+    <strong>self.repeatspeed</strong>
+    </dt>
+    <dd>
+    Repeat speed:
+ Times to repeat the frequency slide over the course of the envelope
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.waveform"></a>
+    <strong>self.waveform</strong>
+    </dt>
+    <dd>
+    (<a href="index.html#WAVEFORM"><em>WAVEFORM</em></a>) The base wave form
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.envelope.attack"></a>
+    <strong>self.envelope.attack</strong>
+    </dt>
+    <dd>
+    Attack time:
+ Time the sound takes to reach its peak volume
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.envelope.sustain"></a>
+    <strong>self.envelope.sustain</strong>
+    </dt>
+    <dd>
+    Sustain time:
+ Time the sound sustains on its peak volume
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.envelope.punch"></a>
+    <strong>self.envelope.punch</strong>
+    </dt>
+    <dd>
+    Sustain punch:
+ Amount by which the sound peak volume is increased at the start of the
+ sustain time
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.envelope.decay"></a>
+    <strong>self.envelope.decay</strong>
+    </dt>
+    <dd>
+    Decay time:
+ Time the sound takes to decay after its sustain time
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.frequency.start"></a>
+    <strong>self.frequency.start</strong>
+    </dt>
+    <dd>
+    Start frequency:
+ Base tone of the sound, before sliding
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.frequency.min"></a>
+    <strong>self.frequency.min</strong>
+    </dt>
+    <dd>
+    Min frequency:
+ Tone below which the sound will get cut off
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.frequency.slide"></a>
+    <strong>self.frequency.slide</strong>
+    </dt>
+    <dd>
+    Slide:
+ Amount by which the frequency is increased or decreased through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.frequency.dslide"></a>
+    <strong>self.frequency.dslide</strong>
+    </dt>
+    <dd>
+    Delta slide:
+ Amount by which the slide is increased or decreased through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.vibrato.depth"></a>
+    <strong>self.vibrato.depth</strong>
+    </dt>
+    <dd>
+    Vibrato depth:
+ Amount of vibrato-like amplitude (volume) modulation
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.vibrato.speed"></a>
+    <strong>self.vibrato.speed</strong>
+    </dt>
+    <dd>
+    Vibrato speed:
+ Oscillation speed of the vibrato
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.vibrato.delay"></a>
+    <strong>self.vibrato.delay</strong>
+    </dt>
+    <dd>
+    Vibrato delay:
+ Unused and unimplemented
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.change.amount"></a>
+    <strong>self.change.amount</strong>
+    </dt>
+    <dd>
+    Change amount:
+ Amount by which the frequency is changed mid-sound
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.change.speed"></a>
+    <strong>self.change.speed</strong>
+    </dt>
+    <dd>
+    Change speed:
+ Time before the frequency change happens
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.duty.ratio"></a>
+    <strong>self.duty.ratio</strong>
+    </dt>
+    <dd>
+    Square duty:
+ Width of the square wave pulse cycle (doesn't affect other wave forms)
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.duty.sweep"></a>
+    <strong>self.duty.sweep</strong>
+    </dt>
+    <dd>
+    Duty sweep:
+ Amount by which the square duty is increased or decreased through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.phaser.offset"></a>
+    <strong>self.phaser.offset</strong>
+    </dt>
+    <dd>
+    Phaser offset:
+ Amount by which the phaser signal is offset from the sound
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.phaser.sweep"></a>
+    <strong>self.phaser.sweep</strong>
+    </dt>
+    <dd>
+    Phaser sweep:
+ Amount by which the phaser offset is increased or decreased through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.lowpass.cutoff"></a>
+    <strong>self.lowpass.cutoff</strong>
+    </dt>
+    <dd>
+    Lowpass filter cutoff:
+ Lower bound for frequencies allowed to pass through this filter
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.lowpass.sweep"></a>
+    <strong>self.lowpass.sweep</strong>
+    </dt>
+    <dd>
+    Lowpass filter cutoff sweep:
+ Amount by which the LP filter cutoff is increased or decreased
+ through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.lowpass.resonance"></a>
+    <strong>self.lowpass.resonance</strong>
+    </dt>
+    <dd>
+    Lowpass filter resonance:
+ Amount by which certain resonant frequencies near the cutoff are
+ increased
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.highpass.cutoff"></a>
+    <strong>self.highpass.cutoff</strong>
+    </dt>
+    <dd>
+    Highpass filter cutoff:
+ Upper bound for frequencies allowed to pass through this filter
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.highpass.sweep"></a>
+    <strong>self.highpass.sweep</strong>
+    </dt>
+    <dd>
+    Highpass filter cutoff sweep:
+ Amount by which the HP filter cutoff is increased or decreased
+ through time
+ (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:sanitizeParameters"></a>
+    <strong>sfxr.Sound:sanitizeParameters ()</strong>
+    </dt>
+    <dd>
+    Clamp all parameters within sane ranges.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:generate"></a>
+    <strong>sfxr.Sound:generate ([rate=44100[, depth=0]])</strong>
+    </dt>
+    <dd>
+    Generate the sound and yield the sample data.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">rate</span>
+            <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
+         the sample rate
+         (<em>default</em> 44100)
+        </li>
+        <li><span class="parameter">depth</span>
+            <span class="types"><a class="type" href="index.html#BITDEPTH">BITDEPTH</a></span>
+         the bit depth
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+           <span class="types"><span class="type">function()</span></span>
+        a generator that yields the sample data when called
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"> <span class="keyword">for</span> s <span class="keyword">in</span> sound:generate(<span class="number">44100</span>, <span class="number">0</span>) <span class="keyword">do</span>
+   <span class="comment">-- do something with s
+</span> <span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:getEnvelopeLimit"></a>
+    <strong>sfxr.Sound:getEnvelopeLimit ([rate=44100])</strong>
+    </dt>
+    <dd>
+    Get the maximum sample limit allowed by the current envelope.
+ Does not take any other limits into account, so the returned count might be
+ higher than samples actually generated. Still useful though.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">rate</span>
+            <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
+         the sample rate
+         (<em>default</em> 44100)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:generateTable"></a>
+    <strong>sfxr.Sound:generateTable ([rate=44100[, depth=0[, tab]]])</strong>
+    </dt>
+    <dd>
+    Generate the sound into a table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">rate</span>
+            <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
+         the sample rate
+         (<em>default</em> 44100)
+        </li>
+        <li><span class="parameter">depth</span>
+            <span class="types"><a class="type" href="index.html#BITDEPTH">BITDEPTH</a></span>
+         the bit depth
+         (<em>default</em> 0)
+        </li>
+        <li><span class="parameter">tab</span>
+            <span class="types"><span class="type">{}</span></span>
+         the table to synthesize into
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">{number,...}</span></span>
+        the table filled with sample data</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        the number of written samples (== #tab)</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:generateString"></a>
+    <strong>sfxr.Sound:generateString ([rate=44100[, depth=16[, endianness=0]]])</strong>
+    </dt>
+    <dd>
+    Generate the sound to a binary string.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">rate</span>
+            <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
+         the sample rate
+         (<em>default</em> 44100)
+        </li>
+        <li><span class="parameter">depth</span>
+            <span class="types"><a class="type" href="index.html#BITDEPTH">BITDEPTH</a></span>
+         the bit depth (may not be <a href="index.html#BITDEPTH">0</a>)
+         (<em>default</em> 16)
+        </li>
+        <li><span class="parameter">endianness</span>
+            <span class="types"><a class="type" href="index.html#ENDIANNESS">ENDIANNESS</a></span>
+         the endianness (ignored when depth == 8)
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a></span>
+        a binary string of sample data</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        the number of written samples</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:generateSoundData"></a>
+    <strong>sfxr.Sound:generateSoundData ([rate=44100[, depth=0[, a]]])</strong>
+    </dt>
+    <dd>
+    Synthesize the sound to a LÖVE SoundData instance.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">rate</span>
+            <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
+         the sample rate
+         (<em>default</em> 44100)
+        </li>
+        <li><span class="parameter">depth</span>
+            <span class="types"><a class="type" href="index.html#BITDEPTH">BITDEPTH</a></span>
+         the bit depth
+         (<em>default</em> 0)
+        </li>
+        <li><span class="parameter">a</span>
+            <span class="types"><span class="type">love.sound.SoundData</span></span>
+         SoundData instance (will be created if
+ not passed)
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+        <li>
+           <span class="types"><span class="type">love.sound.SoundData</span></span>
+        a SoundData instance</li>
+        <li>
+           <span class="types"><span class="type">int</span></span>
+        the number of written samples</li>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomize"></a>
+    <strong>sfxr.Sound:randomize ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:mutate"></a>
+    <strong>sfxr.Sound:mutate ([by=1][, seed], whether)</strong>
+    </dt>
+    <dd>
+    Mutate all sound parameters
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">by</span>
+            <span class="types"><a class="type" href="index.html#self.change.amount">amount</a></span>
+         how much to mutate the parameters
+         (<em>default</em> 1)
+        </li>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">whether</span>
+            <span class="types"><span class="type">bool</span></span>
+         to change the frequency parameters
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomPickup"></a>
+    <strong>sfxr.Sound:randomPickup ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate an item pick up sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomLaser"></a>
+    <strong>sfxr.Sound:randomLaser ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate a laser sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomExplosion"></a>
+    <strong>sfxr.Sound:randomExplosion ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate an explosion sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomPowerup"></a>
+    <strong>sfxr.Sound:randomPowerup ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate a power up sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomHit"></a>
+    <strong>sfxr.Sound:randomHit ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate a hit sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomJump"></a>
+    <strong>sfxr.Sound:randomJump ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate a jump sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomBlip"></a>
+    <strong>sfxr.Sound:randomBlip ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate a blip sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:exportWAV"></a>
+    <strong>sfxr.Sound:exportWAV (f[, rate=44100[, depth=0]])</strong>
+    </dt>
+    <dd>
+    Generate and export the audio data to a PCM WAVE file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
+         a file path, a Lua file object, a love.filesystem.File instance
+        </li>
+        <li><span class="parameter">rate</span>
+            <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
+         the sample rate
+         (<em>default</em> 44100)
+        </li>
+        <li><span class="parameter">depth</span>
+            <span class="types"><a class="type" href="index.html#BITDEPTH">BITDEPTH</a></span>
+         the bit depth
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:save"></a>
+    <strong>sfxr.Sound:save (f[, to=true])</strong>
+    </dt>
+    <dd>
+    Save the sound parameters to a file as a Lua table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
+         a file path, a Lua file object, a love.filesystem.File instance
+        </li>
+        <li><span class="parameter">to</span>
+            <span class="types"><span class="type">whether</span></span>
+         minify the output
+         (<em>default</em> true)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:load"></a>
+    <strong>sfxr.Sound:load (f)</strong>
+    </dt>
+    <dd>
+    Load the sound parameters from a file containing a Lua table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
+         a file path, a Lua file object, a love.filesystem.File instance
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:saveBinary"></a>
+    <strong>sfxr.Sound:saveBinary (f)</strong>
+    </dt>
+    <dd>
+    Save the sound parameters to a file in the sfxr binary format
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
+         a file path, a Lua file object, a love.filesystem.File instance
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:loadBinary"></a>
+    <strong>sfxr.Sound:loadBinary (f)</strong>
+    </dt>
+    <dd>
+    Load the sound parameters from a file in the sfxr binary format
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
+         a file path, a Lua file object, a love.filesystem.File instance
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
+<i style="float:right;">Last updated 2016-03-02 00:35:01 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

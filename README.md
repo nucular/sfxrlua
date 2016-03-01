@@ -13,13 +13,15 @@ To run the demo application you first need to download
 git submodule update --init
 love demo
 ```
+Note: Due to LoveFrames only supporting LÖVE 0.9.x, this dependency is inherited
+by the demo. A move to a new GUI framework is pending.
 
 Example usage
 -------------
 
 These examples should play a randomly generated sound.
 
-With [LÖVE](http://love2d.org) 0.9.x:
+With [LÖVE](http://love2d.org):
 ```lua
 local sfxr = require("sfxr")
 

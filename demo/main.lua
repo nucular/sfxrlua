@@ -372,7 +372,7 @@ function createActionButtons()
         :Center()
         :SetVisible(false)
         :SetModal(false)
-    
+
     local frl = lf.Create("columnlist", fr)
         :SetPos(5, 30)
         :SetSize(390, 235)
@@ -647,7 +647,7 @@ function love.load()
     require("loveframes")
     lf = loveframes
     lf.util.SetActiveSkin("Orange")
-    
+
     love.graphics.setBackgroundColor(200, 200, 200)
 
     if not love.filesystem.isDirectory("sounds") then

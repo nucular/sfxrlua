@@ -1,10 +1,18 @@
 sfxr.lua
 ========
-[![Build Status](https://travis-ci.org/nucular/sfxrlua.svg?branch=master)](https://travis-ci.org/nucular/sfxrlua)
 
 A port of the sfxr sound effect synthesizer to pure Lua, designed to be used
-together with the *awesome* Löve game framework.
+together with the *awesome* [LÖVE](https://love2d.org) game framework.
 
+Demo
+----
+
+To run the demo application you first need to download
+[LoveFrames](https://github.com/NikolaiResokav/LoveFrames) as a submodule:
+```
+git submodule init
+love demo
+```
 
 Example usage
 -------------

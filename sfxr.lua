@@ -21,7 +21,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ]]--
 
---- A port of the sfxr sound effect synthesizer to Lua
+--[[--
+A port of the sfxr sound effect synthesizer to pure Lua, designed to be used
+together with the *awesome* [LÖVE](https://love2d.org) game framework.
+]]--
 -- @module sfxr
 local sfxr = {}
 local bit = bit32 or require("bit")
@@ -85,7 +88,6 @@ sfxr.ENDIANNESS = {
 -- Utilities
 
 --- Truncate a number to an unsigned integer.
--- @within Locals
 -- @tparam number n a (signed) number
 -- @treturn int the number, truncated and unsigned
 local function trunc(n)
@@ -97,7 +99,6 @@ local function trunc(n)
 end
 
 --- Set the random seed and initializes the generator.
--- @within Locals
 -- @tparam number seed the random seed
 local function setseed(seed)
     math.randomseed(seed)
@@ -107,7 +108,6 @@ local function setseed(seed)
 end
 
 --- Return a random number between low and high.
--- @within Locals
 -- @tparam number low the lower bound
 -- @tparam number high the upper bound
 -- @treturn number a random number where `low < n < high`
@@ -119,7 +119,6 @@ end
 -- w = 1: uniform distribution
 -- w = n: false is n times as likely as true
 -- Note: n < 0 do not work, use `not maybe(w)` instead
--- @within Locals
 -- @tparam[opt=1] number w the weight towards false
 -- @treturn bool a random boolean
 local function maybe(w)
@@ -127,7 +126,6 @@ local function maybe(w)
 end
 
 --- Clamp n between min and max.
--- @within Locals
 -- @tparam number n the number
 -- @tparam number min the lower bound
 -- @tparam number max the upper bound
@@ -137,7 +135,6 @@ local function clamp(n, min, max)
 end
 
 --- Copy a table (shallow) or a primitive.
--- @within Locals
 -- @param t a table or primitive
 -- @return a copy of t
 local function shallowcopy(t)
@@ -153,7 +150,6 @@ local function shallowcopy(t)
 end
 
 --- Recursively merge table t2 into t1.
--- @within Locals
 -- @tparam tab t1 a table
 -- @tparam tab t2 a table to merge into t1
 -- @treturn tab t1
@@ -174,7 +170,6 @@ end
 
 --- Pack a number into a IEEE754 32-bit big-endian floating point binary string.
 -- [source](https://stackoverflow.com/questions/14416734/)
--- @within Locals
 -- @tparam number number a number
 -- @treturn string a binary string
 local function packIEEE754(number)
@@ -214,7 +209,6 @@ end
 
 --- Unpack a IEEE754 32-bit big-endian floating point string to a number.
 -- [source](https://stackoverflow.com/questions/14416734/)
--- @within Locals
 -- @tparam string packed a binary string
 -- @treturn number a number
 local function unpackIEEE754(packed)
@@ -263,35 +257,35 @@ function sfxr.Sound:__init()
     --- **The [ASD envelope](https://en.wikipedia.org/wiki/Synthesizer#Attack_
     --Decay_Sustain_Release_.28ADSR.29_envelope) that controls the sound
     -- amplitude (volume) over time**
-    -- @within Parameters.envelope
+    -- @within ParametersEnvelope
     self.envelope = {}
     --- **The base and minimum frequencies of the tone generator and their
     -- slides**
-    -- @within Parameters.frequency
+    -- @within ParametersFrequency
     self.frequency = {}
     --- **A [vibrato](https://en.wikipedia.org/wiki/Vibrato)-like amplitude
     -- modulation effect**
-    -- @within Parameters.vibrato
+    -- @within ParametersVibrato
     self.vibrato = {}
     --- **Changes the frequency mid-sound to create a characteristic
     -- "coin"-effect**
-    -- @within Parameters.change
+    -- @within ParametersChange
     self.change = {}
     --- **The [duty](https://en.wikipedia.org/wiki/Duty_cycle) of the square
     -- waveform**
-    -- @within Parameters.duty
+    -- @within ParametersDuty
     self.duty = {}
     --- **A simple [phaser](https://en.wikipedia.org/wiki/Phaser_(effect))
     -- effect**
-    -- @within Parameters.phaser
+    -- @within ParametersPhaser
     self.phaser = {}
     --- **A [lowpass filter](https://en.wikipedia.org/wiki/Low-pass_filter)
     -- effect**
-    -- @within Parameters.lowpass
+    -- @within ParametersLowpass
     self.lowpass = {}
     --- **A [highpass filter](https://en.wikipedia.org/wiki/High-pass_filter)
     -- effect**
-    -- @within Parameters.highpass
+    -- @within ParametersHighpass
     self.highpass = {}
 
     -- These are not affected by resetParameters()
@@ -300,10 +294,10 @@ function sfxr.Sound:__init()
     -- @within Parameters
     self.supersampling = 8
     --- Master volume (*default* 0.5)
-    -- @within Parameters.volume
+    -- @within ParametersVolume
     self.volume.master = 0.5
     --- Additional gain (*default* 0.5)
-    -- @within Parameters.volume
+    -- @within ParametersVolume
     self.volume.sound = 0.5
 
     self:resetParameters()
@@ -325,122 +319,122 @@ function sfxr.Sound:resetParameters()
     --- Attack time:
     -- Time the sound takes to reach its peak amplitude
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.envelope
+    -- @within ParametersEnvelope
     self.envelope.attack = 0.0
     --- Sustain time:
     -- Time the sound stays on its peak amplitude
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.envelope
+    -- @within ParametersEnvelope
     self.envelope.sustain = 0.3
     --- Sustain punch:
     -- Amount by which the sound peak amplitude is increased at the start of the
     -- sustain time
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.envelope
+    -- @within ParametersEnvelope
     self.envelope.punch = 0.0
     --- Decay time:
     -- Time the sound takes to decay after its sustain time
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.envelope
+    -- @within ParametersEnvelope
     self.envelope.decay = 0.4
 
     --- Start frequency:
     -- Base tone of the sound, before sliding
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.frequency
+    -- @within ParametersFrequency
     self.frequency.start = 0.3
     --- Min frequency:
     -- Tone below which the sound will get cut off
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.frequency
+    -- @within ParametersFrequency
     self.frequency.min = 0.0
     --- Slide:
     -- Amount by which the frequency is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within Parameters.frequency
+    -- @within ParametersFrequency
     self.frequency.slide = 0.0
     --- Delta slide:
     -- Amount by which the slide is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within Parameters.frequency
+    -- @within ParametersFrequency
     self.frequency.dslide = 0.0
 
     --- Vibrato depth:
     -- Amount of amplitude modulation
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.vibrato
+    -- @within ParametersVibrato
     self.vibrato.depth = 0.0
     --- Vibrato speed:
     -- Oscillation speed of the vibrato
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.vibrato
+    -- @within ParametersVibrato
     self.vibrato.speed = 0.0
     --- Vibrato delay:
     -- Unused and unimplemented
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.vibrato
+    -- @within ParametersVibrato
     self.vibrato.delay = 0.0
 
     --- Change amount:
     -- Amount by which the frequency is changed mid-sound
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within Parameters.change
+    -- @within ParametersChange
     self.change.amount = 0.0
     --- Change speed:
     -- Time before the frequency change happens
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.change
+    -- @within ParametersChange
     self.change.speed = 0.0
 
     --- Square duty:
     -- Width of the square wave pulse cycle (doesn't affect other waveforms)
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.duty
+    -- @within ParametersDuty
     self.duty.ratio = 0.0
     --- Duty sweep:
     -- Amount by which the square duty is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within Parameters.duty
+    -- @within ParametersDuty
     self.duty.sweep = 0.0
 
     --- Phaser offset:
     -- Amount by which the phaser signal is offset from the sound
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within Parameters.phaser
+    -- @within ParametersPhaser
     self.phaser.offset = 0.0
     --- Phaser sweep:
     -- Amount by which the phaser offset is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within Parameters.phaser
+    -- @within ParametersPhaser
     self.phaser.sweep = 0.0
 
     --- Lowpass filter cutoff:
     -- Lower bound for frequencies allowed to pass through this filter
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.lowpass
+    -- @within ParametersLowpass
     self.lowpass.cutoff = 1.0
     --- Lowpass filter cutoff sweep:
     -- Amount by which the LP filter cutoff is increased or decreased
     -- over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within Parameters.lowpass
+    -- @within ParametersLowpass
     self.lowpass.sweep = 0.0
     --- Lowpass filter resonance:
     -- Amount by which certain resonant frequencies near the cutoff are
     -- increased
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.lowpass
+    -- @within ParametersLowpass
     self.lowpass.resonance = 0.0
     --- Highpass filter cutoff:
     -- Upper bound for frequencies allowed to pass through this filter
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within Parameters.highpass
+    -- @within ParametersHighpass
     self.highpass.cutoff = 0.0
     --- Highpass filter cutoff sweep:
     -- Amount by which the HP filter cutoff is increased or decreased
     -- over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within Parameters.highpass
+    -- @within ParametersHighpass
     self.highpass.sweep = 0.0
 end
 
@@ -600,7 +594,7 @@ function sfxr.Sound:generate(rate, depth)
 
         if fperiod > maxperiod then
             fperiod = maxperiod
-            -- XXX: Fail if the minimum frequency is too small
+            -- Fail if the minimum frequency is too small
             if (self.frequency.min > 0) then
                 return nil
             end
@@ -1195,7 +1189,7 @@ function sfxr.Sound:randomBlip(seed)
 end
 
 --- Generate and export the audio data to a PCM WAVE file.
--- @within SavingLoading
+-- @within SavingAndLoading
 -- @tparam ?string|file|love.filesystem.File f a path or file in `wb`-mode
 -- (passed files will not be closed)
 -- @tparam[opt=44100] SAMPLERATE rate the sampling rate
@@ -1304,7 +1298,7 @@ function sfxr.Sound:exportWAV(f, rate, depth)
 end
 
 --- Save the sound parameters to a file as a Lua table
--- @within SavingLoading
+-- @within SavingAndLoading
 -- @tparam ?string|file|love.filesystem.File f a path or file in `w`-mode
 -- (passed files will not be closed)
 -- @tparam[opt=true] bool minify whether to minify the output or not
@@ -1363,7 +1357,7 @@ function sfxr.Sound:save(f, minify)
 end
 
 --- Load the sound parameters from a file containing a Lua table
--- @within SavingLoading
+-- @within SavingAndLoading
 -- @tparam ?string|file|love.filesystem.File f a path or file in `r`-mode
 -- (passed files will not be closed)
 -- @raise "incompatible version: x.x.x"
@@ -1395,7 +1389,7 @@ function sfxr.Sound:load(f)
 end
 
 --- Save the sound parameters to a file in the sfxr binary format (version 102)
--- @within SavingLoading
+-- @within SavingAndLoading
 -- @tparam ?string|file|love.filesystem.File f a path or file in `wb`-mode
 -- (passed files will not be closed)
 function sfxr.Sound:saveBinary(f)
@@ -1454,7 +1448,7 @@ end
 
 --- Load the sound parameters from a file in the sfxr binary format
 -- (version 100-102)
--- @within SavingLoading
+-- @within SavingAndLoading
 -- @tparam ?string|file|love.filesystem.File f a path or file in `rb`-mode
 -- (passed files will not be closed)
 -- @raise "incompatible version: x", "unexpected file length"

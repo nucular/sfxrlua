@@ -19,7 +19,7 @@ by the demo. A move to a new GUI framework is pending.
 Example usage
 -------------
 
-These examples should play a randomly generated sound.
+The following code examples demonstrate how to play a randomly generated sound:
 
 With [LÖVE](http://love2d.org):
 ```lua
@@ -28,7 +28,9 @@ local sfxr = require("sfxr")
 function love.load()
     local sound = sfxr.newSound()
     sound:randomize()
-    sound:play()
+    local sounddata = sound:generateSoundData()
+    local source = love.audio.newSource(sounddata)
+    source:play()
 end
 ```
 

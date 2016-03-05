@@ -270,7 +270,7 @@ function sfxr.Sound:resetParameters()
     -- Times to repeat the frequency slide over the course of the envelope
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.repeatspeed = 0.0
-    --- (@{WAVEFORM|*WAVEFORM*}) The base wave form
+    --- The base @{WAVEFORM|wave form} (*default* @{WAVEFORM|SQUARE})
     self.waveform = sfxr.SQUARE
 
     --- Attack time:
@@ -278,7 +278,7 @@ function sfxr.Sound:resetParameters()
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.envelope.attack = 0.0
     --- Sustain time:
-    -- Time the sound sustains on its peak volume
+    -- Time the sound stays on its peak volume
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.envelope.sustain = 0.3
     --- Sustain punch:
@@ -415,11 +415,12 @@ end
 -- @usage for s in sound:generate(44100, 0) do
 --   -- do something with s
 -- end
+-- @raise "invalid sample rate: x", "invalid bit depth: x"
 function sfxr.Sound:generate(rate, depth)
     rate = rate or 44100
     depth = depth or 0
-    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
-    assert(sfxr.BITDEPTH[depth], "Invalid bit depth: " .. tostring(depth))
+    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
+    assert(sfxr.BITDEPTH[depth], "invalid bit depth: " .. tostring(depth))
 
     -- Initialize all locals
     local fperiod, maxperiod
@@ -691,9 +692,10 @@ end
 -- Does not take any other limits into account, so the returned count might be
 -- higher than samples actually generated. Still useful though.
 -- @tparam[opt=44100] SAMPLERATE rate the sample rate
+-- @raise "invalid sample rate: x", "invalid bit depth: x"
 function sfxr.Sound:getEnvelopeLimit(rate)
     rate = rate or 44100
-    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
+    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
 
     local env_length = {
         self.envelope.attack^2 * 100000, --- attack
@@ -711,11 +713,12 @@ end
 -- @tparam[opt] {} tab the table to synthesize into
 -- @treturn {number,...} the table filled with sample data
 -- @treturn int the number of written samples (== #tab)
+-- @raise "invalid sample rate: x", "invalid bit depth: x"
 function sfxr.Sound:generateTable(rate, depth, tab)
     rate = rate or 44100
     depth = depth or 0
-    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
-    assert(sfxr.BITDEPTH[depth], "Invalid bit depth: " .. tostring(depth))
+    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
+    assert(sfxr.BITDEPTH[depth], "invalid bit depth: " .. tostring(depth))
 
     -- this could really use table pre-allocation, but Lua doesn't provide that
     local t = tab or {}
@@ -733,12 +736,13 @@ end
 -- @tparam[opt=0] ENDIANNESS endianness the endianness (ignored when depth == 8)
 -- @treturn string a binary string of sample data
 -- @treturn int the number of written samples
+-- @raise "invalid sample rate: x", "invalid bit depth: x", "invalid endianness: x"
 function sfxr.Sound:generateString(rate, depth, endianness)
     rate = rate or 44100
     depth = depth or 16
-    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
-    assert(sfxr.BITDEPTH[depth] and depth ~= 0, "Invalid bit depth: " .. tostring(depth))
-    assert(sfxr.ENDIANNESS[endianness], "Invalid endianness: " .. tostring(endianness))
+    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
+    assert(sfxr.BITDEPTH[depth] and depth ~= 0, "invalid bit depth: " .. tostring(depth))
+    assert(sfxr.ENDIANNESS[endianness], "invalid endianness: " .. tostring(endianness))
 
     local s = ""
     --- buffer for arguments to string.char
@@ -778,15 +782,16 @@ end
 --- Synthesize the sound to a LÖVE SoundData instance.
 -- @tparam[opt=44100] SAMPLERATE rate the sample rate
 -- @tparam[opt=0] BITDEPTH depth the bit depth
--- @tparam[opt] love.sound.SoundData a SoundData instance (will be created if
--- not passed)
+-- @tparam[opt] love.sound.SoundData sounddata a SoundData instance (will be
+-- created if not passed)
 -- @treturn love.sound.SoundData a SoundData instance
 -- @treturn int the number of written samples
+-- @raise "invalid sample rate: x", "invalid bit depth: x"
 function sfxr.Sound:generateSoundData(rate, depth, sounddata)
     rate = rate or 44100
     depth = depth or 0
-    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
-    assert(sfxr.BITDEPTH[depth] and depth, "Invalid bit depth: " .. tostring(depth))
+    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
+    assert(sfxr.BITDEPTH[depth] and depth, "invalid bit depth: " .. tostring(depth))
 
     local tab, count = self:generateTable(rate, depth)
 
@@ -1110,14 +1115,16 @@ function sfxr.Sound:randomBlip(seed)
 end
 
 --- Generate and export the audio data to a PCM WAVE file.
--- @tparam ?string|file|love.filesystem.File f a file path, a Lua file object, a love.filesystem.File instance
+-- @tparam ?string|file|love.filesystem.File f a path or file in `wb`-mode
+-- (passed files will not be closed)
 -- @tparam[opt=44100] SAMPLERATE rate the sample rate
 -- @tparam[opt=0] BITDEPTH depth the bit depth
+-- @raise "invalid sample rate: x", "invalid bit depth: x"
 function sfxr.Sound:exportWAV(f, rate, depth)
     rate = rate or 44100
     depth = depth or 16
-    assert(sfxr.SAMPLERATE[rate], "Invalid sample rate: " .. tostring(rate))
-    assert(sfxr.BITDEPTH[depth] and depth ~= 0, "Invalid bit depth: " .. tostring(depth))
+    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
+    assert(sfxr.BITDEPTH[depth] and depth ~= 0, "invalid bit depth: " .. tostring(depth))
 
     local close = false
     if type(f) == "string" then
@@ -1216,9 +1223,10 @@ function sfxr.Sound:exportWAV(f, rate, depth)
 end
 
 --- Save the sound parameters to a file as a Lua table
--- @tparam ?string|file|love.filesystem.File f a file path, a Lua file object, a love.filesystem.File instance
--- @tparam[opt=true] whether to minify the output
-function sfxr.Sound:save(f, compressed)
+-- @tparam ?string|file|love.filesystem.File f a path or file in `w`-mode
+-- (passed files will not be closed)
+-- @tparam[opt=true] bool minify whether to minify the output or not
+function sfxr.Sound:save(f, minify)
     local close = false
     if type(f) == "string" then
         f = io.open(f, "w")
@@ -1243,14 +1251,14 @@ function sfxr.Sound:save(f, compressed)
 
             if obj ~= def then
                 local k = table.concat(keys, ".")
-                if not compressed then
+                if not minify then
                     code = code .. "\n" .. string.rep(" ", #keys - 1)
                 end
                 code = code .. string.format("%s=%s;", name, obj)
             end
 
         elseif type(obj) == "table" then
-            local spacing = compressed and "" or "\n" .. string.rep(" ", #keys - 1)
+            local spacing = minify and "" or "\n" .. string.rep(" ", #keys - 1)
             code = code .. spacing .. string.format("%s={", name)
 
             for k, v in pairs(obj) do
@@ -1273,7 +1281,9 @@ function sfxr.Sound:save(f, compressed)
 end
 
 --- Load the sound parameters from a file containing a Lua table
--- @tparam ?string|file|love.filesystem.File f a file path, a Lua file object, a love.filesystem.File instance
+-- @tparam ?string|file|love.filesystem.File f a path or file in `r`-mode
+-- (passed files will not be closed)
+-- @raise "incompatible version: x.x.x"
 function sfxr.Sound:load(f)
     local close = false
     if type(f) == "string" then
@@ -1290,9 +1300,7 @@ function sfxr.Sound:load(f)
 
     local params, version = assert(loadstring(code))()
     -- check version compatibility
-    if version > sfxr.VERSION then
-        error("Incompatible version: " .. tostring(version))
-    end
+    assert(version > sfxr.VERSION, "incompatible version: " .. tostring(version))
 
     self:resetParameters()
     -- merge the loaded table into the own
@@ -1303,8 +1311,9 @@ function sfxr.Sound:load(f)
     end
 end
 
---- Save the sound parameters to a file in the sfxr binary format
--- @tparam ?string|file|love.filesystem.File f a file path, a Lua file object, a love.filesystem.File instance
+--- Save the sound parameters to a file in the sfxr binary format (version 102)
+-- @tparam ?string|file|love.filesystem.File f a path or file in `wb`-mode
+-- (passed files will not be closed)
 function sfxr.Sound:saveBinary(f)
     local close = false
     if type(f) == "string" then
@@ -1360,7 +1369,10 @@ function sfxr.Sound:saveBinary(f)
 end
 
 --- Load the sound parameters from a file in the sfxr binary format
--- @tparam ?string|file|love.filesystem.File f a file path, a Lua file object, a love.filesystem.File instance
+-- (version 100, 101, 102)
+-- @tparam ?string|file|love.filesystem.File f a path or file in `rb`-mode
+-- (passed files will not be closed)
+-- @raise "incompatible version: x", "unexpected file length"
 function sfxr.Sound:loadBinary(f)
     local close = false
     if type(f) == "string" then
@@ -1394,7 +1406,7 @@ function sfxr.Sound:loadBinary(f)
     local version = s:byte(off)
     off = off + 4
     if version < 100 or version > 102 then
-        return nil, "unknown version number "..version
+        error("incompatible version: " .. tostring(version))
     end
 
     self.wavetype = s:byte(off)
@@ -1435,7 +1447,7 @@ function sfxr.Sound:loadBinary(f)
         self.change.amount = readFloat()
     end
 
-    assert(off-1 == s:len())
+    assert(off-1 == s:len(), "unexpected file length")
 end
 
 return sfxr

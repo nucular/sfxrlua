@@ -113,7 +113,7 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#self.waveform">self.waveform</a></td>
-	<td class="summary">(<a href="index.html#WAVEFORM"><em>WAVEFORM</em></a>) The base wave form</td>
+	<td class="summary">The base <a href="index.html#WAVEFORM">wave form</a> (<em>default</em> <a href="index.html#WAVEFORM">SQUARE</a>)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#self.envelope.attack">self.envelope.attack</a></td>
@@ -124,7 +124,7 @@
 	<tr>
 	<td class="name" nowrap><a href="#self.envelope.sustain">self.envelope.sustain</a></td>
 	<td class="summary">Sustain time:
- Time the sound sustains on its peak volume
+ Time the sound stays on its peak volume
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
 	</tr>
 	<tr>
@@ -272,7 +272,7 @@
 	<td class="summary">Generate the sound to a binary string.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:generateSoundData">sfxr.Sound:generateSoundData ([rate=44100[, depth=0[, a]]])</a></td>
+	<td class="name" nowrap><a href="#sfxr.Sound:generateSoundData">sfxr.Sound:generateSoundData ([rate=44100[, depth=0[, sounddata]]])</a></td>
 	<td class="summary">Synthesize the sound to a LÖVE SoundData instance.</td>
 	</tr>
 	<tr>
@@ -316,7 +316,7 @@
 	<td class="summary">Generate and export the audio data to a PCM WAVE file.</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:save">sfxr.Sound:save (f[, to=true])</a></td>
+	<td class="name" nowrap><a href="#sfxr.Sound:save">sfxr.Sound:save (f[, minify=true])</a></td>
 	<td class="summary">Save the sound parameters to a file as a Lua table</td>
 	</tr>
 	<tr>
@@ -325,11 +325,12 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sfxr.Sound:saveBinary">sfxr.Sound:saveBinary (f)</a></td>
-	<td class="summary">Save the sound parameters to a file in the sfxr binary format</td>
+	<td class="summary">Save the sound parameters to a file in the sfxr binary format (version 102)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sfxr.Sound:loadBinary">sfxr.Sound:loadBinary (f)</a></td>
-	<td class="summary">Load the sound parameters from a file in the sfxr binary format</td>
+	<td class="summary">Load the sound parameters from a file in the sfxr binary format
+ (version 100, 101, 102)</td>
 	</tr>
 </table>
 
@@ -579,7 +580,7 @@
     <strong>self.waveform</strong>
     </dt>
     <dd>
-    (<a href="index.html#WAVEFORM"><em>WAVEFORM</em></a>) The base wave form
+    The base <a href="index.html#WAVEFORM">wave form</a> (<em>default</em> <a href="index.html#WAVEFORM">SQUARE</a>)
 
 
 
@@ -610,7 +611,7 @@
     </dt>
     <dd>
     Sustain time:
- Time the sound sustains on its peak volume
+ Time the sound stays on its peak volume
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
 
 
@@ -987,6 +988,8 @@
         a generator that yields the sample data when called
     </ol>
 
+    <h3>Raises:</h3>
+    "invalid sample rate: x", "invalid bit depth: x"
 
 
     <h3>Usage:</h3>
@@ -1017,6 +1020,8 @@
     </ul>
 
 
+    <h3>Raises:</h3>
+    "invalid sample rate: x", "invalid bit depth: x"
 
 
 
@@ -1058,6 +1063,8 @@
         the number of written samples (== #tab)</li>
     </ol>
 
+    <h3>Raises:</h3>
+    "invalid sample rate: x", "invalid bit depth: x"
 
 
 
@@ -1099,13 +1106,15 @@
         the number of written samples</li>
     </ol>
 
+    <h3>Raises:</h3>
+    "invalid sample rate: x", "invalid bit depth: x", "invalid endianness: x"
 
 
 
 </dd>
     <dt>
     <a name = "sfxr.Sound:generateSoundData"></a>
-    <strong>sfxr.Sound:generateSoundData ([rate=44100[, depth=0[, a]]])</strong>
+    <strong>sfxr.Sound:generateSoundData ([rate=44100[, depth=0[, sounddata]]])</strong>
     </dt>
     <dd>
     Synthesize the sound to a LÖVE SoundData instance.
@@ -1123,10 +1132,10 @@
          the bit depth
          (<em>default</em> 0)
         </li>
-        <li><span class="parameter">a</span>
+        <li><span class="parameter">sounddata</span>
             <span class="types"><span class="type">love.sound.SoundData</span></span>
-         SoundData instance (will be created if
- not passed)
+         a SoundData instance (will be
+ created if not passed)
          (<em>optional</em>)
         </li>
     </ul>
@@ -1141,6 +1150,8 @@
         the number of written samples</li>
     </ol>
 
+    <h3>Raises:</h3>
+    "invalid sample rate: x", "invalid bit depth: x"
 
 
 
@@ -1364,7 +1375,8 @@
     <ul>
         <li><span class="parameter">f</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
-         a file path, a Lua file object, a love.filesystem.File instance
+         a path or file in <code>wb</code>-mode
+ (passed files will not be closed)
         </li>
         <li><span class="parameter">rate</span>
             <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
@@ -1379,13 +1391,15 @@
     </ul>
 
 
+    <h3>Raises:</h3>
+    "invalid sample rate: x", "invalid bit depth: x"
 
 
 
 </dd>
     <dt>
     <a name = "sfxr.Sound:save"></a>
-    <strong>sfxr.Sound:save (f[, to=true])</strong>
+    <strong>sfxr.Sound:save (f[, minify=true])</strong>
     </dt>
     <dd>
     Save the sound parameters to a file as a Lua table
@@ -1395,11 +1409,12 @@
     <ul>
         <li><span class="parameter">f</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
-         a file path, a Lua file object, a love.filesystem.File instance
+         a path or file in <code>w</code>-mode
+ (passed files will not be closed)
         </li>
-        <li><span class="parameter">to</span>
-            <span class="types"><span class="type">whether</span></span>
-         minify the output
+        <li><span class="parameter">minify</span>
+            <span class="types"><span class="type">bool</span></span>
+         whether to minify the output or not
          (<em>default</em> true)
         </li>
     </ul>
@@ -1421,11 +1436,14 @@
     <ul>
         <li><span class="parameter">f</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
-         a file path, a Lua file object, a love.filesystem.File instance
+         a path or file in <code>r</code>-mode
+ (passed files will not be closed)
         </li>
     </ul>
 
 
+    <h3>Raises:</h3>
+    "incompatible version: x.x.x"
 
 
 
@@ -1435,14 +1453,15 @@
     <strong>sfxr.Sound:saveBinary (f)</strong>
     </dt>
     <dd>
-    Save the sound parameters to a file in the sfxr binary format
+    Save the sound parameters to a file in the sfxr binary format (version 102)
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
-         a file path, a Lua file object, a love.filesystem.File instance
+         a path or file in <code>wb</code>-mode
+ (passed files will not be closed)
         </li>
     </ul>
 
@@ -1457,17 +1476,21 @@
     </dt>
     <dd>
     Load the sound parameters from a file in the sfxr binary format
+ (version 100, 101, 102)
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">f</span>
             <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
-         a file path, a Lua file object, a love.filesystem.File instance
+         a path or file in <code>rb</code>-mode
+ (passed files will not be closed)
         </li>
     </ul>
 
 
+    <h3>Raises:</h3>
+    "incompatible version: x", "unexpected file length"
 
 
 
@@ -1479,7 +1502,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2016-03-02 00:35:01 </i>
+<i style="float:right;">Last updated 2016-03-05 19:36:51 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

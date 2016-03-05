@@ -63,21 +63,21 @@
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#WAVEFORM">WAVEFORM</a></td>
-	<td class="summary">Wave form constants</td>
+	<td class="summary"><a href="https://en.wikipedia.org/wiki/Waveform">Waveform</a> constants</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#SAMPLERATE">SAMPLERATE</a></td>
-	<td class="summary">Sample rate constants
+	<td class="summary"><a href="https://en.wikipedia.org/wiki/Sampling_(signal_processing">Sampling rate</a> constants
  (use the number values directly, these are just for lookup)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#BITDEPTH">BITDEPTH</a></td>
-	<td class="summary">Bit depth constants
+	<td class="summary"><a href="https://en.wikipedia.org/wiki/Audio_bit_depth">Bit depth</a> constants
  (use the number values directly, these are just for lookup)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#ENDIANNESS">ENDIANNESS</a></td>
-	<td class="summary">Endianness constants</td>
+	<td class="summary"><a href="https://en.wikipedia.org/wiki/Endianness">Endianness</a> constants</td>
 	</tr>
 </table>
 <h2><a href="#Fields">Fields</a></h2>
@@ -92,6 +92,47 @@
 	<tr>
 	<td class="name" nowrap><a href="#sfxr.Sound:__init">sfxr.Sound:__init ()</a></td>
 	<td class="summary">Initialize the Sound instance.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.volume">self.volume</a></td>
+	<td class="summary">The sound volume and gain all samples are multiplied with</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.envelope">self.envelope</a></td>
+	<td class="summary">The <a href="https://en.wikipedia.org/wiki/Synthesizer#Attack_Deca
+y_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the sound amplitude
+ (volume) over time</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.frequency">self.frequency</a></td>
+	<td class="summary">The base and minimum frequencies of the tone generator and their slides</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.vibrato">self.vibrato</a></td>
+	<td class="summary">A <a href="https://en.wikipedia.org/wiki/Vibrato">vibrato</a>-like amplitude
+ modulation effect.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.change">self.change</a></td>
+	<td class="summary">Changes the frequency mid-sound to create the characteristic
+ "coin"-effect</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.duty">self.duty</a></td>
+	<td class="summary">The <a href="https://en.wikipedia.org/wiki/Duty_cycle">duty</a> of the square
+ waveform</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.phaser">self.phaser</a></td>
+	<td class="summary">A simple <a href="https://en.wikipedia.org/wiki/Phaser_(effect">phaser</a> effect</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.lowpass">self.lowpass</a></td>
+	<td class="summary">A <a href="https://en.wikipedia.org/wiki/Low-pass_filter">lowpass filter</a> effect</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.highpass">self.highpass</a></td>
+	<td class="summary">A <a href="https://en.wikipedia.org/wiki/High-pass_filter">highpass filter</a> effect</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#self.volume.master">self.volume.master</a></td>
@@ -113,24 +154,24 @@
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#self.waveform">self.waveform</a></td>
-	<td class="summary">The base <a href="index.html#WAVEFORM">wave form</a> (<em>default</em> <a href="index.html#WAVEFORM">SQUARE</a>)</td>
+	<td class="summary">The base <a href="index.html#WAVEFORM">waveform</a> (<em>default</em> <a href="index.html#WAVEFORM">SQUARE</a>)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#self.envelope.attack">self.envelope.attack</a></td>
 	<td class="summary">Attack time:
- Time the sound takes to reach its peak volume
+ Time the sound takes to reach its peak amplitude
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#self.envelope.sustain">self.envelope.sustain</a></td>
 	<td class="summary">Sustain time:
- Time the sound stays on its peak volume
+ Time the sound stays on its peak amplitude
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#self.envelope.punch">self.envelope.punch</a></td>
 	<td class="summary">Sustain punch:
- Amount by which the sound peak volume is increased at the start of the
+ Amount by which the sound peak amplitude is increased at the start of the
  sustain time
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
 	</tr>
@@ -155,19 +196,19 @@
 	<tr>
 	<td class="name" nowrap><a href="#self.frequency.slide">self.frequency.slide</a></td>
 	<td class="summary">Slide:
- Amount by which the frequency is increased or decreased through time
+ Amount by which the frequency is increased or decreased over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#self.frequency.dslide">self.frequency.dslide</a></td>
 	<td class="summary">Delta slide:
- Amount by which the slide is increased or decreased through time
+ Amount by which the slide is increased or decreased over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#self.vibrato.depth">self.vibrato.depth</a></td>
 	<td class="summary">Vibrato depth:
- Amount of vibrato-like amplitude (volume) modulation
+ Amount of amplitude modulation
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
 	</tr>
 	<tr>
@@ -203,7 +244,7 @@
 	<tr>
 	<td class="name" nowrap><a href="#self.duty.sweep">self.duty.sweep</a></td>
 	<td class="summary">Duty sweep:
- Amount by which the square duty is increased or decreased through time
+ Amount by which the square duty is increased or decreased over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
 	</tr>
 	<tr>
@@ -215,7 +256,7 @@
 	<tr>
 	<td class="name" nowrap><a href="#self.phaser.sweep">self.phaser.sweep</a></td>
 	<td class="summary">Phaser sweep:
- Amount by which the phaser offset is increased or decreased through time
+ Amount by which the phaser offset is increased or decreased over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
 	</tr>
 	<tr>
@@ -228,7 +269,7 @@
 	<td class="name" nowrap><a href="#self.lowpass.sweep">self.lowpass.sweep</a></td>
 	<td class="summary">Lowpass filter cutoff sweep:
  Amount by which the LP filter cutoff is increased or decreased
- through time
+ over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
 	</tr>
 	<tr>
@@ -248,12 +289,12 @@
 	<td class="name" nowrap><a href="#self.highpass.sweep">self.highpass.sweep</a></td>
 	<td class="summary">Highpass filter cutoff sweep:
  Amount by which the HP filter cutoff is increased or decreased
- through time
+ over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sfxr.Sound:sanitizeParameters">sfxr.Sound:sanitizeParameters ()</a></td>
-	<td class="summary">Clamp all parameters within sane ranges.</td>
+	<td class="summary">Clamp all parameters within their sane ranges.</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#sfxr.Sound:generate">sfxr.Sound:generate ([rate=44100[, depth=0]])</a></td>
@@ -330,7 +371,7 @@
 	<tr>
 	<td class="name" nowrap><a href="#sfxr.Sound:loadBinary">sfxr.Sound:loadBinary (f)</a></td>
 	<td class="summary">Load the sound parameters from a file in the sfxr binary format
- (version 100, 101, 102)</td>
+ (version 100-102)</td>
 	</tr>
 </table>
 
@@ -378,7 +419,7 @@
     <strong>WAVEFORM</strong>
     </dt>
     <dd>
-    Wave form constants
+    <a href="https://en.wikipedia.org/wiki/Waveform">Waveform</a> constants
 
 
     <h3>Fields:</h3>
@@ -407,7 +448,7 @@
     <strong>SAMPLERATE</strong>
     </dt>
     <dd>
-    Sample rate constants
+    <a href="https://en.wikipedia.org/wiki/Sampling_(signal_processing">Sampling rate</a> constants
  (use the number values directly, these are just for lookup)
 
 
@@ -431,7 +472,7 @@
     <strong>BITDEPTH</strong>
     </dt>
     <dd>
-    Bit depth constants
+    <a href="https://en.wikipedia.org/wiki/Audio_bit_depth">Bit depth</a> constants
  (use the number values directly, these are just for lookup)
 
 
@@ -458,7 +499,7 @@
     <strong>ENDIANNESS</strong>
     </dt>
     <dd>
-    Endianness constants
+    <a href="https://en.wikipedia.org/wiki/Endianness">Endianness</a> constants
 
 
     <h3>Fields:</h3>
@@ -508,6 +549,137 @@
     <dd>
     Initialize the Sound instance.
  Called by <a href="index.html#newSound">the constructor</a>.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.volume"></a>
+    <strong>self.volume</strong>
+    </dt>
+    <dd>
+    The sound volume and gain all samples are multiplied with
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.envelope"></a>
+    <strong>self.envelope</strong>
+    </dt>
+    <dd>
+    The <a href="https://en.wikipedia.org/wiki/Synthesizer#Attack_Deca
+y_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the sound amplitude
+ (volume) over time
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.frequency"></a>
+    <strong>self.frequency</strong>
+    </dt>
+    <dd>
+    The base and minimum frequencies of the tone generator and their slides
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.vibrato"></a>
+    <strong>self.vibrato</strong>
+    </dt>
+    <dd>
+    A <a href="https://en.wikipedia.org/wiki/Vibrato">vibrato</a>-like amplitude
+ modulation effect.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.change"></a>
+    <strong>self.change</strong>
+    </dt>
+    <dd>
+    Changes the frequency mid-sound to create the characteristic
+ "coin"-effect
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.duty"></a>
+    <strong>self.duty</strong>
+    </dt>
+    <dd>
+    The <a href="https://en.wikipedia.org/wiki/Duty_cycle">duty</a> of the square
+ waveform
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.phaser"></a>
+    <strong>self.phaser</strong>
+    </dt>
+    <dd>
+    A simple <a href="https://en.wikipedia.org/wiki/Phaser_(effect">phaser</a> effect
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.lowpass"></a>
+    <strong>self.lowpass</strong>
+    </dt>
+    <dd>
+    A <a href="https://en.wikipedia.org/wiki/Low-pass_filter">lowpass filter</a> effect
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.highpass"></a>
+    <strong>self.highpass</strong>
+    </dt>
+    <dd>
+    A <a href="https://en.wikipedia.org/wiki/High-pass_filter">highpass filter</a> effect
 
 
 
@@ -580,7 +752,7 @@
     <strong>self.waveform</strong>
     </dt>
     <dd>
-    The base <a href="index.html#WAVEFORM">wave form</a> (<em>default</em> <a href="index.html#WAVEFORM">SQUARE</a>)
+    The base <a href="index.html#WAVEFORM">waveform</a> (<em>default</em> <a href="index.html#WAVEFORM">SQUARE</a>)
 
 
 
@@ -595,7 +767,7 @@
     </dt>
     <dd>
     Attack time:
- Time the sound takes to reach its peak volume
+ Time the sound takes to reach its peak amplitude
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
 
 
@@ -611,7 +783,7 @@
     </dt>
     <dd>
     Sustain time:
- Time the sound stays on its peak volume
+ Time the sound stays on its peak amplitude
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
 
 
@@ -627,7 +799,7 @@
     </dt>
     <dd>
     Sustain punch:
- Amount by which the sound peak volume is increased at the start of the
+ Amount by which the sound peak amplitude is increased at the start of the
  sustain time
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
 
@@ -692,7 +864,7 @@
     </dt>
     <dd>
     Slide:
- Amount by which the frequency is increased or decreased through time
+ Amount by which the frequency is increased or decreased over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
 
 
@@ -708,7 +880,7 @@
     </dt>
     <dd>
     Delta slide:
- Amount by which the slide is increased or decreased through time
+ Amount by which the slide is increased or decreased over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
 
 
@@ -724,7 +896,7 @@
     </dt>
     <dd>
     Vibrato depth:
- Amount of vibrato-like amplitude (volume) modulation
+ Amount of amplitude modulation
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
 
 
@@ -820,7 +992,7 @@
     </dt>
     <dd>
     Duty sweep:
- Amount by which the square duty is increased or decreased through time
+ Amount by which the square duty is increased or decreased over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
 
 
@@ -852,7 +1024,7 @@
     </dt>
     <dd>
     Phaser sweep:
- Amount by which the phaser offset is increased or decreased through time
+ Amount by which the phaser offset is increased or decreased over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
 
 
@@ -885,7 +1057,7 @@
     <dd>
     Lowpass filter cutoff sweep:
  Amount by which the LP filter cutoff is increased or decreased
- through time
+ over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
 
 
@@ -935,7 +1107,7 @@
     <dd>
     Highpass filter cutoff sweep:
  Amount by which the HP filter cutoff is increased or decreased
- through time
+ over time
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)
 
 
@@ -950,7 +1122,7 @@
     <strong>sfxr.Sound:sanitizeParameters ()</strong>
     </dt>
     <dd>
-    Clamp all parameters within sane ranges.
+    Clamp all parameters within their sane ranges.
 
 
 
@@ -971,7 +1143,7 @@
     <ul>
         <li><span class="parameter">rate</span>
             <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
-         the sample rate
+         the sampling rate
          (<em>default</em> 44100)
         </li>
         <li><span class="parameter">depth</span>
@@ -985,11 +1157,11 @@
     <ol>
 
            <span class="types"><span class="type">function()</span></span>
-        a generator that yields the sample data when called
+        a generator that yields the next sample when called
     </ol>
 
     <h3>Raises:</h3>
-    "invalid sample rate: x", "invalid bit depth: x"
+    "invalid sampling rate: x", "invalid bit depth: x"
 
 
     <h3>Usage:</h3>
@@ -1014,14 +1186,14 @@
     <ul>
         <li><span class="parameter">rate</span>
             <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
-         the sample rate
+         the sampling rate
          (<em>default</em> 44100)
         </li>
     </ul>
 
 
     <h3>Raises:</h3>
-    "invalid sample rate: x", "invalid bit depth: x"
+    "invalid sampling rate: x", "invalid bit depth: x"
 
 
 
@@ -1038,7 +1210,7 @@
     <ul>
         <li><span class="parameter">rate</span>
             <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
-         the sample rate
+         the sampling rate
          (<em>default</em> 44100)
         </li>
         <li><span class="parameter">depth</span>
@@ -1064,7 +1236,7 @@
     </ol>
 
     <h3>Raises:</h3>
-    "invalid sample rate: x", "invalid bit depth: x"
+    "invalid sampling rate: x", "invalid bit depth: x"
 
 
 
@@ -1081,7 +1253,7 @@
     <ul>
         <li><span class="parameter">rate</span>
             <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
-         the sample rate
+         the sampling rate
          (<em>default</em> 44100)
         </li>
         <li><span class="parameter">depth</span>
@@ -1107,7 +1279,7 @@
     </ol>
 
     <h3>Raises:</h3>
-    "invalid sample rate: x", "invalid bit depth: x", "invalid endianness: x"
+    "invalid sampling rate: x", "invalid bit depth: x", "invalid endianness: x"
 
 
 
@@ -1124,7 +1296,7 @@
     <ul>
         <li><span class="parameter">rate</span>
             <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
-         the sample rate
+         the sampling rate
          (<em>default</em> 44100)
         </li>
         <li><span class="parameter">depth</span>
@@ -1151,7 +1323,7 @@
     </ol>
 
     <h3>Raises:</h3>
-    "invalid sample rate: x", "invalid bit depth: x"
+    "invalid sampling rate: x", "invalid bit depth: x"
 
 
 
@@ -1380,7 +1552,7 @@
         </li>
         <li><span class="parameter">rate</span>
             <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
-         the sample rate
+         the sampling rate
          (<em>default</em> 44100)
         </li>
         <li><span class="parameter">depth</span>
@@ -1392,7 +1564,7 @@
 
 
     <h3>Raises:</h3>
-    "invalid sample rate: x", "invalid bit depth: x"
+    "invalid sampling rate: x", "invalid bit depth: x"
 
 
 
@@ -1476,7 +1648,7 @@
     </dt>
     <dd>
     Load the sound parameters from a file in the sfxr binary format
- (version 100, 101, 102)
+ (version 100-102)
 
 
     <h3>Parameters:</h3>
@@ -1502,7 +1674,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2016-03-05 19:36:51 </i>
+<i style="float:right;">Last updated 2016-03-05 20:16:35 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

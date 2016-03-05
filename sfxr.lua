@@ -31,7 +31,7 @@ local bit = bit32 or require("bit")
 --- The module version (SemVer)
 sfxr.VERSION = "0.0.2"
 
---- Wave form constants
+--- [Waveform](https://en.wikipedia.org/wiki/Waveform) constants
 -- @field SQUARE square wave (`= 0`)
 -- @field SAW saw wave (`= 1`)
 -- @field SINE sine wave (`= 2`)
@@ -47,7 +47,7 @@ sfxr.WAVEFORM = {
   [3] = 3
 }
 
---- Sample rate constants
+--- [Sampling rate](https://en.wikipedia.org/wiki/Sampling_(signal_processing)#Sampling_rate) constants
 -- (use the number values directly, these are just for lookup)
 -- @field 22050 22.05 kHz (`= 22050`)
 -- @field 44100 44.1 kHz (`= 44100`)
@@ -56,7 +56,7 @@ sfxr.SAMPLERATE = {
   [44100] = 44100, --- 44.1 kHz
 }
 
---- Bit depth constants
+--- [Bit depth](https://en.wikipedia.org/wiki/Audio_bit_depth) constants
 -- (use the number values directly, these are just for lookup)
 -- @field 0 floating point bit depth, -1 to 1 (`= 0`)
 -- @field 8 unsigned 8 bit, 0x00 to 0xFF (`= 8`)
@@ -67,7 +67,7 @@ sfxr.BITDEPTH = {
   [8] = 8
 }
 
---- Endianness constants
+--- [Endianness](https://en.wikipedia.org/wiki/Endianness) constants
 -- @field LITTLE little endian (`= 0`)
 -- @field BIG big endian (`= 1`)
 sfxr.ENDIANNESS = {
@@ -242,14 +242,29 @@ sfxr.Sound.__index = sfxr.Sound
 -- Called by @{sfxr.newSound|the constructor}.
 function sfxr.Sound:__init()
     -- Build tables to store the parameters in
+
+    --- The sound volume and gain all samples are multiplied with
     self.volume = {}
+    --- The [ASD envelope](https://en.wikipedia.org/wiki/Synthesizer#Attack_Deca
+    --y_Sustain_Release_.28ADSR.29_envelope) that controls the sound amplitude
+    -- (volume) over time
     self.envelope = {}
+    --- The base and minimum frequencies of the tone generator and their slides
     self.frequency = {}
+    --- A [vibrato](https://en.wikipedia.org/wiki/Vibrato)-like amplitude
+    -- modulation effect.
     self.vibrato = {}
+    --- Changes the frequency mid-sound to create the characteristic
+    -- "coin"-effect
     self.change = {}
+    --- The [duty](https://en.wikipedia.org/wiki/Duty_cycle) of the square
+    -- waveform
     self.duty = {}
+    --- A simple [phaser](https://en.wikipedia.org/wiki/Phaser_(effect)) effect
     self.phaser = {}
+    --- A [lowpass filter](https://en.wikipedia.org/wiki/Low-pass_filter) effect
     self.lowpass = {}
+    --- A [highpass filter](https://en.wikipedia.org/wiki/High-pass_filter) effect
     self.highpass = {}
 
     -- These are not affected by resetParameters()
@@ -270,19 +285,19 @@ function sfxr.Sound:resetParameters()
     -- Times to repeat the frequency slide over the course of the envelope
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.repeatspeed = 0.0
-    --- The base @{WAVEFORM|wave form} (*default* @{WAVEFORM|SQUARE})
+    --- The base @{WAVEFORM|waveform} (*default* @{WAVEFORM|SQUARE})
     self.waveform = sfxr.SQUARE
 
     --- Attack time:
-    -- Time the sound takes to reach its peak volume
+    -- Time the sound takes to reach its peak amplitude
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.envelope.attack = 0.0
     --- Sustain time:
-    -- Time the sound stays on its peak volume
+    -- Time the sound stays on its peak amplitude
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.envelope.sustain = 0.3
     --- Sustain punch:
-    -- Amount by which the sound peak volume is increased at the start of the
+    -- Amount by which the sound peak amplitude is increased at the start of the
     -- sustain time
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.envelope.punch = 0.0
@@ -300,16 +315,16 @@ function sfxr.Sound:resetParameters()
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.frequency.min = 0.0
     --- Slide:
-    -- Amount by which the frequency is increased or decreased through time
+    -- Amount by which the frequency is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.frequency.slide = 0.0
     --- Delta slide:
-    -- Amount by which the slide is increased or decreased through time
+    -- Amount by which the slide is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.frequency.dslide = 0.0
 
     --- Vibrato depth:
-    -- Amount of vibrato-like amplitude (volume) modulation
+    -- Amount of amplitude modulation
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.vibrato.depth = 0.0
     --- Vibrato speed:
@@ -335,7 +350,7 @@ function sfxr.Sound:resetParameters()
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
     self.duty.ratio = 0.0
     --- Duty sweep:
-    -- Amount by which the square duty is increased or decreased through time
+    -- Amount by which the square duty is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.duty.sweep = 0.0
 
@@ -344,7 +359,7 @@ function sfxr.Sound:resetParameters()
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.phaser.offset = 0.0
     --- Phaser sweep:
-    -- Amount by which the phaser offset is increased or decreased through time
+    -- Amount by which the phaser offset is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.phaser.sweep = 0.0
 
@@ -354,7 +369,7 @@ function sfxr.Sound:resetParameters()
     self.lowpass.cutoff = 1.0
     --- Lowpass filter cutoff sweep:
     -- Amount by which the LP filter cutoff is increased or decreased
-    -- through time
+    -- over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.lowpass.sweep = 0.0
     --- Lowpass filter resonance:
@@ -368,12 +383,12 @@ function sfxr.Sound:resetParameters()
     self.highpass.cutoff = 0.0
     --- Highpass filter cutoff sweep:
     -- Amount by which the HP filter cutoff is increased or decreased
-    -- through time
+    -- over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
     self.highpass.sweep = 0.0
 end
 
---- Clamp all parameters within sane ranges.
+--- Clamp all parameters within their sane ranges.
 function sfxr.Sound:sanitizeParameters()
     self.repeatspeed = clamp(self.repeatspeed, 0, 1)
     self.wavetype = clamp(self.wavetype, sfxr.SQUARE, sfxr.NOISE)
@@ -409,17 +424,17 @@ function sfxr.Sound:sanitizeParameters()
 end
 
 --- Generate the sound and yield the sample data.
--- @tparam[opt=44100] SAMPLERATE rate the sample rate
+-- @tparam[opt=44100] SAMPLERATE rate the sampling rate
 -- @tparam[opt=0] BITDEPTH depth the bit depth
--- @treturn function() a generator that yields the sample data when called
+-- @treturn function() a generator that yields the next sample when called
 -- @usage for s in sound:generate(44100, 0) do
 --   -- do something with s
 -- end
--- @raise "invalid sample rate: x", "invalid bit depth: x"
+-- @raise "invalid sampling rate: x", "invalid bit depth: x"
 function sfxr.Sound:generate(rate, depth)
     rate = rate or 44100
     depth = depth or 0
-    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
+    assert(sfxr.SAMPLERATE[rate], "invalid sampling rate: " .. tostring(rate))
     assert(sfxr.BITDEPTH[depth], "invalid bit depth: " .. tostring(depth))
 
     -- Initialize all locals
@@ -691,11 +706,11 @@ end
 --- Get the maximum sample limit allowed by the current envelope.
 -- Does not take any other limits into account, so the returned count might be
 -- higher than samples actually generated. Still useful though.
--- @tparam[opt=44100] SAMPLERATE rate the sample rate
--- @raise "invalid sample rate: x", "invalid bit depth: x"
+-- @tparam[opt=44100] SAMPLERATE rate the sampling rate
+-- @raise "invalid sampling rate: x", "invalid bit depth: x"
 function sfxr.Sound:getEnvelopeLimit(rate)
     rate = rate or 44100
-    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
+    assert(sfxr.SAMPLERATE[rate], "invalid sampling rate: " .. tostring(rate))
 
     local env_length = {
         self.envelope.attack^2 * 100000, --- attack
@@ -708,16 +723,16 @@ function sfxr.Sound:getEnvelopeLimit(rate)
 end
 
 --- Generate the sound into a table.
--- @tparam[opt=44100] SAMPLERATE rate the sample rate
+-- @tparam[opt=44100] SAMPLERATE rate the sampling rate
 -- @tparam[opt=0] BITDEPTH depth the bit depth
 -- @tparam[opt] {} tab the table to synthesize into
 -- @treturn {number,...} the table filled with sample data
 -- @treturn int the number of written samples (== #tab)
--- @raise "invalid sample rate: x", "invalid bit depth: x"
+-- @raise "invalid sampling rate: x", "invalid bit depth: x"
 function sfxr.Sound:generateTable(rate, depth, tab)
     rate = rate or 44100
     depth = depth or 0
-    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
+    assert(sfxr.SAMPLERATE[rate], "invalid sampling rate: " .. tostring(rate))
     assert(sfxr.BITDEPTH[depth], "invalid bit depth: " .. tostring(depth))
 
     -- this could really use table pre-allocation, but Lua doesn't provide that
@@ -731,16 +746,16 @@ function sfxr.Sound:generateTable(rate, depth, tab)
 end
 
 --- Generate the sound to a binary string.
--- @tparam[opt=44100] SAMPLERATE rate the sample rate
+-- @tparam[opt=44100] SAMPLERATE rate the sampling rate
 -- @tparam[opt=16] BITDEPTH depth the bit depth (may not be @{BITDEPTH|0})
 -- @tparam[opt=0] ENDIANNESS endianness the endianness (ignored when depth == 8)
 -- @treturn string a binary string of sample data
 -- @treturn int the number of written samples
--- @raise "invalid sample rate: x", "invalid bit depth: x", "invalid endianness: x"
+-- @raise "invalid sampling rate: x", "invalid bit depth: x", "invalid endianness: x"
 function sfxr.Sound:generateString(rate, depth, endianness)
     rate = rate or 44100
     depth = depth or 16
-    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
+    assert(sfxr.SAMPLERATE[rate], "invalid sampling rate: " .. tostring(rate))
     assert(sfxr.BITDEPTH[depth] and depth ~= 0, "invalid bit depth: " .. tostring(depth))
     assert(sfxr.ENDIANNESS[endianness], "invalid endianness: " .. tostring(endianness))
 
@@ -780,17 +795,17 @@ function sfxr.Sound:generateString(rate, depth, endianness)
 end
 
 --- Synthesize the sound to a LÖVE SoundData instance.
--- @tparam[opt=44100] SAMPLERATE rate the sample rate
+-- @tparam[opt=44100] SAMPLERATE rate the sampling rate
 -- @tparam[opt=0] BITDEPTH depth the bit depth
 -- @tparam[opt] love.sound.SoundData sounddata a SoundData instance (will be
 -- created if not passed)
 -- @treturn love.sound.SoundData a SoundData instance
 -- @treturn int the number of written samples
--- @raise "invalid sample rate: x", "invalid bit depth: x"
+-- @raise "invalid sampling rate: x", "invalid bit depth: x"
 function sfxr.Sound:generateSoundData(rate, depth, sounddata)
     rate = rate or 44100
     depth = depth or 0
-    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
+    assert(sfxr.SAMPLERATE[rate], "invalid sampling rate: " .. tostring(rate))
     assert(sfxr.BITDEPTH[depth] and depth, "invalid bit depth: " .. tostring(depth))
 
     local tab, count = self:generateTable(rate, depth)
@@ -1117,13 +1132,13 @@ end
 --- Generate and export the audio data to a PCM WAVE file.
 -- @tparam ?string|file|love.filesystem.File f a path or file in `wb`-mode
 -- (passed files will not be closed)
--- @tparam[opt=44100] SAMPLERATE rate the sample rate
+-- @tparam[opt=44100] SAMPLERATE rate the sampling rate
 -- @tparam[opt=0] BITDEPTH depth the bit depth
--- @raise "invalid sample rate: x", "invalid bit depth: x"
+-- @raise "invalid sampling rate: x", "invalid bit depth: x"
 function sfxr.Sound:exportWAV(f, rate, depth)
     rate = rate or 44100
     depth = depth or 16
-    assert(sfxr.SAMPLERATE[rate], "invalid sample rate: " .. tostring(rate))
+    assert(sfxr.SAMPLERATE[rate], "invalid sampling rate: " .. tostring(rate))
     assert(sfxr.BITDEPTH[depth] and depth ~= 0, "invalid bit depth: " .. tostring(depth))
 
     local close = false
@@ -1185,7 +1200,7 @@ function sfxr.Sound:exportWAV(f, rate, depth)
     w32(16) -- chunk size
     w16(1) -- compression code (1 = PCM)
     w16(1) -- channel number
-    w32(freq) -- sample rate
+    w32(freq) -- sampling rate
     w32(freq * bits / 8) -- bytes per second
     w16(bits / 8) -- block alignment
     w16(bits) -- bits per sample
@@ -1369,7 +1384,7 @@ function sfxr.Sound:saveBinary(f)
 end
 
 --- Load the sound parameters from a file in the sfxr binary format
--- (version 100, 101, 102)
+-- (version 100-102)
 -- @tparam ?string|file|love.filesystem.File f a path or file in `rb`-mode
 -- (passed files will not be closed)
 -- @raise "incompatible version: x", "unexpected file length"

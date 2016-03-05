@@ -32,10 +32,10 @@ local bit = bit32 or require("bit")
 sfxr.VERSION = "0.0.2"
 
 --- [Waveform](https://en.wikipedia.org/wiki/Waveform) constants
--- @field SQUARE square wave (`= 0`)
--- @field SAW saw wave (`= 1`)
--- @field SINE sine wave (`= 2`)
--- @field NOISE white noise (`= 3`)
+-- @field SQUARE [square wave](https://en.wikipedia.org/wiki/Square_wave) (`= 0`)
+-- @field SAW [saw wave](https://en.wikipedia.org/wiki/Sawtooth_wave) (`= 1`)
+-- @field SINE [sine wave](https://en.wikipedia.org/wiki/Sine_wave) (`= 2`)
+-- @field NOISE [white noise](https://en.wikipedia.org/wiki/White_noise) (`= 3`)
 sfxr.WAVEFORM = {
   SQUARE = 0,
   [0] = 0,
@@ -225,7 +225,7 @@ local function unpackIEEE754(packed)
 	return math.ldexp(mantissa, exponent - 0x7F)
 end
 
---- The constructor for the Sound class.
+--- Construct and return a new @{Sound} instance.
 -- @treturn Sound a Sound instance
 function sfxr.newSound(...)
     local instance = setmetatable({}, sfxr.Sound)

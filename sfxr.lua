@@ -295,6 +295,7 @@ function sfxr.Sound:__init()
     self.highpass = {}
 
     -- These are not affected by resetParameters()
+
     --- Number of supersampling passes to perform (*default* 8)
     -- @within Parameters
     self.supersampling = 8
@@ -879,6 +880,7 @@ function sfxr.Sound:generateSoundData(rate, depth, sounddata)
 end
 
 --- Randomize all sound parameters
+-- @within Randomization
 -- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomize(seed)
     if seed then setseed(seed) end
@@ -941,9 +943,10 @@ function sfxr.Sound:randomize(seed)
 end
 
 --- Mutate all sound parameters
--- @tparam[opt=1] amount by how much to mutate the parameters
+-- @within Randomization
+-- @tparam[opt=1] number amount by how much to mutate the parameters
 -- @tparam[opt] number seed a random seed
--- @tparam[changefreq=true] bool whether to change the frequency parameters
+-- @tparam[changefreq=true] bool changefreq whether to change the frequency parameters
 function sfxr.Sound:mutate(amount, seed, changefreq)
     if seed then setseed(seed) end
     local amount = (amount or 1)
@@ -986,7 +989,8 @@ function sfxr.Sound:mutate(amount, seed, changefreq)
     self:sanitizeParameters()
 end
 
---- Randomize all sound parameters to generate an item pick up sound
+--- Randomize all sound parameters to generate a "pick up" sound
+-- @within Randomization
 -- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomPickup(seed)
     if seed then setseed(seed) end
@@ -1004,6 +1008,7 @@ function sfxr.Sound:randomPickup(seed)
 end
 
 --- Randomize all sound parameters to generate a laser sound
+-- @within Randomization
 -- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomLaser(seed)
     if seed then setseed(seed) end
@@ -1050,6 +1055,7 @@ function sfxr.Sound:randomLaser(seed)
 end
 
 --- Randomize all sound parameters to generate an explosion sound
+-- @within Randomization
 -- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomExplosion(seed)
     if seed then setseed(seed) end
@@ -1091,7 +1097,8 @@ function sfxr.Sound:randomExplosion(seed)
     end
 end
 
---- Randomize all sound parameters to generate a power up sound
+--- Randomize all sound parameters to generate a "power up" sound
+-- @within Randomization
 -- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomPowerup(seed)
     if seed then setseed(seed) end
@@ -1120,6 +1127,7 @@ function sfxr.Sound:randomPowerup(seed)
 end
 
 --- Randomize all sound parameters to generate a hit sound
+-- @within Randomization
 -- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomHit(seed)
     if seed then setseed(seed) end
@@ -1144,6 +1152,7 @@ function sfxr.Sound:randomHit(seed)
 end
 
 --- Randomize all sound parameters to generate a jump sound
+-- @within Randomization
 -- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomJump(seed)
     if seed then setseed(seed) end
@@ -1166,7 +1175,8 @@ function sfxr.Sound:randomJump(seed)
     end
 end
 
---- Randomize all sound parameters to generate a blip sound
+--- Randomize all sound parameters to generate a "blip" sound
+-- @within Randomization
 -- @tparam[opt] number seed a random seed
 function sfxr.Sound:randomBlip(seed)
     if seed then setseed(seed) end
@@ -1185,6 +1195,7 @@ function sfxr.Sound:randomBlip(seed)
 end
 
 --- Generate and export the audio data to a PCM WAVE file.
+-- @within SavingLoading
 -- @tparam ?string|file|love.filesystem.File f a path or file in `wb`-mode
 -- (passed files will not be closed)
 -- @tparam[opt=44100] SAMPLERATE rate the sampling rate
@@ -1293,6 +1304,7 @@ function sfxr.Sound:exportWAV(f, rate, depth)
 end
 
 --- Save the sound parameters to a file as a Lua table
+-- @within SavingLoading
 -- @tparam ?string|file|love.filesystem.File f a path or file in `w`-mode
 -- (passed files will not be closed)
 -- @tparam[opt=true] bool minify whether to minify the output or not
@@ -1351,6 +1363,7 @@ function sfxr.Sound:save(f, minify)
 end
 
 --- Load the sound parameters from a file containing a Lua table
+-- @within SavingLoading
 -- @tparam ?string|file|love.filesystem.File f a path or file in `r`-mode
 -- (passed files will not be closed)
 -- @raise "incompatible version: x.x.x"
@@ -1382,6 +1395,7 @@ function sfxr.Sound:load(f)
 end
 
 --- Save the sound parameters to a file in the sfxr binary format (version 102)
+-- @within SavingLoading
 -- @tparam ?string|file|love.filesystem.File f a path or file in `wb`-mode
 -- (passed files will not be closed)
 function sfxr.Sound:saveBinary(f)
@@ -1440,6 +1454,7 @@ end
 
 --- Load the sound parameters from a file in the sfxr binary format
 -- (version 100-102)
+-- @within SavingLoading
 -- @tparam ?string|file|love.filesystem.File f a path or file in `rb`-mode
 -- (passed files will not be closed)
 -- @raise "incompatible version: x", "unexpected file length"

@@ -42,6 +42,8 @@
 <li><a href="#Parameters_lowpass">Parameters.lowpass</a></li>
 <li><a href="#Parameters_highpass">Parameters.highpass</a></li>
 <li><a href="#Parameters_volume">Parameters.volume</a></li>
+<li><a href="#Randomization">Randomization</a></li>
+<li><a href="#SavingLoading">SavingLoading</a></li>
 </ul>
 
 
@@ -127,69 +129,16 @@
 	<td class="name" nowrap><a href="#sfxr.Sound:generateSoundData">sfxr.Sound:generateSoundData ([rate=44100[, depth=0[, sounddata]]])</a></td>
 	<td class="summary">Synthesize the sound to a LÖVE SoundData instance.</td>
 	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:randomize">sfxr.Sound:randomize ([seed])</a></td>
-	<td class="summary">Randomize all sound parameters</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:mutate">sfxr.Sound:mutate ([by=1][, seed], whether)</a></td>
-	<td class="summary">Mutate all sound parameters</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:randomPickup">sfxr.Sound:randomPickup ([seed])</a></td>
-	<td class="summary">Randomize all sound parameters to generate an item pick up sound</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:randomLaser">sfxr.Sound:randomLaser ([seed])</a></td>
-	<td class="summary">Randomize all sound parameters to generate a laser sound</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:randomExplosion">sfxr.Sound:randomExplosion ([seed])</a></td>
-	<td class="summary">Randomize all sound parameters to generate an explosion sound</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:randomPowerup">sfxr.Sound:randomPowerup ([seed])</a></td>
-	<td class="summary">Randomize all sound parameters to generate a power up sound</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:randomHit">sfxr.Sound:randomHit ([seed])</a></td>
-	<td class="summary">Randomize all sound parameters to generate a hit sound</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:randomJump">sfxr.Sound:randomJump ([seed])</a></td>
-	<td class="summary">Randomize all sound parameters to generate a jump sound</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:randomBlip">sfxr.Sound:randomBlip ([seed])</a></td>
-	<td class="summary">Randomize all sound parameters to generate a blip sound</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:exportWAV">sfxr.Sound:exportWAV (f[, rate=44100[, depth=0]])</a></td>
-	<td class="summary">Generate and export the audio data to a PCM WAVE file.</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:save">sfxr.Sound:save (f[, minify=true])</a></td>
-	<td class="summary">Save the sound parameters to a file as a Lua table</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:load">sfxr.Sound:load (f)</a></td>
-	<td class="summary">Load the sound parameters from a file containing a Lua table</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:saveBinary">sfxr.Sound:saveBinary (f)</a></td>
-	<td class="summary">Save the sound parameters to a file in the sfxr binary format (version 102)</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#sfxr.Sound:loadBinary">sfxr.Sound:loadBinary (f)</a></td>
-	<td class="summary">Load the sound parameters from a file in the sfxr binary format
- (version 100-102)</td>
-	</tr>
 </table>
 <h2><a href="#Parameters">Parameters</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#self.volume">self.volume</a></td>
 	<td class="summary"><strong>The sound volume and gain all samples are multiplied with</strong></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.supersampling">self.supersampling</a></td>
+	<td class="summary">Number of supersampling passes to perform (<em>default</em> 8)</td>
 	</tr>
 	<tr>
 	<td class="name" nowrap><a href="#self.repeatspeed">self.repeatspeed</a></td>
@@ -414,6 +363,69 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 	<td class="summary">Additional gain (<em>default</em> 0.5)</td>
 	</tr>
 </table>
+<h2><a href="#Randomization">Randomization</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomize">sfxr.Sound:randomize ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:mutate">sfxr.Sound:mutate ([amount=1][, seed], changefreq)</a></td>
+	<td class="summary">Mutate all sound parameters</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomPickup">sfxr.Sound:randomPickup ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate a "pick up" sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomLaser">sfxr.Sound:randomLaser ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate a laser sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomExplosion">sfxr.Sound:randomExplosion ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate an explosion sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomPowerup">sfxr.Sound:randomPowerup ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate a "power up" sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomHit">sfxr.Sound:randomHit ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate a hit sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomJump">sfxr.Sound:randomJump ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate a jump sound</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:randomBlip">sfxr.Sound:randomBlip ([seed])</a></td>
+	<td class="summary">Randomize all sound parameters to generate a "blip" sound</td>
+	</tr>
+</table>
+<h2><a href="#SavingLoading">SavingLoading</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:exportWAV">sfxr.Sound:exportWAV (f[, rate=44100[, depth=0]])</a></td>
+	<td class="summary">Generate and export the audio data to a PCM WAVE file.</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:save">sfxr.Sound:save (f[, minify=true])</a></td>
+	<td class="summary">Save the sound parameters to a file as a Lua table</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:load">sfxr.Sound:load (f)</a></td>
+	<td class="summary">Load the sound parameters from a file containing a Lua table</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:saveBinary">sfxr.Sound:saveBinary (f)</a></td>
+	<td class="summary">Save the sound parameters to a file in the sfxr binary format (version 102)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#sfxr.Sound:loadBinary">sfxr.Sound:loadBinary (f)</a></td>
+	<td class="summary">Load the sound parameters from a file in the sfxr binary format
+ (version 100-102)</td>
+	</tr>
+</table>
 
 <br/>
 <br/>
@@ -599,7 +611,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
     </dt>
     <dd>
     Set all parameters to their default values.  Does not affect
- ??? and <a href="index.html#self.volume">volume</a>.
+ <a href="index.html#self.supersampling">supersampling</a> and <a href="index.html#self.volume">volume</a>.
  Called by <a href="index.html#sfxr.Sound:__init">the initializer</a>.
 
 
@@ -820,345 +832,6 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 
 </dd>
-    <dt>
-    <a name = "sfxr.Sound:randomize"></a>
-    <strong>sfxr.Sound:randomize ([seed])</strong>
-    </dt>
-    <dd>
-    Randomize all sound parameters
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">seed</span>
-            <span class="types"><span class="type">number</span></span>
-         a random seed
-         (<em>optional</em>)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:mutate"></a>
-    <strong>sfxr.Sound:mutate ([by=1][, seed], whether)</strong>
-    </dt>
-    <dd>
-    Mutate all sound parameters
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">by</span>
-            <span class="types"><a class="type" href="index.html#self.change.amount">amount</a></span>
-         how much to mutate the parameters
-         (<em>default</em> 1)
-        </li>
-        <li><span class="parameter">seed</span>
-            <span class="types"><span class="type">number</span></span>
-         a random seed
-         (<em>optional</em>)
-        </li>
-        <li><span class="parameter">whether</span>
-            <span class="types"><span class="type">bool</span></span>
-         to change the frequency parameters
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:randomPickup"></a>
-    <strong>sfxr.Sound:randomPickup ([seed])</strong>
-    </dt>
-    <dd>
-    Randomize all sound parameters to generate an item pick up sound
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">seed</span>
-            <span class="types"><span class="type">number</span></span>
-         a random seed
-         (<em>optional</em>)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:randomLaser"></a>
-    <strong>sfxr.Sound:randomLaser ([seed])</strong>
-    </dt>
-    <dd>
-    Randomize all sound parameters to generate a laser sound
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">seed</span>
-            <span class="types"><span class="type">number</span></span>
-         a random seed
-         (<em>optional</em>)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:randomExplosion"></a>
-    <strong>sfxr.Sound:randomExplosion ([seed])</strong>
-    </dt>
-    <dd>
-    Randomize all sound parameters to generate an explosion sound
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">seed</span>
-            <span class="types"><span class="type">number</span></span>
-         a random seed
-         (<em>optional</em>)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:randomPowerup"></a>
-    <strong>sfxr.Sound:randomPowerup ([seed])</strong>
-    </dt>
-    <dd>
-    Randomize all sound parameters to generate a power up sound
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">seed</span>
-            <span class="types"><span class="type">number</span></span>
-         a random seed
-         (<em>optional</em>)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:randomHit"></a>
-    <strong>sfxr.Sound:randomHit ([seed])</strong>
-    </dt>
-    <dd>
-    Randomize all sound parameters to generate a hit sound
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">seed</span>
-            <span class="types"><span class="type">number</span></span>
-         a random seed
-         (<em>optional</em>)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:randomJump"></a>
-    <strong>sfxr.Sound:randomJump ([seed])</strong>
-    </dt>
-    <dd>
-    Randomize all sound parameters to generate a jump sound
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">seed</span>
-            <span class="types"><span class="type">number</span></span>
-         a random seed
-         (<em>optional</em>)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:randomBlip"></a>
-    <strong>sfxr.Sound:randomBlip ([seed])</strong>
-    </dt>
-    <dd>
-    Randomize all sound parameters to generate a blip sound
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">seed</span>
-            <span class="types"><span class="type">number</span></span>
-         a random seed
-         (<em>optional</em>)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:exportWAV"></a>
-    <strong>sfxr.Sound:exportWAV (f[, rate=44100[, depth=0]])</strong>
-    </dt>
-    <dd>
-    Generate and export the audio data to a PCM WAVE file.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">f</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
-         a path or file in <code>wb</code>-mode
- (passed files will not be closed)
-        </li>
-        <li><span class="parameter">rate</span>
-            <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
-         the sampling rate
-         (<em>default</em> 44100)
-        </li>
-        <li><span class="parameter">depth</span>
-            <span class="types"><a class="type" href="index.html#BITDEPTH">BITDEPTH</a></span>
-         the bit depth
-         (<em>default</em> 0)
-        </li>
-    </ul>
-
-
-    <h3>Raises:</h3>
-    "invalid sampling rate: x", "invalid bit depth: x"
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:save"></a>
-    <strong>sfxr.Sound:save (f[, minify=true])</strong>
-    </dt>
-    <dd>
-    Save the sound parameters to a file as a Lua table
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">f</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
-         a path or file in <code>w</code>-mode
- (passed files will not be closed)
-        </li>
-        <li><span class="parameter">minify</span>
-            <span class="types"><span class="type">bool</span></span>
-         whether to minify the output or not
-         (<em>default</em> true)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:load"></a>
-    <strong>sfxr.Sound:load (f)</strong>
-    </dt>
-    <dd>
-    Load the sound parameters from a file containing a Lua table
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">f</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
-         a path or file in <code>r</code>-mode
- (passed files will not be closed)
-        </li>
-    </ul>
-
-
-    <h3>Raises:</h3>
-    "incompatible version: x.x.x"
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:saveBinary"></a>
-    <strong>sfxr.Sound:saveBinary (f)</strong>
-    </dt>
-    <dd>
-    Save the sound parameters to a file in the sfxr binary format (version 102)
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">f</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
-         a path or file in <code>wb</code>-mode
- (passed files will not be closed)
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "sfxr.Sound:loadBinary"></a>
-    <strong>sfxr.Sound:loadBinary (f)</strong>
-    </dt>
-    <dd>
-    Load the sound parameters from a file in the sfxr binary format
- (version 100-102)
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">f</span>
-            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
-         a path or file in <code>rb</code>-mode
- (passed files will not be closed)
-        </li>
-    </ul>
-
-
-    <h3>Raises:</h3>
-    "incompatible version: x", "unexpected file length"
-
-
-
-</dd>
 </dl>
     <h2 class="section-header "><a name="Parameters"></a>Parameters</h2>
 
@@ -1169,6 +842,20 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
     </dt>
     <dd>
     <strong>The sound volume and gain all samples are multiplied with</strong>
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.supersampling"></a>
+    <strong>self.supersampling</strong>
+    </dt>
+    <dd>
+    Number of supersampling passes to perform (<em>default</em> 8)
 
 
 
@@ -1749,13 +1436,360 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 </dd>
 </dl>
+    <h2 class="section-header "><a name="Randomization"></a>Randomization</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "sfxr.Sound:randomize"></a>
+    <strong>sfxr.Sound:randomize ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:mutate"></a>
+    <strong>sfxr.Sound:mutate ([amount=1][, seed], changefreq)</strong>
+    </dt>
+    <dd>
+    Mutate all sound parameters
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">amount</span>
+            <span class="types"><span class="type">number</span></span>
+         by how much to mutate the parameters
+         (<em>default</em> 1)
+        </li>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">changefreq</span>
+            <span class="types"><span class="type">bool</span></span>
+         whether to change the frequency parameters
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomPickup"></a>
+    <strong>sfxr.Sound:randomPickup ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate a "pick up" sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomLaser"></a>
+    <strong>sfxr.Sound:randomLaser ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate a laser sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomExplosion"></a>
+    <strong>sfxr.Sound:randomExplosion ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate an explosion sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomPowerup"></a>
+    <strong>sfxr.Sound:randomPowerup ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate a "power up" sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomHit"></a>
+    <strong>sfxr.Sound:randomHit ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate a hit sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomJump"></a>
+    <strong>sfxr.Sound:randomJump ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate a jump sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:randomBlip"></a>
+    <strong>sfxr.Sound:randomBlip ([seed])</strong>
+    </dt>
+    <dd>
+    Randomize all sound parameters to generate a "blip" sound
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">seed</span>
+            <span class="types"><span class="type">number</span></span>
+         a random seed
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="SavingLoading"></a>SavingLoading</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "sfxr.Sound:exportWAV"></a>
+    <strong>sfxr.Sound:exportWAV (f[, rate=44100[, depth=0]])</strong>
+    </dt>
+    <dd>
+    Generate and export the audio data to a PCM WAVE file.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
+         a path or file in <code>wb</code>-mode
+ (passed files will not be closed)
+        </li>
+        <li><span class="parameter">rate</span>
+            <span class="types"><a class="type" href="index.html#SAMPLERATE">SAMPLERATE</a></span>
+         the sampling rate
+         (<em>default</em> 44100)
+        </li>
+        <li><span class="parameter">depth</span>
+            <span class="types"><a class="type" href="index.html#BITDEPTH">BITDEPTH</a></span>
+         the bit depth
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+
+    <h3>Raises:</h3>
+    "invalid sampling rate: x", "invalid bit depth: x"
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:save"></a>
+    <strong>sfxr.Sound:save (f[, minify=true])</strong>
+    </dt>
+    <dd>
+    Save the sound parameters to a file as a Lua table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
+         a path or file in <code>w</code>-mode
+ (passed files will not be closed)
+        </li>
+        <li><span class="parameter">minify</span>
+            <span class="types"><span class="type">bool</span></span>
+         whether to minify the output or not
+         (<em>default</em> true)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:load"></a>
+    <strong>sfxr.Sound:load (f)</strong>
+    </dt>
+    <dd>
+    Load the sound parameters from a file containing a Lua table
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
+         a path or file in <code>r</code>-mode
+ (passed files will not be closed)
+        </li>
+    </ul>
+
+
+    <h3>Raises:</h3>
+    "incompatible version: x.x.x"
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:saveBinary"></a>
+    <strong>sfxr.Sound:saveBinary (f)</strong>
+    </dt>
+    <dd>
+    Save the sound parameters to a file in the sfxr binary format (version 102)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
+         a path or file in <code>wb</code>-mode
+ (passed files will not be closed)
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "sfxr.Sound:loadBinary"></a>
+    <strong>sfxr.Sound:loadBinary (f)</strong>
+    </dt>
+    <dd>
+    Load the sound parameters from a file in the sfxr binary format
+ (version 100-102)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">f</span>
+            <span class="types"><a class="type" href="http://www.lua.org/manual/5.1/manual.html#5.4">string</a>, <span class="type">file</span> or <span class="type">love.filesystem.File</span></span>
+         a path or file in <code>rb</code>-mode
+ (passed files will not be closed)
+        </li>
+    </ul>
+
+
+    <h3>Raises:</h3>
+    "incompatible version: x", "unexpected file length"
+
+
+
+</dd>
+</dl>
 
 
 </div> <!-- id="content" -->
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2016-03-05 20:46:41 </i>
+<i style="float:right;">Last updated 2016-03-05 21:02:39 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

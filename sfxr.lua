@@ -314,7 +314,7 @@ function sfxr.Sound:resetParameters()
     self.repeatspeed = 0.0
     --- The base @{WAVEFORM|waveform} (*default* @{WAVEFORM|SQUARE})
     -- @within Parameters
-    self.waveform = sfxr.SQUARE
+    self.waveform = sfxr.WAVEFORM.SQUARE
 
     --- Attack time:
     -- Time the sound takes to reach its peak amplitude
@@ -441,7 +441,7 @@ end
 --- Clamp all parameters within their sane ranges.
 function sfxr.Sound:sanitizeParameters()
     self.repeatspeed = clamp(self.repeatspeed, 0, 1)
-    self.wavetype = clamp(self.wavetype, sfxr.SQUARE, sfxr.NOISE)
+    self.wavetype = clamp(self.waveform, 0, #sfxr.WAVEFORM)
 
     self.envelope.attack = clamp(self.envelope.attack, 0, 1)
     self.envelope.sustain = clamp(self.envelope.sustain, 0, 1)
@@ -672,7 +672,7 @@ function sfxr.Sound:generate(rate, depth)
             local fp = phase / period
 
             -- Square, including square duty
-            if self.waveform == sfxr.SQUARE then
+            if self.waveform == sfxr.WAVEFORM.SQUARE then
                 if fp < square_duty then
                     sample = 0.5
                 else
@@ -680,15 +680,15 @@ function sfxr.Sound:generate(rate, depth)
                 end
 
             -- Sawtooth
-            elseif self.waveform == sfxr.SAWTOOTH then
+            elseif self.waveform == sfxr.WAVEFORM.SAWTOOTH then
                 sample = 1 - fp * 2
 
             -- Sine
-            elseif self.waveform == sfxr.SINE then
+            elseif self.waveform == sfxr.WAVEFORM.SINE then
                 sample = math.sin(fp * 2 * math.pi)
 
             -- Pitched white noise
-            elseif self.waveform == sfxr.NOISE then
+            elseif self.waveform == sfxr.WAVEFORM.NOISE then
                 sample = noisebuffer[trunc(phase * 32 / period) % 32 + 1]
             end
 

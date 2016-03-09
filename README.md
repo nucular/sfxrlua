@@ -45,8 +45,7 @@ local device = ao.openLive(driverId, {bits = 16, rate = 44100, channels = 1})
 local sound = sfxr.newSound()
 sound:randomize()
 
-local buffer = sound:generateString()
-device:play(buffer, #buffer)
+device:play(sound:generateString())
 ```
 
 Documentation

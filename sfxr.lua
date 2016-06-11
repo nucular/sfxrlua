@@ -249,64 +249,9 @@ sfxr.Sound.__index = sfxr.Sound
 --- Initialize the Sound instance.
 -- Called by @{sfxr.newSound|the constructor}.
 function sfxr.Sound:__init()
-    -- Build tables to store the parameters in
-
-    --- **The sound volume and gain all samples are multiplied with**
-    -- @within Parameters
-    self.volume = {}
-    --- **The [ASD envelope](https://en.wikipedia.org/wiki/Synthesizer#Attack_
-    --Decay_Sustain_Release_.28ADSR.29_envelope) that controls the sound
-    -- amplitude (volume) over time**
-    -- @within ParametersEnvelope
-    self.envelope = {}
-    --- **The base and minimum frequencies of the tone generator and their
-    -- slides**
-    -- @within ParametersFrequency
-    self.frequency = {}
-    --- **A [vibrato](https://en.wikipedia.org/wiki/Vibrato)-like amplitude
-    -- modulation effect**
-    -- @within ParametersVibrato
-    self.vibrato = {}
-    --- **Changes the frequency mid-sound to create a characteristic
-    -- "coin"-effect**
-    -- @within ParametersChange
-    self.change = {}
-    --- **The [duty](https://en.wikipedia.org/wiki/Duty_cycle) of the square
-    -- waveform**
-    -- @within ParametersDuty
-    self.duty = {}
-    --- **A simple [phaser](https://en.wikipedia.org/wiki/Phaser_(effect))
-    -- effect**
-    -- @within ParametersPhaser
-    self.phaser = {}
-    --- **A [lowpass filter](https://en.wikipedia.org/wiki/Low-pass_filter)
-    -- effect**
-    -- @within ParametersLowpass
-    self.lowpass = {}
-    --- **A [highpass filter](https://en.wikipedia.org/wiki/High-pass_filter)
-    -- effect**
-    -- @within ParametersHighpass
-    self.highpass = {}
-
-    -- These are not affected by resetParameters()
-
     --- Number of supersampling passes to perform (*default* 8)
     -- @within Parameters
     self.supersampling = 8
-    --- Master volume (*default* 0.5)
-    -- @within ParametersVolume
-    self.volume.master = 0.5
-    --- Additional gain (*default* 0.5)
-    -- @within ParametersVolume
-    self.volume.sound = 0.5
-
-    self:resetParameters()
-end
-
---- Set all parameters to their default values. Does not affect
--- @{self.supersampling|supersampling} and @{self.volume|volume}.
--- Called by @{sfxr.Sound:__init|the initializer}.
-function sfxr.Sound:resetParameters()
     --- Repeat speed:
     -- Times to repeat the frequency slide over the course of the envelope
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
@@ -316,125 +261,183 @@ function sfxr.Sound:resetParameters()
     -- @within Parameters
     self.waveform = sfxr.WAVEFORM.SQUARE
 
+    -- Build tables to store the parameters in
+
+    --- **The sound volume and gain all samples are multiplied with**
+    -- @within Volume
+    self.volume = {}
+    --- **The [ASD envelope](https://en.wikipedia.org/wiki/Synthesizer#Attack_
+    --Decay_Sustain_Release_.28ADSR.29_envelope) that controls the sound
+    -- amplitude (volume) over time**
+    -- @within Envelope
+    self.envelope = {}
+    --- **The base and minimum frequencies of the tone generator and their
+    -- slides**
+    -- @within Frequency
+    self.frequency = {}
+    --- **A [vibrato](https://en.wikipedia.org/wiki/Vibrato)-like amplitude
+    -- modulation effect**
+    -- SerializationVibrato
+    self.vibrato = {}
+    --- **Changes the frequency mid-sound to create a characteristic
+    -- "coin"-effect**
+    -- @within Change
+    self.change = {}
+    --- **The [duty](https://en.wikipedia.org/wiki/Duty_cycle) of the square
+    -- waveform**
+    -- @within Duty
+    self.duty = {}
+    --- **A simple [phaser](https://en.wikipedia.org/wiki/Phaser_(effect))
+    -- effect**
+    -- @within Phaser
+    self.phaser = {}
+    --- **A [lowpass filter](https://en.wikipedia.org/wiki/Low-pass_filter)
+    -- effect**
+    -- @within Lowpass
+    self.lowpass = {}
+    --- **A [highpass filter](https://en.wikipedia.org/wiki/High-pass_filter)
+    -- effect**
+    -- @within Highpass
+    self.highpass = {}
+
+    -- These are not affected by resetParameters()
+
+    --- Master volume (*default* 0.5)
+    -- @within Volume
+    self.volume.master = 0.5
+    --- Additional gain (*default* 0.5)
+    -- @within Volume
+    self.volume.sound = 0.5
+
+    self:resetParameters()
+end
+
+--- Set all parameters to their default values. Does not affect
+-- @{self.supersampling|supersampling} and @{self.volume|volume}.
+-- Called by @{sfxr.Sound:__init|the initializer}.
+function sfxr.Sound:resetParameters()
+    self.repeatspeed = 0.0
+    self.waveform = sfxr.WAVEFORM.SQUARE
+
     --- Attack time:
     -- Time the sound takes to reach its peak amplitude
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersEnvelope
+    -- @within Envelope
     self.envelope.attack = 0.0
     --- Sustain time:
     -- Time the sound stays on its peak amplitude
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersEnvelope
+    -- @within Envelope
     self.envelope.sustain = 0.3
     --- Sustain punch:
     -- Amount by which the sound peak amplitude is increased at the start of the
     -- sustain time
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersEnvelope
+    -- @within Envelope
     self.envelope.punch = 0.0
     --- Decay time:
     -- Time the sound takes to decay after its sustain time
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersEnvelope
+    -- @within Envelope
     self.envelope.decay = 0.4
 
     --- Start frequency:
     -- Base tone of the sound, before sliding
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersFrequency
+    -- @within Frequency
     self.frequency.start = 0.3
     --- Min frequency:
     -- Tone below which the sound will get cut off
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersFrequency
+    -- @within Frequency
     self.frequency.min = 0.0
     --- Slide:
     -- Amount by which the frequency is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within ParametersFrequency
+    -- @within Frequency
     self.frequency.slide = 0.0
     --- Delta slide:
     -- Amount by which the slide is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within ParametersFrequency
+    -- @within Frequency
     self.frequency.dslide = 0.0
 
     --- Vibrato depth:
     -- Amount of amplitude modulation
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersVibrato
+    -- @within Vibrato
     self.vibrato.depth = 0.0
     --- Vibrato speed:
     -- Oscillation speed of the vibrato
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersVibrato
+    -- @within Vibrato
     self.vibrato.speed = 0.0
     --- Vibrato delay:
     -- Unused and unimplemented
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersVibrato
+    -- @within Vibrato
     self.vibrato.delay = 0.0
 
     --- Change amount:
     -- Amount by which the frequency is changed mid-sound
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within ParametersChange
+    -- @within Change
     self.change.amount = 0.0
     --- Change speed:
     -- Time before the frequency change happens
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersChange
+    -- @within Change
     self.change.speed = 0.0
 
     --- Square duty:
     -- Width of the square wave pulse cycle (doesn't affect other waveforms)
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersDuty
+    -- @within Duty
     self.duty.ratio = 0.0
     --- Duty sweep:
     -- Amount by which the square duty is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within ParametersDuty
+    -- @within Duty
     self.duty.sweep = 0.0
 
     --- Phaser offset:
     -- Amount by which the phaser signal is offset from the sound
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within ParametersPhaser
+    -- @within Phaser
     self.phaser.offset = 0.0
     --- Phaser sweep:
     -- Amount by which the phaser offset is increased or decreased over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within ParametersPhaser
+    -- @within Phaser
     self.phaser.sweep = 0.0
 
     --- Lowpass filter cutoff:
     -- Lower bound for frequencies allowed to pass through this filter
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersLowpass
+    -- @within Lowpass
     self.lowpass.cutoff = 1.0
     --- Lowpass filter cutoff sweep:
     -- Amount by which the LP filter cutoff is increased or decreased
     -- over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within ParametersLowpass
+    -- @within Lowpass
     self.lowpass.sweep = 0.0
     --- Lowpass filter resonance:
     -- Amount by which certain resonant frequencies near the cutoff are
     -- increased
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersLowpass
+    -- @within Lowpass
     self.lowpass.resonance = 0.0
     --- Highpass filter cutoff:
     -- Upper bound for frequencies allowed to pass through this filter
     -- (*default* 0.0, *min* 0.0, *max* 1.0)
-    -- @within ParametersHighpass
+    -- @within Highpass
     self.highpass.cutoff = 0.0
     --- Highpass filter cutoff sweep:
     -- Amount by which the HP filter cutoff is increased or decreased
     -- over time
     -- (*default* 0.0, *min* -1.0, *max* 1.0)
-    -- @within ParametersHighpass
+    -- @within Highpass
     self.highpass.sweep = 0.0
 end
 

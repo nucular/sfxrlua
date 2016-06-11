@@ -33,15 +33,15 @@
 <li><a href="#Constants">Constants</a></li>
 <li><a href="#Class_Sound">Class Sound </a></li>
 <li><a href="#Parameters">Parameters</a></li>
-<li><a href="#ParametersEnvelope">ParametersEnvelope</a></li>
-<li><a href="#ParametersFrequency">ParametersFrequency</a></li>
-<li><a href="#ParametersVibrato">ParametersVibrato</a></li>
-<li><a href="#ParametersChange">ParametersChange</a></li>
-<li><a href="#ParametersDuty">ParametersDuty</a></li>
-<li><a href="#ParametersPhaser">ParametersPhaser</a></li>
-<li><a href="#ParametersLowpass">ParametersLowpass</a></li>
-<li><a href="#ParametersHighpass">ParametersHighpass</a></li>
-<li><a href="#ParametersVolume">ParametersVolume</a></li>
+<li><a href="#Volume">Volume</a></li>
+<li><a href="#Envelope">Envelope</a></li>
+<li><a href="#Frequency">Frequency</a></li>
+<li><a href="#Change">Change</a></li>
+<li><a href="#Duty">Duty</a></li>
+<li><a href="#Phaser">Phaser</a></li>
+<li><a href="#Lowpass">Lowpass</a></li>
+<li><a href="#Highpass">Highpass</a></li>
+<li><a href="#Vibrato">Vibrato</a></li>
 <li><a href="#Randomization">Randomization</a></li>
 <li><a href="#SavingAndLoading">SavingAndLoading</a></li>
 </ul>
@@ -103,6 +103,12 @@ together with the <em>awesome</em> <a href="https://love2d.org">LÖVE</a> game f
 	<td class="summary">Initialize the Sound instance.</td>
 	</tr>
 	<tr>
+	<td class="name" nowrap><a href="#self.vibrato">self.vibrato</a></td>
+	<td class="summary"><strong>A <a href="https://en.wikipedia.org/wiki/Vibrato">vibrato</a>-like amplitude
+ modulation effect</strong>
+ SerializationVibrato</td>
+	</tr>
+	<tr>
 	<td class="name" nowrap><a href="#sfxr.Sound:resetParameters">sfxr.Sound:resetParameters ()</a></td>
 	<td class="summary">Set all parameters to their default values.</td>
 	</tr>
@@ -134,10 +140,6 @@ together with the <em>awesome</em> <a href="https://love2d.org">LÖVE</a> game f
 <h2><a href="#Parameters">Parameters</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#self.volume">self.volume</a></td>
-	<td class="summary"><strong>The sound volume and gain all samples are multiplied with</strong></td>
-	</tr>
-	<tr>
 	<td class="name" nowrap><a href="#self.supersampling">self.supersampling</a></td>
 	<td class="summary">Number of supersampling passes to perform (<em>default</em> 8)</td>
 	</tr>
@@ -152,7 +154,22 @@ together with the <em>awesome</em> <a href="https://love2d.org">LÖVE</a> game f
 	<td class="summary">The base <a href="../index.html#WAVEFORM">waveform</a> (<em>default</em> <a href="../index.html#WAVEFORM">SQUARE</a>)</td>
 	</tr>
 </table>
-<h2><a href="#ParametersEnvelope">ParametersEnvelope</a></h2>
+<h2><a href="#Volume">Volume</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" nowrap><a href="#self.volume">self.volume</a></td>
+	<td class="summary"><strong>The sound volume and gain all samples are multiplied with</strong></td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.volume.master">self.volume.master</a></td>
+	<td class="summary">Master volume (<em>default</em> 0.5)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.volume.sound">self.volume.sound</a></td>
+	<td class="summary">Additional gain (<em>default</em> 0.5)</td>
+	</tr>
+</table>
+<h2><a href="#Envelope">Envelope</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#self.envelope">self.envelope</a></td>
@@ -186,7 +203,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
 	</tr>
 </table>
-<h2><a href="#ParametersFrequency">ParametersFrequency</a></h2>
+<h2><a href="#Frequency">Frequency</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#self.frequency">self.frequency</a></td>
@@ -218,33 +235,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
 	</tr>
 </table>
-<h2><a href="#ParametersVibrato">ParametersVibrato</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" nowrap><a href="#self.vibrato">self.vibrato</a></td>
-	<td class="summary"><strong>A <a href="https://en.wikipedia.org/wiki/Vibrato">vibrato</a>-like amplitude
- modulation effect</strong></td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#self.vibrato.depth">self.vibrato.depth</a></td>
-	<td class="summary">Vibrato depth:
- Amount of amplitude modulation
- (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#self.vibrato.speed">self.vibrato.speed</a></td>
-	<td class="summary">Vibrato speed:
- Oscillation speed of the vibrato
- (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
-	</tr>
-	<tr>
-	<td class="name" nowrap><a href="#self.vibrato.delay">self.vibrato.delay</a></td>
-	<td class="summary">Vibrato delay:
- Unused and unimplemented
- (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
-	</tr>
-</table>
-<h2><a href="#ParametersChange">ParametersChange</a></h2>
+<h2><a href="#Change">Change</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#self.change">self.change</a></td>
@@ -264,7 +255,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
 	</tr>
 </table>
-<h2><a href="#ParametersDuty">ParametersDuty</a></h2>
+<h2><a href="#Duty">Duty</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#self.duty">self.duty</a></td>
@@ -284,7 +275,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
 	</tr>
 </table>
-<h2><a href="#ParametersPhaser">ParametersPhaser</a></h2>
+<h2><a href="#Phaser">Phaser</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#self.phaser">self.phaser</a></td>
@@ -304,7 +295,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
 	</tr>
 </table>
-<h2><a href="#ParametersLowpass">ParametersLowpass</a></h2>
+<h2><a href="#Lowpass">Lowpass</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#self.lowpass">self.lowpass</a></td>
@@ -332,7 +323,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
  (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
 	</tr>
 </table>
-<h2><a href="#ParametersHighpass">ParametersHighpass</a></h2>
+<h2><a href="#Highpass">Highpass</a></h2>
 <table class="function_list">
 	<tr>
 	<td class="name" nowrap><a href="#self.highpass">self.highpass</a></td>
@@ -353,15 +344,25 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
  (<em>default</em> 0.0, <em>min</em> -1.0, <em>max</em> 1.0)</td>
 	</tr>
 </table>
-<h2><a href="#ParametersVolume">ParametersVolume</a></h2>
+<h2><a href="#Vibrato">Vibrato</a></h2>
 <table class="function_list">
 	<tr>
-	<td class="name" nowrap><a href="#self.volume.master">self.volume.master</a></td>
-	<td class="summary">Master volume (<em>default</em> 0.5)</td>
+	<td class="name" nowrap><a href="#self.vibrato.depth">self.vibrato.depth</a></td>
+	<td class="summary">Vibrato depth:
+ Amount of amplitude modulation
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
 	</tr>
 	<tr>
-	<td class="name" nowrap><a href="#self.volume.sound">self.volume.sound</a></td>
-	<td class="summary">Additional gain (<em>default</em> 0.5)</td>
+	<td class="name" nowrap><a href="#self.vibrato.speed">self.vibrato.speed</a></td>
+	<td class="summary">Vibrato speed:
+ Oscillation speed of the vibrato
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
+	</tr>
+	<tr>
+	<td class="name" nowrap><a href="#self.vibrato.delay">self.vibrato.delay</a></td>
+	<td class="summary">Vibrato delay:
+ Unused and unimplemented
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)</td>
 	</tr>
 </table>
 <h2><a href="#Randomization">Randomization</a></h2>
@@ -607,6 +608,22 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 </dd>
     <dt>
+    <a name = "self.vibrato"></a>
+    <strong>self.vibrato</strong>
+    </dt>
+    <dd>
+    <strong>A <a href="https://en.wikipedia.org/wiki/Vibrato">vibrato</a>-like amplitude
+ modulation effect</strong>
+ SerializationVibrato
+
+
+
+
+
+
+
+</dd>
+    <dt>
     <a name = "sfxr.Sound:resetParameters"></a>
     <strong>sfxr.Sound:resetParameters ()</strong>
     </dt>
@@ -838,20 +855,6 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
     <dl class="function">
     <dt>
-    <a name = "self.volume"></a>
-    <strong>self.volume</strong>
-    </dt>
-    <dd>
-    <strong>The sound volume and gain all samples are multiplied with</strong>
-
-
-
-
-
-
-
-</dd>
-    <dt>
     <a name = "self.supersampling"></a>
     <strong>self.supersampling</strong>
     </dt>
@@ -896,7 +899,53 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 </dd>
 </dl>
-    <h2 class="section-header "><a name="ParametersEnvelope"></a>ParametersEnvelope</h2>
+    <h2 class="section-header "><a name="Volume"></a>Volume</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "self.volume"></a>
+    <strong>self.volume</strong>
+    </dt>
+    <dd>
+    <strong>The sound volume and gain all samples are multiplied with</strong>
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.volume.master"></a>
+    <strong>self.volume.master</strong>
+    </dt>
+    <dd>
+    Master volume (<em>default</em> 0.5)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.volume.sound"></a>
+    <strong>self.volume.sound</strong>
+    </dt>
+    <dd>
+    Additional gain (<em>default</em> 0.5)
+
+
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Envelope"></a>Envelope</h2>
 
     <dl class="function">
     <dt>
@@ -981,7 +1030,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 </dd>
 </dl>
-    <h2 class="section-header "><a name="ParametersFrequency"></a>ParametersFrequency</h2>
+    <h2 class="section-header "><a name="Frequency"></a>Frequency</h2>
 
     <dl class="function">
     <dt>
@@ -1064,74 +1113,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 </dd>
 </dl>
-    <h2 class="section-header "><a name="ParametersVibrato"></a>ParametersVibrato</h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "self.vibrato"></a>
-    <strong>self.vibrato</strong>
-    </dt>
-    <dd>
-    <strong>A <a href="https://en.wikipedia.org/wiki/Vibrato">vibrato</a>-like amplitude
- modulation effect</strong>
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "self.vibrato.depth"></a>
-    <strong>self.vibrato.depth</strong>
-    </dt>
-    <dd>
-    Vibrato depth:
- Amount of amplitude modulation
- (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "self.vibrato.speed"></a>
-    <strong>self.vibrato.speed</strong>
-    </dt>
-    <dd>
-    Vibrato speed:
- Oscillation speed of the vibrato
- (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
-
-
-
-
-
-
-
-</dd>
-    <dt>
-    <a name = "self.vibrato.delay"></a>
-    <strong>self.vibrato.delay</strong>
-    </dt>
-    <dd>
-    Vibrato delay:
- Unused and unimplemented
- (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
-
-
-
-
-
-
-
-</dd>
-</dl>
-    <h2 class="section-header "><a name="ParametersChange"></a>ParametersChange</h2>
+    <h2 class="section-header "><a name="Change"></a>Change</h2>
 
     <dl class="function">
     <dt>
@@ -1182,7 +1164,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 </dd>
 </dl>
-    <h2 class="section-header "><a name="ParametersDuty"></a>ParametersDuty</h2>
+    <h2 class="section-header "><a name="Duty"></a>Duty</h2>
 
     <dl class="function">
     <dt>
@@ -1233,7 +1215,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 </dd>
 </dl>
-    <h2 class="section-header "><a name="ParametersPhaser"></a>ParametersPhaser</h2>
+    <h2 class="section-header "><a name="Phaser"></a>Phaser</h2>
 
     <dl class="function">
     <dt>
@@ -1284,7 +1266,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 </dd>
 </dl>
-    <h2 class="section-header "><a name="ParametersLowpass"></a>ParametersLowpass</h2>
+    <h2 class="section-header "><a name="Lowpass"></a>Lowpass</h2>
 
     <dl class="function">
     <dt>
@@ -1353,7 +1335,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 </dd>
 </dl>
-    <h2 class="section-header "><a name="ParametersHighpass"></a>ParametersHighpass</h2>
+    <h2 class="section-header "><a name="Highpass"></a>Highpass</h2>
 
     <dl class="function">
     <dt>
@@ -1405,15 +1387,17 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 </dd>
 </dl>
-    <h2 class="section-header "><a name="ParametersVolume"></a>ParametersVolume</h2>
+    <h2 class="section-header "><a name="Vibrato"></a>Vibrato</h2>
 
     <dl class="function">
     <dt>
-    <a name = "self.volume.master"></a>
-    <strong>self.volume.master</strong>
+    <a name = "self.vibrato.depth"></a>
+    <strong>self.vibrato.depth</strong>
     </dt>
     <dd>
-    Master volume (<em>default</em> 0.5)
+    Vibrato depth:
+ Amount of amplitude modulation
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
 
 
 
@@ -1423,11 +1407,29 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 
 </dd>
     <dt>
-    <a name = "self.volume.sound"></a>
-    <strong>self.volume.sound</strong>
+    <a name = "self.vibrato.speed"></a>
+    <strong>self.vibrato.speed</strong>
     </dt>
     <dd>
-    Additional gain (<em>default</em> 0.5)
+    Vibrato speed:
+ Oscillation speed of the vibrato
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "self.vibrato.delay"></a>
+    <strong>self.vibrato.delay</strong>
+    </dt>
+    <dd>
+    Vibrato delay:
+ Unused and unimplemented
+ (<em>default</em> 0.0, <em>min</em> 0.0, <em>max</em> 1.0)
 
 
 
@@ -1790,7 +1792,7 @@ Decay_Sustain_Release_.28ADSR.29_envelope">ASD envelope</a> that controls the so
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.3</a></i>
-<i style="float:right;">Last updated 2016-03-05 21:40:35 </i>
+<i style="float:right;">Last updated 2016-06-12 01:12:38 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

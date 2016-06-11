@@ -1192,7 +1192,7 @@ function sfxr.Sound:randomBlip(seed)
 end
 
 --- Generate and export the audio data to a PCM WAVE file.
--- @within SavingAndLoading
+-- @within Serialization
 -- @tparam ?string|file|love.filesystem.File f a path or file in `wb`-mode
 -- (passed files will not be closed)
 -- @tparam[opt=44100] SAMPLERATE rate the sampling rate
@@ -1301,7 +1301,7 @@ function sfxr.Sound:exportWAV(f, rate, depth)
 end
 
 --- Save the sound parameters to a file as a Lua table
--- @within SavingAndLoading
+-- @within Serialization
 -- @tparam ?string|file|love.filesystem.File f a path or file in `w`-mode
 -- (passed files will not be closed)
 -- @tparam[opt=true] bool minify whether to minify the output or not
@@ -1360,7 +1360,7 @@ function sfxr.Sound:save(f, minify)
 end
 
 --- Load the sound parameters from a file containing a Lua table
--- @within SavingAndLoading
+-- @within Serialization
 -- @tparam ?string|file|love.filesystem.File f a path or file in `r`-mode
 -- (passed files will not be closed)
 -- @raise "incompatible version: x.x.x"
@@ -1392,7 +1392,7 @@ function sfxr.Sound:load(f)
 end
 
 --- Save the sound parameters to a file in the sfxr binary format (version 102)
--- @within SavingAndLoading
+-- @within Serialization
 -- @tparam ?string|file|love.filesystem.File f a path or file in `wb`-mode
 -- (passed files will not be closed)
 function sfxr.Sound:saveBinary(f)
@@ -1451,7 +1451,7 @@ end
 
 --- Load the sound parameters from a file in the sfxr binary format
 -- (version 100-102)
--- @within SavingAndLoading
+-- @within Serialization
 -- @tparam ?string|file|love.filesystem.File f a path or file in `rb`-mode
 -- (passed files will not be closed)
 -- @raise "incompatible version: x", "unexpected file length"

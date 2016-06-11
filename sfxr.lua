@@ -441,7 +441,7 @@ end
 --- Clamp all parameters within their sane ranges.
 function sfxr.Sound:sanitizeParameters()
     self.repeatspeed = clamp(self.repeatspeed, 0, 1)
-    self.wavetype = clamp(self.waveform, 0, #sfxr.WAVEFORM)
+    self.waveform = clamp(self.waveform, 0, #sfxr.WAVEFORM)
 
     self.envelope.attack = clamp(self.envelope.attack, 0, 1)
     self.envelope.sustain = clamp(self.envelope.sustain, 0, 1)
@@ -660,7 +660,7 @@ function sfxr.Sound:generate(rate, depth)
             if phase >= period then
                 --phase = 0
                 phase = phase % period
-                if self.wavetype == sfxr.NOISE then
+                if self.waveform == sfxr.WAVEFORM.NOISE then
                     for i = 1, 32 do
                         noisebuffer[i] = random(-1, 1)
                     end
@@ -879,9 +879,9 @@ end
 function sfxr.Sound:randomize(seed)
     if seed then setseed(seed) end
 
-    local wavetype = self.wavetype
+    local waveform = self.waveform
     self:resetParameters()
-    self.wavetype = wavetype
+    self.waveform = waveform
 
     if maybe() then
         self.repeatspeed = random(0, 1)
@@ -1007,9 +1007,9 @@ end
 function sfxr.Sound:randomLaser(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.wavetype = trunc(random(0, 3))
-    if self.wavetype == sfxr.SINE and maybe() then
-        self.wavetype = trunc(random(0, 1))
+    self.waveform = trunc(random(0, 3))
+    if self.waveform == sfxr.WAVEFORM.SINE and maybe() then
+        self.waveform = trunc(random(0, 1))
     end
 
     if maybe(2) then
@@ -1054,7 +1054,7 @@ end
 function sfxr.Sound:randomExplosion(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.wavetype = sfxr.NOISE
+    self.waveform = sfxr.WAVEFORM.NOISE
 
     if maybe() then
         self.frequency.start = random(0.1, 0.5)
@@ -1098,7 +1098,7 @@ function sfxr.Sound:randomPowerup(seed)
     if seed then setseed(seed) end
     self:resetParameters()
     if maybe() then
-        self.wavetype = sfxr.SAWTOOTH
+        self.waveform = sfxr.WAVEFORM.SAWTOOTH
     else
         self.duty.ratio = random(0, 0.6)
     end
@@ -1126,11 +1126,11 @@ end
 function sfxr.Sound:randomHit(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.wavetype = trunc(random(0, 3))
+    self.waveform = trunc(random(0, 3))
 
-    if self.wavetype == sfxr.SINE then
-        self.wavetype = sfxr.NOISE
-    elseif self.wavetype == sfxr.SQUARE then
+    if self.waveform == sfxr.WAVEFORM.SINE then
+        self.waveform = sfxr.WAVEFORM.NOISE
+    elseif self.waveform == sfxr.WAVEFORM.SQUARE then
         self.duty.ratio = random(0, 0.6)
     end
 
@@ -1151,7 +1151,7 @@ end
 function sfxr.Sound:randomJump(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.wavetype = sfxr.SQUARE
+    self.waveform = sfxr.WAVEFORM.SQUARE
 
     self.duty.value = random(0, 0.6)
     self.frequency.start = random(0.3, 0.6)
@@ -1175,9 +1175,9 @@ end
 function sfxr.Sound:randomBlip(seed)
     if seed then setseed(seed) end
     self:resetParameters()
-    self.wavetype = trunc(random(0, 2))
+    self.waveform = trunc(random(0, 2))
 
-    if self.wavetype == sfxr.SQUARE then
+    if self.waveform == sfxr.WAVEFORM.SQUARE then
         self.duty.ratio = random(0, 0.6)
     end
 
@@ -1406,8 +1406,8 @@ function sfxr.Sound:saveBinary(f)
     end
 
     f:write('\x66\x00\x00\x00') -- version 102
-    assert(self.wavetype < 256)
-    f:write(string.char(self.wavetype) .. '\x00\x00\x00')
+    assert(self.waveform < 256)
+    f:write(string.char(self.waveform) .. '\x00\x00\x00')
     writeFloat(self.volume.sound)
 
     writeFloat(self.frequency.start)
@@ -1488,7 +1488,7 @@ function sfxr.Sound:loadBinary(f)
         error("incompatible version: " .. tostring(version))
     end
 
-    self.wavetype = s:byte(off)
+    self.waveform = s:byte(off)
     off = off + 4
     self.volume.sound = version==102 and readFloat() or 0.5
 

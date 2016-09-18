@@ -1,4 +1,4 @@
-package = "sfxrlua"
+package = "sfxr"
 version = "scm-1"
 source = {
   url = "git://github.com/nucular/sfxrlua",

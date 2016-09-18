@@ -808,6 +808,7 @@ end
 function sfxr.Sound:generateString(rate, depth, endianness)
     rate = rate or 44100
     depth = depth or 16
+    endianness = endianness or 0
     assert(sfxr.SAMPLERATE[rate], "invalid sampling rate: " .. tostring(rate))
     assert(sfxr.BITDEPTH[depth] and depth ~= 0, "invalid bit depth: " .. tostring(depth))
     assert(sfxr.ENDIANNESS[endianness], "invalid endianness: " .. tostring(endianness))

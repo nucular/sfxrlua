@@ -20,7 +20,7 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    "sfxr" = "sfxr.lua"
+    sfxr = "sfxr.lua"
   },
   copy_directories = {
     "docs"

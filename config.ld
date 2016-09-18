@@ -5,7 +5,7 @@ format = "markdown"
 not_luadoc = true
 style = "!pale"
 kind_names = {topic = "Topics", module = "API"}
-dir = "./doc"
+dir = "./docs"
 
 file = "sfxr.lua"
 topics = {

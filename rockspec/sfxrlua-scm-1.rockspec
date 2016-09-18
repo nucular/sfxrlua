@@ -21,5 +21,8 @@ build = {
   type = "builtin",
   modules = {
     "sfxr" = "sfxr.lua"
+  },
+  copy_directories = {
+    "docs"
   }
 }

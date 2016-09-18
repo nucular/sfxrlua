@@ -2,7 +2,7 @@ package = "sfxr"
 version = "0.0.2-1"
 source = {
   url = "git://github.com/nucular/sfxrlua",
-  branch = "master"
+  tag = "v0.0.2"
 }
 description = {
   summary = "A port of the sfxr sound effect synthesizer to Lua",

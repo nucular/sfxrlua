@@ -38,13 +38,13 @@ sfxr.VERSION = "0.0.2"
 --- [Waveform](https://en.wikipedia.org/wiki/Waveform) constants
 -- @within Constants
 -- @field SQUARE [square wave](https://en.wikipedia.org/wiki/Square_wave) (`= 0`)
--- @field SAW [saw wave](https://en.wikipedia.org/wiki/Sawtooth_wave) (`= 1`)
+-- @field SAWTOOTH [sawtooth wave](https://en.wikipedia.org/wiki/Sawtooth_wave) (`= 1`)
 -- @field SINE [sine wave](https://en.wikipedia.org/wiki/Sine_wave) (`= 2`)
 -- @field NOISE [white noise](https://en.wikipedia.org/wiki/White_noise) (`= 3`)
 sfxr.WAVEFORM = {
   SQUARE = 0,
   [0] = 0,
-  SAW = 1,
+  SAWTOOTH = 1,
   [1] = 1,
   SINE = 2,
   [2] = 2,

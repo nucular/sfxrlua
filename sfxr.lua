@@ -1381,7 +1381,7 @@ function sfxr.Sound:load(f)
 
     local params, version = assert(loadstring(code))()
     -- check version compatibility
-    assert(version > sfxr.VERSION, "incompatible version: " .. tostring(version))
+    assert(version >= sfxr.VERSION, "incompatible version: loaded " .. tostring(version) .. " wanted >= " .. tostring(sfxr.VERSION))
 
     self:resetParameters()
     -- merge the loaded table into the own

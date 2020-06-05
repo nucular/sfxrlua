@@ -649,9 +649,13 @@ function love.load()
 
     love.graphics.setBackgroundColor(200, 200, 200)
 
-    if not love.filesystem.isDirectory("sounds") then
+    local pathinfo = love.filesystem.getInfo("sounds")
+    if pathinfo == nil then
         love.filesystem.createDirectory("sounds")
+        pathinfo = love.filesystem.getInfo("sounds")
     end
+    assert(pathinfo.type == 'directory', '"sounds" exists in ' ..
+        love.filesystem.getRealDirectory('sounds') .. ' but is not a directory')
 
     sound = sfxr.newSound()
 

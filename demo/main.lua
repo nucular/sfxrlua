@@ -2,6 +2,7 @@
 -- love .
 
 local sfxr = require("sfxr")
+local lf = require('loveframes/loveframes')
 
 -- Global stuff
 local source
@@ -515,7 +516,7 @@ function createOther()
             love.graphics.line(x, 25, x, 165)
         end
 
-        lf.skins.available["Orange"].DrawForm(o)
+        lf.GetActiveSkin().form(o)
     end
     f.Draw = draw
 
@@ -611,8 +612,8 @@ end
 
 function updateWaveCanvas(waveview)
     local t = love.timer.getTime()
-    wavecanvas:clear()
     love.graphics.setCanvas(wavecanvas)
+    love.graphics.clear(unpack(lf.GetActiveSkin().controls.frame_body_color))
     love.graphics.setColor(1, 1, 1)
     love.graphics.setLineStyle("rough")
 
@@ -644,9 +645,7 @@ function updateStatistics()
 end
 
 function love.load()
-    require("loveframes")
-    lf = loveframes
-    lf.util.SetActiveSkin("Orange")
+    lf.SetActiveSkin("Orange")
 
     love.graphics.setBackgroundColor(200, 200, 200)
 

@@ -504,14 +504,14 @@ function createOther()
 
     local draw = function(o)
         if source then
-            love.graphics.setColor(255, 255, 255)
+            love.graphics.setColor(1, 1, 1)
             love.graphics.draw(wavecanvas, 495, 25)
 
             -- Draw a fancy position cursor
             local pos = source:tell("samples")
             local max = sounddata:getSampleCount()
             local x = 495 + (pos / max) * 125
-            love.graphics.setColor(255, 153, 0)
+            love.graphics.setColor(1, 0.6, 0)
             love.graphics.line(x, 25, x, 165)
         end
 
@@ -613,7 +613,7 @@ function updateWaveCanvas(waveview)
     local t = love.timer.getTime()
     wavecanvas:clear()
     love.graphics.setCanvas(wavecanvas)
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.setColor(1, 1, 1)
     love.graphics.setLineStyle("rough")
 
     -- Iterate through the passed table and draw all lines to the canvas
@@ -628,7 +628,7 @@ function updateWaveCanvas(waveview)
     end
 
     -- Draw the zero line
-    love.graphics.setColor(255, 80, 51, 200)
+    love.graphics.setColor(1, 0.314, 0.2, 0.784)
     love.graphics.line(0, 70, 125, 70)
 
     love.graphics.setCanvas()

@@ -2,6 +2,7 @@
 -- love .
 
 local sfxr = require("sfxr")
+local lf = require('loveframes/loveframes')
 
 -- Global stuff
 local source
@@ -504,18 +505,18 @@ function createOther()
 
     local draw = function(o)
         if source then
-            love.graphics.setColor(255, 255, 255)
+            love.graphics.setColor(1, 1, 1)
             love.graphics.draw(wavecanvas, 495, 25)
 
             -- Draw a fancy position cursor
             local pos = source:tell("samples")
             local max = sounddata:getSampleCount()
             local x = 495 + (pos / max) * 125
-            love.graphics.setColor(255, 153, 0)
+            love.graphics.setColor(1, 0.6, 0)
             love.graphics.line(x, 25, x, 165)
         end
 
-        lf.skins.available["Orange"].DrawForm(o)
+        lf.GetActiveSkin().form(o)
     end
     f.Draw = draw
 
@@ -606,14 +607,14 @@ function updateParameters()
     s:SetValue(v)
     t:SetText("Repeat Speed " .. tostring(math.floor(v * 100) / 100))
 
-    guiparams.waveform:SetChoice(waveFormList[sound.wavetype])
+        guiparams.waveform:SetChoice(waveFormList[sound.waveform])
 end
 
 function updateWaveCanvas(waveview)
     local t = love.timer.getTime()
-    wavecanvas:clear()
     love.graphics.setCanvas(wavecanvas)
-    love.graphics.setColor(255, 255, 255)
+    love.graphics.clear(unpack(lf.GetActiveSkin().controls.frame_body_color))
+    love.graphics.setColor(1, 1, 1)
     love.graphics.setLineStyle("rough")
 
     -- Iterate through the passed table and draw all lines to the canvas
@@ -628,7 +629,7 @@ function updateWaveCanvas(waveview)
     end
 
     -- Draw the zero line
-    love.graphics.setColor(255, 80, 51, 200)
+    love.graphics.setColor(1, 0.314, 0.2, 0.784)
     love.graphics.line(0, 70, 125, 70)
 
     love.graphics.setCanvas()
@@ -644,15 +645,17 @@ function updateStatistics()
 end
 
 function love.load()
-    require("loveframes")
-    lf = loveframes
-    lf.util.SetActiveSkin("Orange")
+    lf.SetActiveSkin("Orange")
 
     love.graphics.setBackgroundColor(200, 200, 200)
 
-    if not love.filesystem.isDirectory("sounds") then
+    local pathinfo = love.filesystem.getInfo("sounds")
+    if pathinfo == nil then
         love.filesystem.createDirectory("sounds")
+        pathinfo = love.filesystem.getInfo("sounds")
     end
+    assert(pathinfo.type == 'directory', '"sounds" exists in ' ..
+        love.filesystem.getRealDirectory('sounds') .. ' but is not a directory')
 
     sound = sfxr.newSound()
 

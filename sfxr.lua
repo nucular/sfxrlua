@@ -868,7 +868,7 @@ function sfxr.Sound:generateSoundData(rate, depth, sounddata)
         return nil
     end
 
-    local data = sounddata or love.sound.newSoundData(count, freq, bits, 1)
+    local data = sounddata or love.sound.newSoundData(count, rate, depth, 1)
 
     for i = 0, #tab - 1 do
         data:setSample(i, tab[i + 1])
@@ -1264,10 +1264,10 @@ function sfxr.Sound:exportWAV(f, rate, depth)
     w32(16) -- chunk size
     w16(1) -- compression code (1 = PCM)
     w16(1) -- channel number
-    w32(freq) -- sampling rate
-    w32(freq * bits / 8) -- bytes per second
-    w16(bits / 8) -- block alignment
-    w16(bits) -- bits per sample
+    w32(rate) -- sampling rate
+    w32(rate * depth / 8) -- bytes per second
+    w16(depth / 8) -- block alignment
+    w16(depth) -- bits per sample
 
     -- Write the header of the data chunk
     ws("data")
@@ -1292,9 +1292,9 @@ function sfxr.Sound:exportWAV(f, rate, depth)
 
     -- Seek back to the stored positions
     seek(pos_fsize)
-    w32(pos_csize - 4 + samples * bits / 8) -- remaining file size
+    w32(pos_csize - 4 + samples * depth / 8) -- remaining file size
     seek(pos_csize)
-    w32(samples * bits / 8) -- chunk size
+    w32(samples * depth / 8) -- chunk size
 
     if close then
         f:close()
@@ -1381,7 +1381,7 @@ function sfxr.Sound:load(f)
 
     local params, version = assert(loadstring(code))()
     -- check version compatibility
-    assert(version > sfxr.VERSION, "incompatible version: " .. tostring(version))
+    assert(version >= sfxr.VERSION, "incompatible version: loaded " .. tostring(version) .. " wanted >= " .. tostring(sfxr.VERSION))
 
     self:resetParameters()
     -- merge the loaded table into the own

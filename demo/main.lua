@@ -606,7 +606,7 @@ function updateParameters()
     s:SetValue(v)
     t:SetText("Repeat Speed " .. tostring(math.floor(v * 100) / 100))
 
-    guiparams.waveform:SetChoice(waveFormList[sound.wavetype])
+        guiparams.waveform:SetChoice(waveFormList[sound.waveform])
 end
 
 function updateWaveCanvas(waveview)

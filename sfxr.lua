@@ -858,7 +858,7 @@ end
 -- @raise "invalid sampling rate: x", "invalid bit depth: x"
 function sfxr.Sound:generateSoundData(rate, depth, sounddata)
     rate = rate or 44100
-    depth = depth or 0
+    depth = depth or 8 -- love supports 8 and 16
     assert(sfxr.SAMPLERATE[rate], "invalid sampling rate: " .. tostring(rate))
     assert(sfxr.BITDEPTH[depth] and depth, "invalid bit depth: " .. tostring(depth))
 
